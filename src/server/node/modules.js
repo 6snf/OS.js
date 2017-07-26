@@ -206,15 +206,13 @@ class Modules {
    * Loads all modules
    * @param {Object} app The express app
    * @param {Object} wrapper Our express wrapper layer
-   * @param {Object} session Express session layer
    * @return {Promise<Boolean, Error>}
    */
-  load(app, wrapper, session) {
+  load(app, wrapper) {
     const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
     this.metadata = fs.readJsonSync(metaPath);
 
     return Promise.each([
-      this.loadSession,
       this.loadRoutes,
       this.loadVFS,
       this.loadMiddleware,
@@ -222,28 +220,30 @@ class Modules {
       this.loadAuthenticator,
       this.loadStorage
     ], (fn) => {
-      return fn.call(this, app, wrapper, session);
+      return fn.call(this, app, wrapper);
     });
   }
 
   /**
    * Loads session module
-   * @param {Object} app The express app
-   * @param {Object} wrapper Our express wrapper layer
    * @param {Object} session Express session layer
-   * @return {Promise<Boolean, Error>}
+   * @return {Object}
    */
-  loadSession(app, wrapper, session) {
-    const name = settings.get('http.session.module');
-    console.log('- Using', name, 'session module');
-    if ( name !== 'memory' ) {
-      const Store = require(name)(session);
-      const options = settings.get('http.session.options.' + name);
+  loadSession(session) {
+    if ( !this.instances.session ) {
+      const name = settings.get('http.session.module');
+      const options = settings.get('http.session.options.' + name) || {};
+      console.log('- Using', name, 'session module');
 
-      this.instances.session = new Store(options);
+      if ( name === 'memory' ) {
+        this.instances.session = new session.MemoryStore(options);
+      } else {
+        const Store = require(name)(session);
+        this.instances.session = new Store(options);
+      }
     }
 
-    return Promise.resolve(true);
+    return this.instances.session;
   }
 
   /**

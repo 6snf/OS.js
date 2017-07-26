@@ -89,7 +89,8 @@ const getSessionId = (request) => {
 
   const cookies = cookie.parse(header);
   const secret = settings.get('http.session.secret');
-  return parser.signedCookie(cookies['connect.sid'], secret);
+  const key = settings.get('http.session.name') || 'connect.sid';
+  return parser.signedCookie(cookies[key], secret);
 };
 
 /*
@@ -218,12 +219,6 @@ const handleWebsocketMessage = (ws, msg, req) => {
   const query = msg.path;
   const args = msg.args || {};
   const index = msg._index;
-  const newRequest = Object.assign(req, {
-    session: req.session || {},
-    method: 'POST',
-    query: query,
-    body: args
-  });
 
   const found = app._router.stack.filter((iter) => {
     return iter.name === 'bound dispatch' && iter.regexp !== /^\/?(?=\/|$)/i;
@@ -231,7 +226,7 @@ const handleWebsocketMessage = (ws, msg, req) => {
     return iter.match(query);
   });
 
-  const send = (data) => {
+  const send = (newRequest, data) => {
     if ( typeof index !== 'undefined' ) {
       data._index = index;
     }
@@ -241,17 +236,33 @@ const handleWebsocketMessage = (ws, msg, req) => {
       data.error = data.error.toString();
     }
 
-    ws.send(JSON.stringify(data));
+    const module = modules.getSession() || {};
+    const sid = getSessionId(newRequest);
+
+    if ( module.touch ) {
+      module.touch(sid, newRequest.session, (err, session) => {
+        if ( session ) {
+          newRequest.session = session;
+        }
+        if ( err ) {
+          console.error(err);
+        }
+
+        ws.send(JSON.stringify(data));
+      });
+    } else {
+      ws.send(JSON.stringify(data));
+    }
   };
 
-  const respond = () => {
+  const respond = (newRequest) => {
     if ( found ) {
       newRequest.params = getParsedQuery(query, found.regexp, found.route.path);
 
       const responder = {
         status: () => responder,
-        send: send,
-        json: send
+        send: (data) => send(newRequest, data),
+        json: (data) => send(newRequest, data)
       };
 
       found.handle_request(newRequest, responder, () => {
@@ -262,12 +273,13 @@ const handleWebsocketMessage = (ws, msg, req) => {
     }
   };
 
-  appSession(newRequest, {}, () => {
-    const module = modules.getSession();
-    const touch = module.touch || function(sid, sess, cb) {};
-
-    const sid = getSessionId(newRequest);
-    touch(sid, newRequest.session, respond);
+  appSession(req, {}, (err) => {
+    respond(Object.assign(req, {
+      //session: req.session || {},
+      method: 'POST',
+      query: query,
+      body: args
+    }));
   });
 };
 
@@ -308,10 +320,10 @@ const initMiddleware = () => {
   }));
 
   appSession = session({
-    store: modules.getSession(),
+    store: modules.loadSession(session),
     resave: false,
     saveUninitialized: true, // Important for WS
-    name: settings.get('http.session.secret') || 'connect.sid',
+    name: settings.get('http.session.name') || 'connect.sid',
     secret: settings.get('http.session.secret'),
     cookie: settings.get('http.session.cookie')
   });
@@ -435,6 +447,7 @@ module.exports.shutdown = () => {
 
 module.exports.start = (opts) => {
   return new Promise((resolve, reject) => {
+
     try {
       initSettings(opts);
 
@@ -449,17 +462,17 @@ module.exports.start = (opts) => {
       if ( settings.get('http.mode') === 'ws' ) {
         initWebsockets();
       }
-
     } catch ( e ) {
       reject(e);
       return;
     }
 
     const wrapper = createWrapper();
-    modules.load(app, wrapper, session).then(() => {
+    modules.load(app, wrapper).then(() => {
       console.info('Running...');
 
       return resolve(appServer);
     }).catch(reject);
+
   });
 };
