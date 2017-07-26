@@ -49,7 +49,8 @@ class Modules {
       vfs: [],
       services: [],
       authenticator: null,
-      storage: null
+      storage: null,
+      session: null
     };
   }
 
@@ -76,6 +77,14 @@ class Modules {
     return Promise.each(modules, (module) => {
       return module ? module.destroy() : Promise.resolve(true);
     });
+  }
+
+  /**
+   * Gets the loaded Session module
+   * @return {Object}
+   */
+  getSession() {
+    return this.instances.session;
   }
 
   /**
@@ -137,7 +146,7 @@ class Modules {
    */
   loadFile(key, filename) {
     return new Promise((resolve, reject) => {
-      console.log('Loading', key, filename);
+      console.log('+ Loading', key, filename);
 
       let instance;
       try {
@@ -175,7 +184,7 @@ class Modules {
     loader = loader || function(files) {
       return new Promise((resolve, reject) => {
         files.forEach((f) => {
-          console.log('Loading', f);
+          console.log('+ Loading', f);
           try {
             require(f)(app, wrapper);
           } catch ( e ) {
@@ -197,13 +206,15 @@ class Modules {
    * Loads all modules
    * @param {Object} app The express app
    * @param {Object} wrapper Our express wrapper layer
+   * @param {Object} session Express session layer
    * @return {Promise<Boolean, Error>}
    */
-  load(app, wrapper) {
+  load(app, wrapper, session) {
     const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
     this.metadata = fs.readJsonSync(metaPath);
 
     return Promise.each([
+      this.loadSession,
       this.loadRoutes,
       this.loadVFS,
       this.loadMiddleware,
@@ -211,8 +222,28 @@ class Modules {
       this.loadAuthenticator,
       this.loadStorage
     ], (fn) => {
-      return fn.call(this, app, wrapper);
+      return fn.call(this, app, wrapper, session);
     });
+  }
+
+  /**
+   * Loads session module
+   * @param {Object} app The express app
+   * @param {Object} wrapper Our express wrapper layer
+   * @param {Object} session Express session layer
+   * @return {Promise<Boolean, Error>}
+   */
+  loadSession(app, wrapper, session) {
+    const name = settings.get('http.session.module');
+    console.log('- Using', name, 'session module');
+    if ( name !== 'memory' ) {
+      const Store = require(name)(session);
+      const options = settings.get('http.session.options.' + name);
+
+      this.instances.session = new Store(options);
+    }
+
+    return Promise.resolve(true);
   }
 
   /**
@@ -255,7 +286,7 @@ class Modules {
     const routeFolder = path.resolve(__dirname, 'modules/services');
     return this.loadDirectory(routeFolder, app, wrapper, (files) => {
       return Promise.each(files, (f) => {
-        console.log('Loading', f);
+        console.log('+ Loading', f);
 
         const m = require(f).register(settings.option(), settings.get(), wrapper);
         this.instances.services.push(m);
@@ -293,7 +324,7 @@ class Modules {
     return new Promise((resolve, reject) => {
       this._loadDirectory(directory).then((files) => {
         files.forEach((f) => {
-          console.log('Loading', f);
+          console.log('+ Loading', f);
           try {
             this.instances.vfs.push(require(f));
           } catch ( e ) {

@@ -38,6 +38,7 @@ const formidable = require('formidable');
 const ws = require('ws');
 const cookie = require('cookie');
 const parser = require('cookie-parser');
+const morgan = require('morgan');
 
 const modules = require('./modules.js');
 const settings = require('./settings.js');
@@ -76,31 +77,6 @@ const createSessionWrapper = (req) => {
     }
   };
 };
-
-/*
- * Gets active session module
- */
-const getSessionModule = (() => {
-  let module;
-
-  return function() {
-    if ( !module ) {
-      const name = settings.get('http.session.module');
-      if ( name === 'memory' ) {
-        console.warn('Using memory session module');
-      } else {
-        console.log('Loading', name);
-
-        const Store = require(name)(session);
-        const options = settings.get('http.session.options.' + name);
-
-        module = new Store(options);
-      }
-    }
-
-    return module;
-  };
-})();
 
 /*
  * Gets Session ID from request
@@ -287,7 +263,7 @@ const handleWebsocketMessage = (ws, msg, req) => {
   };
 
   appSession(newRequest, {}, () => {
-    const module = getSessionModule();
+    const module = modules.getSession();
     const touch = module.touch || function(sid, sess, cb) {};
 
     const sid = getSessionId(newRequest);
@@ -321,6 +297,10 @@ const initSettings = (opts) => {
  * Initializes Middleware
  */
 const initMiddleware = () => {
+  if ( settings.option('LOGLEVEL') ) {
+    app.use(morgan(settings.get('logger.format')));
+  }
+
   app.use(bodyParser.json());
   app.use(compression({
     level: settings.get('http.compression.level'),
@@ -328,7 +308,7 @@ const initMiddleware = () => {
   }));
 
   appSession = session({
-    store: getSessionModule(),
+    store: modules.getSession(),
     resave: false,
     saveUninitialized: true, // Important for WS
     name: settings.get('http.session.secret') || 'connect.sid',
@@ -361,19 +341,29 @@ const initMiddleware = () => {
  */
 const initWebserver = () => {
   const isHttp2 = settings.get('http.mode') === 'http2';
-  const httpServer = require(isHttp2 ? 'http2' : 'http');
+  const httpServer = require(isHttp2 ? 'spdy' : 'http');
   const httpPort = settings.option('PORT') || settings.get('http.port');
   const hostname = settings.option('HOSTNAME') || settings.get('http.hostname');
 
-  console.log('Creating Web server on', hostname, httpPort);
   if ( isHttp2 ) {
-    appServer = httpServer.createServer({
-      key: fs.readFileSync(),
-      cert: fs.readFileSync()
-    }, app).listen(httpPort, hostname);
+    console.log('Creating HTTP2 Web server on', hostname, httpPort);
+    const rdir = settings.get('http.cert.path') || settings.option('SERVERDIR');
+    const cname = settings.get('http.cert.name') || 'localhost';
+    const copts = settings.get('http.cert.options') || {};
+    copts.key = fs.readFileSync(path.join(rdir, cname + '.key'));
+    copts.cert = fs.readFileSync(path.join(rdir, cname + '.crt'));
+
+    appServer = httpServer.createServer(copts, app);
   } else {
-    appServer = httpServer.createServer(app).listen(httpPort, hostname);
+    console.log('Creating HTTP Web server on', hostname, httpPort);
+    appServer = httpServer.createServer(app);
   }
+
+  appServer.listen(httpPort, hostname, null, (err) => {
+    if ( err ) {
+      console.error(err);
+    }
+  });
 };
 
 /*
@@ -445,16 +435,30 @@ module.exports.shutdown = () => {
 
 module.exports.start = (opts) => {
   return new Promise((resolve, reject) => {
-    initSettings(opts);
-    initMiddleware();
-    initWebserver();
+    try {
+      initSettings(opts);
 
-    if ( settings.get('http.mode') === 'ws' ) {
-      initWebsockets();
+      const runningOptions = settings.option();
+      Object.keys(runningOptions).forEach((k) => {
+        console.log('-', k, '=', runningOptions[k]);
+      });
+
+      initMiddleware();
+      initWebserver();
+
+      if ( settings.get('http.mode') === 'ws' ) {
+        initWebsockets();
+      }
+
+    } catch ( e ) {
+      reject(e);
+      return;
     }
 
     const wrapper = createWrapper();
-    modules.load(app, wrapper).then(() => {
+    modules.load(app, wrapper, session).then(() => {
+      console.info('Running...');
+
       return resolve(appServer);
     }).catch(reject);
   });
