@@ -28,87 +28,49 @@
  * @licence Simplified BSD License
  */
 
-const _settings = require('./../core/settings.js');
-const _env = require('./../core/env.js');
-const _logger = require('./../lib/logger.js');
-const _utils = require('./../lib/utils.js');
-
 /**
- * @namespace core.storage
+ * Base Storage Class
  */
-
-let MODULE;
-
 class Storage {
 
+  /**
+   * Registers the module
+   * @param {Object} config Configuration
+   * @return {Promise<Boolean, Error>}
+   */
   register(config) {
     return Promise.resolve(true);
   }
 
+  /**
+   * Destroys the module
+   * @return {Promise<Boolean, Error>}
+   */
   destroy() {
     return Promise.resolve(true);
   }
 
+  /**
+   * Sets settings of a user
+   * @param {ServerObject} http The HTTP object
+   * @param {String} username The username
+   * @param {Object} settings Settings tree
+   * @return {Promise<Boolean, Error>}
+   */
   setSettings(http, username, settings) {
     return Promise.resolve(true);
   }
 
+  /**
+   * Gets settings of a user
+   * @param {ServerObject} http The HTTP object
+   * @param {String} username The username
+   * @return {Promise<Object, Error>}
+   */
   getSettings(http, username) {
     return Promise.resolve({});
   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  // STATIC METHODS
-  /////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Loads the Storage module
-   *
-   * @param {Object}  opts   Initial options
-   *
-   * @function load
-   * @memberof core.storage
-   * @return {Promise}
-   */
-  static load(opts) {
-    return new Promise((resolve, reject) => {
-      const config = _settings.get();
-      const name = opts.STORAGE || (config.storage || 'demo');
-      const ok = () => resolve(opts);
-
-      _utils.loadModule(_env.get('MODULEDIR'), 'storage', name).then((path) => {
-        _logger.lognt('INFO', 'Loading:', _logger.colored('Storage', 'bold'), path.replace(_env.get('ROOTDIR'), ''));
-
-        try {
-          const a = require(path);
-          const c = _settings.get('modules.storage')[name] || {};
-          const r = a.register(c);
-          MODULE = a;
-
-          if ( r instanceof Promise ) {
-            r.then(ok).catch(reject);
-          } else {
-            ok();
-          }
-        } catch ( e ) {
-          _logger.lognt('WARN', _logger.colored('Warning:', 'yellow'), e);
-          console.warn(e.stack);
-          reject(e);
-        }
-      }).catch(reject);
-    });
-  }
-
-  /**
-   * Gets the Storage module
-   *
-   * @function get
-   * @memberof core.storage
-   * @return {Object}
-   */
-  static get() {
-    return MODULE;
-  }
 }
 
 module.exports = Storage;

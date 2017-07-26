@@ -38,19 +38,12 @@
         "memLevel": 8,
         "level": -1
       },
-      "cache": {
-        "static": {
-          "Cache-Control": "private, max-age=86400000"
-        }
-      },
       "session": {
         "module": "memory",
         "secret": "YOU SHOULD GENERATE YOUR OWN KEY",
         "name": null,
         "options": {
-          "memory": {
-          },
-          "file": {
+          "session-file-store": {
             "path": "%ROOT%/src/server/sessions"
           }
         },

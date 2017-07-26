@@ -27,11 +27,31 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const fs = require('fs-extra');
+const path = require('path');
+const settings = require('./settings.js');
 
-/*
- * Just loads a generic module. You can put whatever you want here.
- */
-module.exports.register = function(env, config) {
-  return Promise.resolve();
+module.exports.install = function() {
+  return Promise.reject('Not yet implemented');
 };
 
+module.exports.uninstall = function() {
+  return Promise.reject('Not yet implemented');
+};
+
+module.exports.update = function() {
+  return Promise.reject('Not yet implemented');
+};
+
+module.exports.cache = function() {
+  return Promise.reject('Not yet implemented');
+};
+
+module.exports.list = function() {
+  return new Promise((resolve, reject) => {
+    const filename = path.resolve(settings.option('SERVERDIR'), 'packages.json');
+    fs.readJson(filename).then((json) => {
+      return resolve(json);
+    }).catch(reject);
+  });
+};

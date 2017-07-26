@@ -29,10 +29,9 @@
  */
 
 const _bcrypt = require('bcrypt');
-const _db = require('./../../lib/database.js');
-const _logger = require('./../../lib/logger.js');
+const _db = require('./../database.js');
 
-const Authenticator = require('../authenticator.js');
+const Authenticator = require('./../authenticator.js');
 
 const manager = {
 
@@ -161,7 +160,7 @@ class DatabaseAuthenticator extends Authenticator {
     const settings = config[type];
 
     const str = type === 'sqlite' ? require('path').basename(settings.database) : settings.user + '@' + settings.host + ':/' + settings.database;
-    _logger.lognt('INFO', 'Module:', _logger.colored('Authenticator', 'bold'), 'using', _logger.colored(type, 'green'), '->', _logger.colored(str, 'green'));
+    console.log(type, str);
 
     return _db.instance('authstorage', type, settings);
   }

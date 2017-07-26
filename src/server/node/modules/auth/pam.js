@@ -33,7 +33,7 @@ const _userid = require('userid');
 const _settings = require('./../../core/settings.js');
 const _utils = require('./../../lib/utils.js');
 
-const Authenticator = require('../authenticator.js');
+const Authenticator = require('./../authenticator.js');
 
 class PAMAuthenticator extends Authenticator {
   login(http, data) {

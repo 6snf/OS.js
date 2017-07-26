@@ -33,7 +33,7 @@ const _vfs = require('./../../core/vfs.js');
 const _settings = require('./../../core/settings.js');
 const _utils = require('./../../lib/utils.js');
 
-const Storage = require('./../../modules/storage.js');
+const Storage = require('./../storage.js');
 
 class SystemStorage extends Storage {
 

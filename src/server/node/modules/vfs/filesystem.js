@@ -1,4 +1,3 @@
-
 /*!
  * OS.js - JavaScript Cloud/Web Desktop Platform
  *
@@ -34,8 +33,7 @@ const _path = require('path');
 const _chokidar = require('chokidar');
 const _diskspace = require('diskspace');
 
-const _utils = require('./../../lib/utils.js');
-const _vfs = require('./../../core/vfs.js');
+const _vfs = require('./../../vfs.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -44,14 +42,14 @@ const _vfs = require('./../../core/vfs.js');
 /*
  * Create a read stream
  */
-function createReadStream(http, path) {
+function createReadStream(http, path, options) {
   return new Promise((resolve, reject) => {
     /*eslint new-cap: "off"*/
     try {
       const resolved = _vfs.parseVirtualPath(path, http);
-      const stream = _fs.createReadStream(resolved.real, {
+      const stream = _fs.createReadStream(resolved.real, Object.assign({
         bufferSize: 64 * 1024
-      });
+      }, options));
 
       stream.on('error', (error) => {
         reject(error);
@@ -210,7 +208,7 @@ function createFileIter(query, real, iter, stat) {
     mime = _vfs.getMime(filename);
   }
 
-  const perm = _utils.permissionToString(stat.mode);
+  const perm = _vfs.permissionToString(stat.mode);
   const filepath = !iter ? query : (() => {
     const spl = query.split('://');
     const proto = spl[0];
@@ -289,28 +287,33 @@ const VFS = {
     /*eslint new-cap: "off"*/
     const resolved = _vfs.parseVirtualPath(args.path, http);
     const options = args.options || {};
+    const mime = _vfs.getMime(args.path);
 
     if ( options.raw !== false ) {
-      if ( options.stream !== false ) {
-        resolve(resolved.real);
-      } else {
-        _fs.readFile(resolved.real, (e, r) => {
-          if ( e ) {
-            reject(e);
-          } else {
-            resolve(r);
-          }
-        });
-      }
-    } else {
-      const mime = _vfs.getMime(args.path);
-      _fs.readFile(resolved.real, (e, data) => {
+      _fs.stat(resolved.real, (e, stat) => {
         if ( e ) {
           reject(e);
-        } else {
-          const enc = 'data:' + mime + ';base64,' + (new Buffer(data).toString('base64'));
-          resolve(enc.toString());
+          return;
         }
+
+        if ( options.stream !== false ) {
+          resolve({resource: (options) => {
+            return createReadStream(http, args.path, options);
+          }, mime: mime, filename: resolved.real, size: stat.size});
+        } else {
+          _fs.readFile(resolved.real, (e, r) => {
+            return e ? reject(e) : resolve({raw: r, mime: mime, filename: resolved.real, size: stat.size});
+          });
+        }
+      });
+    } else {
+      _fs.readFile(resolved.real, (e, r) => {
+        if ( e ) {
+          return reject(e);
+        }
+
+        const enc = 'data:' + mime + ';base64,' + (new Buffer(r).toString('base64'));
+        return resolve(enc.toString());
       });
     }
   },
@@ -342,15 +345,15 @@ const VFS = {
       streamIn.pipe(streamOut);
     }
 
-    const httpData = http.data || {};
-    const httpUpload = http.files.upload || {};
+    const httpData = args.fields || {};
+    const httpUpload = args.files.upload || {};
 
     const vfsFilename = httpUpload.name || httpData.filename;
     const vfsDestination = httpData.path;
     const realDestination = _vfs.parseVirtualPath(vfsDestination, http);
     const destination = _path.join(realDestination.real, vfsFilename);
     const source = httpUpload.path;
-    const overwrite = String(http.data.overwrite) === 'true';
+    const overwrite = String(httpData.overwrite) === 'true';
 
     function _createEmpty() {
       _fs.writeFile(destination, '', 'utf8', (err) => {

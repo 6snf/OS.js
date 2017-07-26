@@ -27,30 +27,39 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const vfs = require('./../vfs.js');
+const modules = require('./../modules.js');
 
-/**
- * @namespace modules.api
- */
+const request = (method, http, app, wrapper) => {
+  const data = http.data;
 
-const _storage = require('./../../modules/storage.js');
+  modules.getAuthenticator().checkPermission(http, 'fs', {
+    src: data.src || data.root,
+    dest: data.dest || data.path,
+    method: method
+  }).then(() => {
+    vfs.request(http, method, data).then((result) => {
+      return vfs.respond(http, method, data, result);
+    }).catch((error) => {
+      if ( method === 'read' && data.options.raw !== false ) {
+        http.response.status(404).send(error);
+      } else {
+        http.response.json({error});
+      }
+    });
+  }).catch((error) => http.response.status(403).json({error}));
+};
 
-/**
- * Attempt to store settings
- *
- * @param   {ServerRequest}    http          OS.js Server Request
- * @param   {Object}           data          Request data
- *
- * @function settings
- * @memberof modules.api
- * @return {Promise}
- */
-module.exports.settings = function(http, data) {
-  const username = http.session.get('username');
-  const settings = data.settings;
+module.exports = function(app, wrapper) {
+  wrapper.get('/FS/read', (http) => {
+    request('read', http, app, wrapper);
+  });
 
-  try {
-    return _storage.get().setSettings(http, username, settings);
-  } catch ( e ) {
-    return Promise.reject(e);
-  }
+  wrapper.upload('/FS/upload', (http) => {
+    request('upload', http, app, wrapper);
+  });
+
+  wrapper.post('/FS/:method', (http) => {
+    request(http.request.params.method, http, app, wrapper);
+  });
 };

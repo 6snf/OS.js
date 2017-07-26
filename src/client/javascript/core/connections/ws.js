@@ -61,14 +61,16 @@ export default class WSConnection extends Connection {
   }
 
   destroy() {
-    this.destroying = true;
+    if ( !this.destroying ) {
+      if ( this.ws ) {
+        this.ws.close();
+      }
 
-    if ( this.ws ) {
-      this.ws.close();
+      this.ws = null;
+      this.wsqueue = {};
     }
 
-    this.ws = null;
-    this.wsqueue = {};
+    this.destroying = true;
 
     return super.destroy.apply(this, arguments);
   }
@@ -98,19 +100,25 @@ export default class WSConnection extends Connection {
 
     this.ws = new WebSocket(this.wsurl);
 
-    this.ws.onopen = function() {
+    this.ws.onopen = function(ev) {
       connected = true;
       // NOTE: For some reason it needs to be fired on next tick
       setTimeout(() => callback(false), 0);
     };
 
     this.ws.onmessage = (ev) => {
+      console.debug('websocket open', ev);
       const data = JSON.parse(ev.data);
       const idx = data._index;
       this._onmessage(idx, data);
     };
 
+    this.ws.onerror = (ev) => {
+      console.error('websocket error', ev);
+    };
+
     this.ws.onclose = (ev) => {
+      console.debug('websocket close', ev);
       if ( !connected && ev.code !== 3001 ) {
         callback(_('CONNECTION_ERROR'));
         return;

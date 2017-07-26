@@ -27,12 +27,7 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-
-/**
- * @namespace modules.api
- */
-
-const _logger = require('./../../lib/logger.js');
+const modules = require('./../modules.js');
 
 /**
  * Do a HTTP request
@@ -54,7 +49,7 @@ const _logger = require('./../../lib/logger.js');
  * @memberof modules.api
  * @return {Promise}
  */
-module.exports.curl = function(http, args) {
+function curl(http, args) {
   let url = args.url;
 
   let curlRequest = (function parseRequestParameters() {
@@ -93,7 +88,7 @@ module.exports.curl = function(http, args) {
               return encodeURIComponent(k) + '=' + encodeURIComponent(query[k]);
             }).join('&');
           } catch ( e ) {
-            _logger.log(_logger.WARNING, 'Failed to transform curl query', e.stack, e);
+            console.error(e);
           }
         }
       }
@@ -141,5 +136,21 @@ module.exports.curl = function(http, args) {
         body: body
       });
     });
+  });
+}
+
+module.exports = function(app, wrapper) {
+  const authenticator = () => modules.getAuthenticator();
+
+  /*
+   * Curl
+   */
+  wrapper.post('/API/curl', (http) => {
+    authenticator().checkPermission(http, 'curl').then(() => {
+      curl(http, http.data)
+        .then((result) => http.response.json({result}))
+        .catch((error) => http.response.json({error}));
+
+    }).catch((error) => http.response.status(403).json({error}));
   });
 };

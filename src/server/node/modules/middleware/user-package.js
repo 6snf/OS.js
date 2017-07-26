@@ -28,30 +28,28 @@
  * @licence Simplified BSD License
  */
 
-const _vfs = require('./../../core/vfs.js');
+const vfs = require('./../../vfs.js');
 
 /*
  * Handles user-package application resources
  */
-module.exports.request = function(http, next) {
-  if ( http.path.match(/^\/?user\-package\//) ) {
-    const resourcePath = http.path.replace(/^\/?user\-package\//, '');
+module.exports = function(app, wrapper) {
+  wrapper.get(/^\/?user\-package\/(.*)/, (http) => {
+    const query = http.request.params[0];
+    const resourcePath = query.replace(/^\/?user\-package\//, '');
     const packagePath = 'home:///.packages/' + resourcePath;
 
-    _vfs.request(http, 'read', {
+    const args = {
       path: packagePath,
       options: {
         stream: true
       }
-    }).then(() => {
-      console.log('xx');
-    }).catch((error) => {
-      console.error(error);
-      next(true);
+    };
+
+    vfs.request(http, 'read', args).then((result) => {
+      return vfs.respond(http, 'read', args, result);
+    }).catch((err) => {
+      http.response.status(404).send(err);
     });
-
-    return;
-  }
-
-  next();
+  });
 };

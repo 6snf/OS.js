@@ -28,7 +28,7 @@
  * @licence Simplified BSD License
  */
 
-const Storage = require('./../../modules/storage.js');
+const Storage = require('./../storage.js');
 
 class TestStorage extends Storage {
 

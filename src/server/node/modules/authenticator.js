@@ -27,277 +27,230 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-
-const _settings = require('./../core/settings.js');
-const _vfs = require('./../core/vfs.js');
-const _env = require('./../core/env.js');
-const _logger = require('./../lib/logger.js');
-const _utils = require('./../lib/utils.js');
+const settings = require('./../settings.js');
+const vfs = require('./../vfs.js');
 
 /**
- * @namespace core.auth
+ * Base Authenticator Class
  */
-
-let MODULE;
-
 class Authenticator {
 
+  /**
+   * Registers the module
+   * @param {Object} config Configuration
+   * @return {Promise<Boolean, Error>}
+   */
   register(config) {
     return Promise.resolve(true);
   }
 
+  /**
+   * Destroys the module
+   * @return {Promise<Boolean, Error>}
+   */
   destroy() {
     return Promise.resolve(true);
   }
 
+  /**
+   * Login API request
+   * @param {ServerObject} http The HTTP object
+   * @param {Object} data Login data
+   * @return {Promise<Boolean, Error>}
+   */
   login(http, data) {
     return Promise.reject('Not implemented');
   }
 
+  /**
+   * Logout API request
+   * @param {ServerObject} http The HTTP object
+   * @return {Promise<Boolean, Error>}
+   */
   logout(http) {
     return Promise.resolve(true);
   }
 
+  /**
+   * Manage API request
+   * @param {ServerObject} http The HTTP object
+   * @param {String} command The manage command
+   * @param {Object} args Command arguments
+   * @return {Promise<Boolean, Error>}
+   */
   manage(http, command, args) {
     return Promise.reject('Not implemented');
   }
 
-  initSession(http) {
-    return Promise.resolve(true);
-  }
-
+  /**
+   * Checks for given permission
+   * @param {ServerObject} http The HTTP object
+   * @param {String} type The group
+   * @param {Object} [options] Options
+   * @return {Promise<Boolean, Error>}
+   */
   checkPermission(http, type, options) {
-    return Promise.resolve(true);
+    options = options || {};
+
+    return new Promise((resolve, reject) => {
+      this.checkSession(http).then(() => {
+        // Only check types that are defined in the map
+        const maps = settings.get('api.groups');
+        if ( typeof maps[type] !== 'undefined' ) {
+          type = maps[type];
+        } else {
+          if ( type !== 'fs' ) {
+            resolve(true);
+            return true;
+          }
+        }
+
+        // FIXME: Oringinal has multiple groups
+        return this._getGroups(http).then((groups) => {
+          const found = Authenticator.hasGroup(groups, [type]);
+
+          if ( found ) {
+            if ( type === 'fs' ) {
+              this.checkFilesystemPermission(http, options.src, options.dest, options.method)
+                .then((result) => {
+                  if ( result ) {
+                    return resolve(true);
+                  } else {
+                    return reject('Permission denied for: ' + type + ', ' + options.method);
+                  }
+                }).catch(reject);
+
+              return true;
+            }
+          } else {
+            return reject('Permission denied for: ' + type);
+          }
+
+          return resolve(true);
+        }).catch(reject);
+      }).catch(reject);
+    });
   }
 
+  /**
+   * Checks for given filesystem permission
+   * @param {ServerObject} http The HTTP object
+   * @param {String} src Source file path
+   * @param {String} [dest] Destination file path
+   * @param {String} method The VFS method
+   * @return {Promise<Boolean, Error>}
+   */
+  checkFilesystemPermission(http, src, dest, method) {
+    const mountpoints = settings.get('vfs.mounts') || {};
+    const groups = settings.get('vfs.groups') || {};
+
+    const _checkMount = (p, d, userGroups) => {
+      const parsed = vfs.parseVirtualPath(p, http);
+      const mount = mountpoints[parsed.protocol];
+      const map = d ? ['upload', 'write', 'delete', 'copy', 'move', 'mkdir'] : ['upload', 'write', 'delete', 'mkdir'];
+
+      if ( typeof mount === 'object' ) {
+        if ( mount.enabled === false || (mount.ro === true && map.indexOf(method) !== -1) ) {
+          return false;
+        }
+      }
+
+      if ( groups[parsed.protocol] ) {
+        if ( !Authenticator.hasGroup(userGroups, groups[parsed.protocol]) ) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    return new Promise((resolve, reject) => {
+      this._getGroups(http).then((userGroups) => {
+        const srcCheck = src ? _checkMount(src, false, userGroups) : true;
+        const dstCheck = dest ? _checkMount(dest, true, userGroups) : true;
+
+        return resolve(srcCheck && dstCheck);
+      }).catch(reject);
+    });
+
+  }
+
+  /**
+   * Checks if user has permission to package
+   * @param {ServerObject} http The HTTP object
+   * @param {String} name Package name
+   * @return {Promise<Boolean, Error>}
+   */
+  checkPackagePermission(http, name) {
+    return new Promise((resolve, reject) => {
+      this.checkSession(http).then(() => {
+        this.getBlacklist(http, http.session.get('username')).then((blacklist) => {
+          return blacklist.indexOf(name) === -1 ? resolve(true) : reject('Blacklisted package');
+        }).catch(reject);
+      }).catch(reject);
+    });
+  }
+
+  /**
+   * Checks if user has session
+   * @param {ServerObject} http The HTTP object
+   * @return {Promise<Boolean, Error>}
+   */
   checkSession(http) {
     return new Promise((resolve, reject) => {
       if ( http.session.get('username') ) {
-        resolve();
+        resolve(true);
       } else {
         reject('You have no OS.js Session, please log in!');
       }
     });
   }
 
+  /**
+   * Gets groups of a user
+   * @param {ServerObject} http The HTTP object
+   * @param {String} username The username
+   * @return {Promise<Array, Error>}
+   */
   getGroups(http, username) {
     return Promise.resolve([]);
   }
 
+  /**
+   * Gets package blacklists of a user
+   * @param {ServerObject} http The HTTP object
+   * @param {String} username The username
+   * @return {Promise<Array, Error>}
+   */
   getBlacklist(http, username) {
     return Promise.resolve([]);
   }
 
+  /**
+   * Sets package blacklists of a user
+   * @param {ServerObject} http The HTTP object
+   * @param {String} username The username
+   * @param {Array} list The blacklist
+   * @return {Promise<Boolean, Error>}
+   */
   setBlacklist(http, username, list) {
     return Promise.resolve(true);
   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  // STATIC METHODS
-  /////////////////////////////////////////////////////////////////////////////
-
   /**
-   * Loads the authentication module
-   *
-   * @param {Object}  opts   Initial options
-   *
-   * @function load
-   * @memberof core.auth
-   * @return {Promise}
+   * Wrapper for getting groups
+   * @param {ServerObject} http The HTTP object
+   * @return {Promise<String[], Error>}
    */
-  static load(opts) {
+  _getGroups(http) {
     return new Promise((resolve, reject) => {
-      const config = _settings.get();
-      const name = opts.AUTH || (config.authenticator || 'demo');
-      const ok = () => resolve(opts);
-
-      _utils.loadModule(_env.get('MODULEDIR'), 'auth', name).then((path) => {
-        _logger.lognt('INFO', 'Loading:', _logger.colored('Authenticator', 'bold'), path.replace(_env.get('ROOTDIR'), ''));
-
-        try {
-          const a = require(path);
-          const c = _settings.get('modules.auth')[name] || {};
-          const r = a.register(c);
-
-          MODULE = a;
-
-          if ( r instanceof Promise ) {
-            r.then(ok).catch(reject);
-          } else {
-            ok();
-          }
-        } catch ( e ) {
-          _logger.lognt('WARN', _logger.colored('Warning:', 'yellow'), e);
-          console.warn(e.stack);
-          reject(e);
+      this.getGroups(http, http.session.get('username')).then((groups) => {
+        if ( !(groups instanceof Array) || !groups.length ) {
+          groups = settings.get('api.defaultGroups') || [];
         }
+        return resolve(groups);
       }).catch(reject);
     });
-  }
-
-  /**
-   * Gets the authentication module
-   *
-   * @function get
-   * @memberof core.auth
-   * @return {Object}
-   */
-  static get() {
-    return MODULE;
-  }
-
-  /**
-   * Checks a permission
-   *
-   * @param   {ServerRequest}    http          OS.js Server Request
-   * @param   {String}           type          Permission type
-   * @param   {Object}           [options]     Permission options/arguments
-   *
-   * @function checkModulePermission
-   * @memberof core.auth
-   * @return {Promise}
-   */
-  static checkModulePermission(http, type, options) {
-    const config = _settings.get();
-    const groups = config.api.groups;
-    const username = http.session.get('username');
-    const defaultGroups = config.api.defaultGroups instanceof Array ? config.api.defaultGroups : [];
-
-    const checkApiPermission = (userGroups) => new Promise((resolve, reject) => {
-      let checks = [];
-      if ( type === 'fs' ) {
-        checks = [type];
-      } else {
-        if ( options.method && typeof groups[options.method] !== 'undefined' ) {
-          checks = [groups[options.method]];
-        }
-      }
-
-      if ( this.hasGroup(userGroups, checks) ) {
-        resolve();
-      } else {
-        reject('Access denied!');
-      }
-    });
-
-    const checkMountPermission = (userGroups) => {
-      const mountpoints = config.vfs.mounts || {};
-      const groups = config.vfs.groups || {};
-
-      const _checkMount = (p, d) => {
-        const parsed = _vfs.parseVirtualPath(p, http);
-        const mount = mountpoints[parsed.protocol];
-        const map = d ? ['upload', 'write', 'delete', 'copy', 'move', 'mkdir'] : ['upload', 'write', 'delete', 'mkdir'];
-
-        if ( typeof mount === 'object' ) {
-          if ( mount.enabled === false || (mount.ro === true && map.indexOf(options.method) !== -1) ) {
-            return false;
-          }
-        }
-
-        if ( groups[parsed.protocol] ) {
-          if ( !this.hasGroup(userGroups, groups[parsed.protocol]) ) {
-            return false;
-          }
-        }
-
-        return true;
-      };
-
-      function _check() {
-        const args = options.args;
-        const src = args.path || args.root || args.src || '';
-
-        if ( _checkMount(src) ) {
-          if ( typeof args.dest !== 'undefined' ) {
-            return _checkMount(args.dest, true);
-          }
-          return true;
-        }
-
-        return false;
-      }
-
-      return new Promise((resolve, reject) => {
-        if ( type === 'fs' ) {
-          if ( _check() ) {
-            resolve();
-          } else {
-            reject('Access Denied!');
-          }
-        } else {
-          resolve();
-        }
-      });
-    };
-
-    function checkPackagePermission(userGroups) {
-      return new Promise((resolve, reject) => {
-        if ( type === 'package' ) {
-          MODULE.getBlacklist(http, username).then((blacklist) => {
-            if ( blacklist && blacklist.indexOf(options.path) !== -1 ) {
-              reject('Access Denied!');
-            } else {
-              resolve();
-            }
-          }).catch(() => {
-            reject('Access Denied!');
-          });
-        } else {
-          resolve();
-        }
-      });
-    }
-
-    return new Promise((resolve, reject) => {
-      MODULE.checkPermission(http, type, options).then((checkGroups) => {
-        if ( typeof checkGroups === 'undefined' ) {
-          checkGroups = true;
-        }
-
-        if ( checkGroups ) {
-          MODULE.getGroups(http, username).then((userGroups) => {
-            if ( !(userGroups instanceof Array) || !userGroups.length ) {
-              userGroups = defaultGroups;
-            }
-
-            checkApiPermission(userGroups).then(() => {
-              checkMountPermission(userGroups).then(() => {
-                checkPackagePermission(userGroups).then(resolve).catch(reject);
-              }).catch(reject);
-            }).catch(reject);
-          }).catch(reject);
-        } else {
-          resolve();
-        }
-      }).catch(reject);
-    });
-  }
-
-  /**
-   * Initializes a session
-   *
-   * @param   {ServerRequest}    http          OS.js Server Request
-   *
-   * @function initModuleSession
-   * @memberof core.auth
-   * @return {Promise}
-   */
-  static initModuleSession(http) {
-    return MODULE.initSession(http);
-  }
-
-  /**
-   * Checks a session
-   *
-   * @param   {ServerRequest}    http          OS.js Server Request
-   *
-   * @function checkModuleSession
-   * @memberof core.auth
-   * @return {Promise}
-   */
-  static checkModuleSession(http) {
-    return MODULE.checkSession(http);
   }
 
   /**
@@ -308,7 +261,6 @@ class Authenticator {
    * @param   {Boolean}          [all=true]    Check if all and not some
    *
    * @function hasGroup
-   * @memberof core.auth
    * @return {Promise}
    */
   static hasGroup(userGroups, groupList, all) {
@@ -337,6 +289,7 @@ class Authenticator {
       return false;
     });
   }
+
 }
 
 module.exports = Authenticator;

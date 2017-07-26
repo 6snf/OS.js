@@ -28,7 +28,7 @@
  * @licence Simplified BSD License
  */
 
-const Authenticator = require('../authenticator.js');
+const Authenticator = require('./../authenticator.js');
 
 class TestAuthenticator extends Authenticator {
   login(http, data) {

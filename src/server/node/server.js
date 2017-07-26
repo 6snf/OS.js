@@ -27,61 +27,20 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const app = require('./express.js');
 
-var ver = process.version.substr(1).split(/\./g);
-if ( parseInt(ver[0], 10) < 4 ) {
-  console.error('You need Node v4 or above to run OS.js');
-  process.exit(2);
-}
-
-const _instance = require('./core/instance.js');
-const _minimist = require('minimist');
-
-///////////////////////////////////////////////////////////////////////////////
-// MAIN
-///////////////////////////////////////////////////////////////////////////////
-
-const argv = _minimist(process.argv.slice(2));
-const opts = {
-  DEBUG: argv.debug,
-  HOSTNAME: argv.h || argv.hostname,
-  ROOT: argv.r || argv.root,
-  PORT: argv.p || argv.port,
-  LOGLEVEL: argv.l || argv.loglevel,
-  AUTH: argv.authenticator,
-  STORAGE: argv.storage
-};
-
-_instance.init(opts).then((env) => {
-  const config = require('./core/settings.js').get();
-
-  if ( config.tz ) {
-    process.env.TZ = config.tz;
-  }
-
-  ['SIGTERM', 'SIGINT'].forEach((sig) => {
-    process.on(sig, () => {
-      console.log('\n');
-      _instance.destroy((err) => {
-        process.exit(err ? 1 : 0);
-      });
-    });
-  });
-
-  process.on('exit', () => {
-    _instance.destroy();
-  });
-
-  _instance.run();
-
-  process.on('uncaughtException', (error) => {
-    console.log('UNCAUGHT EXCEPTION', error, error.stack);
-  });
-
-  process.on('unhandledRejection', (error) => {
-    console.log('UNCAUGHT REJECTION', error);
-  });
-}).catch((error) => {
-  console.log(error);
-  process.exit(1);
+process.on('uncaughtException', (error) => {
+  console.log('UNCAUGHT EXCEPTION', error, error.stack);
 });
+
+process.on('unhandledRejection', (error) => {
+  console.log('UNCAUGHT REJECTION', error);
+});
+
+['SIGTERM', 'SIGINT'].forEach((sig) => {
+  process.on(sig, () => app.shutdown());
+});
+
+process.on('exit', () => app.shutdown());
+
+app.start();

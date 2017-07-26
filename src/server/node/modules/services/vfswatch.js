@@ -28,9 +28,7 @@
  * @licence Simplified BSD License
  */
 
-const _vfs = require('./../../core/vfs.js');
-const _http = require('./../../core/http.js');
-const _logger = require('./../../lib/logger.js');
+const vfs = require('./../../vfs.js');
 
 /*
  * Unloads the VFS watching
@@ -42,16 +40,15 @@ module.exports.destroy = function() {
 /*
  * Registers VFS watching
  */
-module.exports.register = function(env, config, servers) {
+module.exports.register = function(env, config, wrapper) {
   try {
-    const wss = servers.websocketServer;
-    if ( !wss ) {
+    if ( !wrapper.isWebsocket() ) {
       return;
     }
 
-    const list = _vfs.initWatch((data) => {
+    const list = vfs.watch((data) => {
       const username = data.watch.args['%USERNAME'];
-      _http.broadcastMessage(username, 'vfs:watch', {
+      wrapper.broadcastMessage(username, 'vfs:watch', {
         event: data.watch.event,
         file: {
           path: data.watch.path
@@ -59,10 +56,8 @@ module.exports.register = function(env, config, servers) {
       });
     });
 
-    if ( list.length ) {
-      _logger.lognt('INFO', 'Service:', _logger.colored('Watching', 'bold'), list.join(', '));
-    }
+    console.log('Watching', list);
   } catch ( e ) {
-    _logger.lognt('ERROR', e);
+    console.error(e);
   }
 };

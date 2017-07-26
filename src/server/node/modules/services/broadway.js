@@ -28,7 +28,6 @@
  * @licence Simplified BSD License
  */
 
-const _logger = require('./../../lib/logger.js');
 const _spawn = require('child_process').spawn;
 const _ws = require('ws').Server;
 
@@ -49,7 +48,7 @@ module.exports.destroy = function() {
 /*
  * Registers the broadway daemon
  */
-module.exports.register = function(env, config, servers) {
+module.exports.register = function(env, config, wrapper) {
   if ( !config.broadway || !config.broadway.enabled ) {
     return;
   }
@@ -90,15 +89,13 @@ module.exports.register = function(env, config, servers) {
 
   try {
     const port = defaults.spawner.port;
-    _logger.lognt('INFO', 'Service:', _logger.colored('Broadway', 'bold'), 'is starting up on port', _logger.colored(port, 'bold'));
+    console.log('Starting broadway server on', port);
 
     wss = new _ws({
       port: port
     });
 
     wss.on('connection', (ws) => {
-      _logger.log('INFO', 'Incoming broadway connection');
-
       ws.on('message', (message) => {
         const json = JSON.parse(message);
         if ( json.method === 'launch' ) {
@@ -106,9 +103,8 @@ module.exports.register = function(env, config, servers) {
         }
       });
     });
-
   } catch ( e ) {
-    _logger.log('ERROR', e);
+    console.error(e);
   }
 
 };

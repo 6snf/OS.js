@@ -28,9 +28,9 @@
  * @licence Simplified BSD License
  */
 
-const _db = require('./../../lib/database.js');
+const _db = require('./../database.js');
 
-const Storage = require('./../../modules/storage.js');
+const Storage = require('./../storage.js');
 
 class DatabaseStorage extends Storage {
 

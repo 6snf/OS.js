@@ -1,0 +1,311 @@
+/*!
+ * OS.js - JavaScript Cloud/Web Desktop Platform
+ *
+ * Copyright (c) 2011-2017, Anders Evenrud <andersevenrud@gmail.com>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author  Anders Evenrud <andersevenrud@gmail.com>
+ * @licence Simplified BSD License
+ */
+const Promise = require('bluebird');
+
+const path = require('path');
+const fs = require('fs-extra');
+const glob = require('glob-promise');
+const settings = require('./settings.js');
+
+/**
+ * Base Modules Class
+ */
+class Modules {
+
+  /**
+   * Creates a new instance
+   */
+  constructor() {
+    this.destroyed = false;
+    this.metadata = {};
+    this.instances = {
+      vfs: [],
+      services: [],
+      authenticator: null,
+      storage: null
+    };
+  }
+
+  /**
+   * Destroys all loaded modules
+   * @return {Promise}
+   */
+  destroy() {
+    if ( this.destroyed ) {
+      return Promise.resolve(true);
+    }
+
+    this.destroyed = true;
+
+    const modules = [
+      this.getAuthenticator(),
+      this.getStorage()
+    ].concat(this.instances.services.map((m) => {
+      return m && m.destroy ? m.destroy() : Promise.resolve(true);
+    }));
+
+    console.log('Destroying', modules.length, 'modules');
+
+    return Promise.each(modules, (module) => {
+      return module ? module.destroy() : Promise.resolve(true);
+    });
+  }
+
+  /**
+   * Gets the loaded Authenticator module
+   * @return {Authenticator}
+   */
+  getAuthenticator() {
+    return this.instances.authenticator;
+  }
+
+  /**
+   * Gets the loaded Storage module
+   * @return {Storage}
+   */
+  getStorage() {
+    return this.instances.storage;
+  }
+
+  /**
+   * Gets a package
+   * @param {String} name Package name
+   * @return {Object|Boolean}
+   */
+  getPackage(name) {
+    const manifest = this.metadata[name];
+    if ( manifest ) {
+      let filename = 'api.js';
+      if ( manifest.main ) {
+        if ( typeof manifest.main === 'string' ) {
+          filename = manifest.main;
+        } else {
+          filename = manifest.main.node;
+        }
+      }
+
+      const root = settings.option('ROOTDIR');
+      return require(path.join(root, manifest._src, filename));
+    }
+
+    return false;
+  }
+
+  /**
+   * Gets a VFS module by name
+   * @param {String} name Name
+   * @return {Object}
+   */
+  getVFS(name) {
+    return this.instances.vfs.find((iter) => {
+      return iter && iter.name === name;
+    });
+  }
+
+  /**
+   * Loads a file
+   * @param {String} key Type of file
+   * @param {String} filename Filename
+   * @return {Promise<Boolean, Error>}
+   */
+  loadFile(key, filename) {
+    return new Promise((resolve, reject) => {
+      console.log('Loading', key, filename);
+
+      let instance;
+      try {
+        instance = require(filename);
+      } catch ( e ) {
+        reject(e);
+        return;
+      }
+
+      instance.register().then((res) => {
+        this.instances[key] = instance;
+
+        return instance.register().then(() => resolve(instance)).catch(reject);
+      }).catch(reject);
+    });
+  }
+
+  _loadDirectory(directory) {
+    return new Promise((resolve, reject) => {
+      glob(directory + '/*.js').then((files) => {
+        return resolve(files);
+      }).catch(reject);
+    });
+  }
+
+  /**
+   * Loads a directory
+   * @param {String} directory Directory
+   * @param {Object} app The express app
+   * @param {Object} wrapper Our express wrapper layer
+   * @param {Function} [loader] The loader
+   * @return {Promise<Boolean, Error>}
+   */
+  loadDirectory(directory, app, wrapper, loader) {
+    loader = loader || function(files) {
+      return new Promise((resolve, reject) => {
+        files.forEach((f) => {
+          console.log('Loading', f);
+          try {
+            require(f)(app, wrapper);
+          } catch ( e ) {
+            console.error(e);
+          }
+        });
+        resolve(true);
+      });
+    };
+
+    return new Promise((resolve, reject) => {
+      this._loadDirectory(directory).then((files) => {
+        return loader(files).then(resolve).catch(reject);
+      }).catch(reject);
+    });
+  }
+
+  /**
+   * Loads all modules
+   * @param {Object} app The express app
+   * @param {Object} wrapper Our express wrapper layer
+   * @return {Promise<Boolean, Error>}
+   */
+  load(app, wrapper) {
+    const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
+    this.metadata = fs.readJsonSync(metaPath);
+
+    return Promise.each([
+      this.loadRoutes,
+      this.loadVFS,
+      this.loadMiddleware,
+      this.loadServices,
+      this.loadAuthenticator,
+      this.loadStorage
+    ], (fn) => {
+      return fn.call(this, app, wrapper);
+    });
+  }
+
+  /**
+   * Loads all routes
+   * @param {Object} app The express app
+   * @param {Object} wrapper Our express wrapper layer
+   * @return {Promise<Boolean, Error>}
+   */
+  loadRoutes(app, wrapper) {
+    const routeFolder = path.resolve(__dirname, 'routes');
+    return this.loadDirectory(routeFolder, app, wrapper);
+  }
+
+  /**
+   * Loads all middleware
+   * @param {Object} app The express app
+   * @param {Object} wrapper Our express wrapper layer
+   * @return {Promise<Boolean, Error>}
+   */
+  loadMiddleware(app, wrapper) {
+    if ( settings.option('MOCHA') ) {
+      return Promise.resolve(true);
+    }
+
+    const routeFolder = path.resolve(__dirname, 'modules/middleware');
+    return this.loadDirectory(routeFolder, app, wrapper);
+  }
+
+  /**
+   * Loads all services
+   * @param {Object} app The express app
+   * @param {Object} wrapper Our express wrapper layer
+   * @return {Promise<Boolean, Error>}
+   */
+  loadServices(app, wrapper) {
+    if ( settings.option('MOCHA') ) {
+      return Promise.resolve(true);
+    }
+
+    const routeFolder = path.resolve(__dirname, 'modules/services');
+    return this.loadDirectory(routeFolder, app, wrapper, (files) => {
+      return Promise.each(files, (f) => {
+        console.log('Loading', f);
+
+        const m = require(f).register(settings.option(), settings.get(), wrapper);
+        this.instances.services.push(m);
+      });
+    });
+  }
+
+  /**
+   * Loads configured Authenticator
+   * @return {Promise<Boolean, Error>}
+   */
+  loadAuthenticator() {
+    const name = settings.get('authenticator');
+    const filename = path.resolve(__dirname, 'modules/auth/' + name + '.js');
+    return this.loadFile('authenticator', filename);
+  }
+
+  /**
+   * Loads configured Storage
+   * @return {Promise<Boolean, Error>}
+   */
+  loadStorage() {
+    const name = settings.get('storage');
+    const filename =  path.resolve(__dirname, 'modules/storage/' + name + '.js');
+    return this.loadFile('storage', filename);
+  }
+
+  /**
+   * Loads VFS modules
+   * @return {Promise<Boolean, Error>}
+   */
+  loadVFS() {
+    const directory =  path.resolve(__dirname, 'modules/vfs/');
+
+    return new Promise((resolve, reject) => {
+      this._loadDirectory(directory).then((files) => {
+        files.forEach((f) => {
+          console.log('Loading', f);
+          try {
+            this.instances.vfs.push(require(f));
+          } catch ( e ) {
+            console.error(e);
+          }
+        });
+
+        return resolve(true);
+      }).catch(reject);
+    });
+  }
+
+}
+
+module.exports = (new Modules());

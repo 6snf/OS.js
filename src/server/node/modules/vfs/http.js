@@ -1,5 +1,6 @@
 
 const _request = require('request');
+const _path = require('path');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -25,44 +26,50 @@ const VFS = {
   read: function(http, args, resolve, reject) {
     const options = args.options || {};
 
-    function _read(path, encode) {
-      _request(path).on('response', (response) => {
-        const mime = response.headers['content-type'];
-        const data = response.body;
+    function createRequest(path) {
+      return new Promise((yes, no) => {
+        _request(path).on('response', (response) => {
+          const size = response.headers['content-length'];
+          const mime = response.headers['content-type'];
+          const data = response.body;
 
-        if ( encode ) {
-          const enc = 'data:' + mime + ';base64,' + (new Buffer(data).toString('base64'));
-          resolve(enc.toString());
-        } else {
-          resolve(data);
-        }
-      }).on('error', (err) => {
-        reject(err);
+          if ( response.statusCode < 200 || response.statusCode >= 300 ) {
+            no('Failed to fetch file: ' + response.statusCode);
+          } else {
+            yes({mime, size, data});
+          }
+
+        }).on('error', no);
       });
     }
 
     if ( options.raw !== false ) {
       if ( options.stream !== false ) {
-        createReadStream(http, args.path).then((stream) => {
+        _request.head(args.path).on('response', (response) => {
+          const size = response.headers['content-length'];
+          const mime = response.headers['content-type'];
 
-          resolve(function(cb) {
-
-            stream.on('response', (response) => {
-              cb({
-                'Content-Length': response.headers['content-length'],
-                'Content-Type': response.headers['content-type']
-              });
+          if ( response.statusCode < 200 || response.statusCode >= 300 ) {
+            reject('Failed to fetch file: ' + response.statusCode);
+          } else {
+            resolve({
+              resource: () => createReadStream(http, args.path),
+              mime: mime,
+              size: size,
+              filename: args.path
             });
-
-            return stream;
-          });
-
-        }).catch(reject);
+          }
+        }).on('error', reject);
       } else {
-        _read(args.path, false);
+        createRequest(args.path).then((result) => {
+          resolve({raw: result.data, mime: result.mime, size: result.size, filename: _path.basename(args.path)});
+        }).catch(reject);
       }
     } else {
-      _read(args.path, true);
+      createRequest(args.path).then((result) => {
+        const enc = 'data:' + result.mime + ';base64,' + (new Buffer(result.data).toString('base64'));
+        resolve(enc.toString());
+      }).catch(reject);
     }
   }
 };

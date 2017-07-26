@@ -28,10 +28,6 @@
  * @licence Simplified BSD License
  */
 
-/**
- * @namespace lib.database
- */
-
 let instances = {};
 
 ///////////////////////////////////////////////////////////////////////////////
