@@ -112,7 +112,7 @@ module.exports = function(app, wrapper) {
     authenticator().checkPermission(http, 'application').then(() => {
       let module;
       try {
-        module = modules.getPackage(apath);
+        module = require(modules.getPackageEntry(apath));
       } catch ( e ) {
       }
 

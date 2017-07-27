@@ -34,6 +34,7 @@ const fs = require('fs-extra');
 const glob = require('glob-promise');
 const settings = require('./settings.js');
 const colors = require('colors');
+const child_process = require('child_process');
 
 const log = function() {
   if ( settings.option('LOGLEVEL') ) {
@@ -51,6 +52,7 @@ class Modules {
    */
   constructor() {
     this.destroyed = false;
+    this.spawners = [];
     this.metadata = {};
     this.instances = {
       vfs: [],
@@ -78,6 +80,14 @@ class Modules {
     ].concat(this.instances.services.map((m) => {
       return m && m.destroy ? m.destroy() : Promise.resolve(true);
     }));
+
+    console.log('Destroying', this.spawners.length, 'spawners');
+
+    this.spawners.forEach((c) => {
+      if ( c && typeof c.kill === 'function' ) {
+        c.kill();
+      }
+    });
 
     console.log('Destroying', modules.length, 'modules');
 
@@ -111,11 +121,11 @@ class Modules {
   }
 
   /**
-   * Gets a package
+   * Gets a package entry file
    * @param {String} name Package name
-   * @return {Object|Boolean}
+   * @return {String}
    */
-  getPackage(name) {
+  getPackageEntry(name) {
     const manifest = this.metadata[name];
     if ( manifest ) {
       let filename = 'api.js';
@@ -128,10 +138,11 @@ class Modules {
       }
 
       const root = settings.option('ROOTDIR');
-      return require(path.join(root, manifest._src, filename));
+      const main = path.join(root, manifest._src, filename);
+      return fs.existsSync(main) ? main : null;
     }
 
-    return false;
+    return null;
   }
 
   /**
@@ -226,6 +237,7 @@ class Modules {
       this.loadVFS,
       this.loadMiddleware,
       this.loadServices,
+      this.loadPackages,
       this.loadAuthenticator,
       this.loadStorage
     ], (fn) => {
@@ -301,6 +313,65 @@ class Modules {
         const m = require(f).register(settings.option(), settings.get(), wrapper);
         this.instances.services.push(m);
       });
+    });
+  }
+
+  /**
+   * Loads all packages
+   * @param {Object} app The express app
+   * @param {Object} wrapper Our express wrapper layer
+   * @return {Promise<Boolean, Error>}
+   */
+  loadPackages(app, wrapper) {
+    if ( settings.option('MOCHA') ) {
+      return Promise.resolve(true);
+    }
+
+    const launchSpawners = (cwd, metadata) => {
+      if ( metadata.spawn && metadata.spawn.enabled !== false ) {
+        const spawner = path.resolve(cwd, metadata.spawn.exec);
+        const args = metadata.spawn.args || [];
+
+        log(colors.bold('Spawning'), colors.green('node'), spawner);
+
+        const proc = child_process.fork(spawner, args, {
+          silent: !settings.option('DEBUG'),
+          cwd: cwd
+        });
+
+        proc.on('error', (err) => console.error(metadata.path, 'error', err));
+        proc.on('exit', (code) => console.debug(metadata.path, 'exited', code));
+        this.spawners.push(proc);
+      }
+    };
+
+    const options = settings.option();
+    return Promise.each(Object.keys(this.metadata), (name) => {
+      const meta = this.metadata[name];
+      const filename = path.resolve(options.ROOTDIR, meta._src);
+
+      let result;
+      try {
+        const main = this.getPackageEntry(name);
+        if ( main !== null ) {
+          log(colors.bold('Loading'), colors.green(meta.type), main);
+
+          const pkg = require(main);
+          if ( meta.type === 'extension' ) {
+            launchSpawners(filename, meta);
+          } else {
+            result = pkg.register(options, meta, {
+              http: wrapper.getServer(),
+              ws: wrapper.getWebsocket(),
+              proxy: wrapper.getProxy()
+            });
+          }
+        }
+      } catch ( e ) {
+        console.warn(e);
+      }
+
+      return result instanceof Promise ? result : Promise.resolve(false);
     });
   }
 
