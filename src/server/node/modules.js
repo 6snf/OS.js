@@ -290,8 +290,9 @@ class Modules {
       return Promise.resolve(true);
     }
 
-    const routeFolder = path.resolve(__dirname, 'modules/middleware');
-    return this.loadDirectory('middleware', routeFolder, app, wrapper);
+    return Promise.each(this.getModulePaths('middleware'), (dir) => {
+      return this.loadDirectory('middleware', dir, app, wrapper);
+    });
   }
 
   /**
@@ -305,13 +306,14 @@ class Modules {
       return Promise.resolve(true);
     }
 
-    const routeFolder = path.resolve(__dirname, 'modules/services');
-    return this.loadDirectory('service', routeFolder, app, wrapper, (files) => {
-      return Promise.each(files, (f) => {
-        log(colors.bold('Loading'), f);
+    return Promise.each(this.getModulePaths('services'), (dir) => {
+      return this.loadDirectory('middleware', dir, app, wrapper, (files) => {
+        return Promise.each(files, (f) => {
+          log(colors.bold('Loading'), colors.green('service'), f);
 
-        const m = require(f).register(settings.option(), settings.get(), wrapper);
-        this.instances.services.push(m);
+          const m = require(f).register(settings.option(), settings.get(), wrapper);
+          this.instances.services.push(m);
+        });
       });
     });
   }
@@ -381,8 +383,15 @@ class Modules {
    */
   loadAuthenticator() {
     const name = settings.get('authenticator');
-    const filename = path.resolve(__dirname, 'modules/auth/' + name + '.js');
-    return this.loadFile('authenticator', filename);
+
+    return new Promise((resolve, reject) => {
+      const f = this.getModuleFile('auth', name);
+      if ( f ) {
+        this.loadFile('authenticator', f).then(resolve).catch(reject);
+      } else {
+        reject('No such module');
+      }
+    });
   }
 
   /**
@@ -391,8 +400,15 @@ class Modules {
    */
   loadStorage() {
     const name = settings.get('storage');
-    const filename =  path.resolve(__dirname, 'modules/storage/' + name + '.js');
-    return this.loadFile('storage', filename);
+
+    return new Promise((resolve, reject) => {
+      const f = this.getModuleFile('storage', name);
+      if ( f ) {
+        this.loadFile('storage', f).then(resolve).catch(reject);
+      } else {
+        reject('No such module');
+      }
+    });
   }
 
   /**
@@ -400,22 +416,43 @@ class Modules {
    * @return {Promise<Boolean, Error>}
    */
   loadVFS() {
-    const directory =  path.resolve(__dirname, 'modules/vfs/');
+    return Promise.each(this.getModulePaths('vfs'), (dir) => {
+      return new Promise((resolve, reject) => {
+        this._loadDirectory(dir).then((files) => {
+          files.forEach((f) => {
+            log(colors.bold('Loading'), colors.green('transport'), f);
+            try {
+              this.instances.vfs.push(require(f));
+            } catch ( e ) {
+              console.error(e);
+            }
+          });
 
-    return new Promise((resolve, reject) => {
-      this._loadDirectory(directory).then((files) => {
-        files.forEach((f) => {
-          log(colors.bold('Loading'), colors.green('transport'), f);
-          try {
-            this.instances.vfs.push(require(f));
-          } catch ( e ) {
-            console.error(e);
-          }
-        });
-
-        return resolve(true);
-      }).catch(reject);
+          return resolve(true);
+        }).catch(reject);
+      });
     });
+  }
+
+  getModuleFile(folder, name) {
+    const dirs = this.getModulePaths(folder);
+    const found = dirs.map((f) => {
+      return path.resolve(f, name + '.js');
+    }).filter((f) => fs.existsSync(f));
+
+    return found.length ? found[0] : null;
+  }
+
+  getModulePaths(folder) {
+    const overlays = settings.get('overlays', []);
+    const root = settings.option('ROOTDIR');
+    const base = [
+      path.resolve(__dirname, 'modules', folder)
+    ];
+
+    return base.concat(overlays.map((o) => {
+      return path.resolve(root, o, 'server/node/modules', folder);
+    })).filter((f) => fs.existsSync(f));
   }
 
 }

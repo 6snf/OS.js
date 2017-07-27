@@ -27,6 +27,8 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+require('app-module-path/register');
+
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');

@@ -29,6 +29,7 @@
     "run": "node osjs run"
   },
   "dependencies": {
+    "app-module-path": "^2.2.0",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "chokidar": "^1.7.0",
