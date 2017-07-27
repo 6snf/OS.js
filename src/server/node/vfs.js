@@ -41,6 +41,7 @@ class VFS {
    *
    * @param {String} query The virtual path
    * @param {Object} options Options
+   * @throws {Error} On invalid real path
    * @return {Object}
    */
   parseVirtualPath(query, options) {
@@ -60,6 +61,10 @@ class VFS {
         realPath = mount.destination;
       } else if ( typeof mount === 'string' ) {
         realPath = mount;
+      }
+
+      if ( !realPath ) {
+        throw new Error('Failed to find real path');
       }
     }
 

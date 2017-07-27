@@ -105,7 +105,6 @@ class Authenticator {
           }
         }
 
-        // FIXME: Oringinal has multiple groups
         return this._getGroups(http).then((groups) => {
           const found = Authenticator.hasGroup(groups, [type]);
 
