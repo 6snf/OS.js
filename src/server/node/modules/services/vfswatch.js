@@ -56,7 +56,7 @@ module.exports.register = function(env, config, wrapper) {
       });
     });
 
-    console.log('Watching', list);
+    console.log('> Watching', list);
   } catch ( e ) {
     console.error(e);
   }

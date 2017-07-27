@@ -33,6 +33,13 @@ const path = require('path');
 const fs = require('fs-extra');
 const glob = require('glob-promise');
 const settings = require('./settings.js');
+const colors = require('colors');
+
+const log = function() {
+  if ( settings.option('LOGLEVEL') ) {
+    console.log(...arguments);
+  }
+};
 
 /**
  * Base Modules Class
@@ -146,7 +153,7 @@ class Modules {
    */
   loadFile(key, filename) {
     return new Promise((resolve, reject) => {
-      console.log('+ Loading', key, filename);
+      log(colors.bold('Loading'), colors.green(key), filename);
 
       let instance;
       try {
@@ -174,17 +181,19 @@ class Modules {
 
   /**
    * Loads a directory
+   * @param {String} type Type
    * @param {String} directory Directory
    * @param {Object} app The express app
    * @param {Object} wrapper Our express wrapper layer
    * @param {Function} [loader] The loader
    * @return {Promise<Boolean, Error>}
    */
-  loadDirectory(directory, app, wrapper, loader) {
+  loadDirectory(type, directory, app, wrapper, loader) {
     loader = loader || function(files) {
       return new Promise((resolve, reject) => {
         files.forEach((f) => {
-          console.log('+ Loading', f);
+          log(colors.bold('Loading'), colors.green(type), f);
+
           try {
             require(f)(app, wrapper);
           } catch ( e ) {
@@ -233,9 +242,10 @@ class Modules {
     if ( !this.instances.session ) {
       const name = settings.get('http.session.module');
       const options = settings.get('http.session.options.' + name) || {};
-      console.log('- Using', name, 'session module');
+      log(colors.bold('Loading'), colors.green('session'), name);
 
       if ( name === 'memory' ) {
+        console.warn('WARNING: Using memory module might lead to unwanted and buggy behavior');
         this.instances.session = new session.MemoryStore(options);
       } else {
         const Store = require(name)(session);
@@ -254,7 +264,7 @@ class Modules {
    */
   loadRoutes(app, wrapper) {
     const routeFolder = path.resolve(__dirname, 'routes');
-    return this.loadDirectory(routeFolder, app, wrapper);
+    return this.loadDirectory('route', routeFolder, app, wrapper);
   }
 
   /**
@@ -269,7 +279,7 @@ class Modules {
     }
 
     const routeFolder = path.resolve(__dirname, 'modules/middleware');
-    return this.loadDirectory(routeFolder, app, wrapper);
+    return this.loadDirectory('middleware', routeFolder, app, wrapper);
   }
 
   /**
@@ -284,9 +294,9 @@ class Modules {
     }
 
     const routeFolder = path.resolve(__dirname, 'modules/services');
-    return this.loadDirectory(routeFolder, app, wrapper, (files) => {
+    return this.loadDirectory('service', routeFolder, app, wrapper, (files) => {
       return Promise.each(files, (f) => {
-        console.log('+ Loading', f);
+        log(colors.bold('Loading'), f);
 
         const m = require(f).register(settings.option(), settings.get(), wrapper);
         this.instances.services.push(m);
@@ -324,7 +334,7 @@ class Modules {
     return new Promise((resolve, reject) => {
       this._loadDirectory(directory).then((files) => {
         files.forEach((f) => {
-          console.log('+ Loading', f);
+          log(colors.bold('Loading'), colors.green('transport'), f);
           try {
             this.instances.vfs.push(require(f));
           } catch ( e ) {

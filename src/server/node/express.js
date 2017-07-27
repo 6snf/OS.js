@@ -39,6 +39,7 @@ const ws = require('ws');
 const cookie = require('cookie');
 const parser = require('cookie-parser');
 const morgan = require('morgan');
+const colors = require('colors');
 
 const modules = require('./modules.js');
 const settings = require('./settings.js');
@@ -294,7 +295,7 @@ const initSettings = (opts) => {
     HOSTNAME: null,
     DEBUG: false,
     PORT: null,
-    LOGLEVEL: -2,
+    LOGLEVEL: 7,
     NODEDIR: path.resolve(__dirname + '/../'),
     ROOTDIR: path.resolve(__dirname + '/../../../'),
     SERVERDIR: path.resolve(__dirname + '/../'),
@@ -356,8 +357,8 @@ const initWebserver = () => {
   const httpPort = settings.option('PORT') || settings.get('http.port');
   const hostname = settings.option('HOSTNAME') || settings.get('http.hostname');
 
+  console.log(colors.bold('Creating'),  colors.green(isHttp2 ? 'spdy' : 'http'), 'server on', hostname + '@' + httpPort, 'with');
   if ( isHttp2 ) {
-    console.log('Creating HTTP2 Web server on', hostname, httpPort);
     const rdir = settings.get('http.cert.path') || settings.option('SERVERDIR');
     const cname = settings.get('http.cert.name') || 'localhost';
     const copts = settings.get('http.cert.options') || {};
@@ -366,7 +367,6 @@ const initWebserver = () => {
 
     appServer = httpServer.createServer(copts, app);
   } else {
-    console.log('Creating HTTP Web server on', hostname, httpPort);
     appServer = httpServer.createServer(app);
   }
 
@@ -381,6 +381,7 @@ const initWebserver = () => {
  * Initializes Websockets
  */
 const initWebsockets = () => {
+  const hostname = settings.option('HOSTNAME') || settings.get('http.hostname');
   const wsSettings = settings.get('http.ws');
   const wsOptions = {
     server: appServer,
@@ -391,7 +392,7 @@ const initWebsockets = () => {
     wsOptions.port = wsSettings.port;
   }
 
-  console.log('Attaching Websocket server with', {port: wsSettings.port, path: wsSettings.path});
+  console.log(colors.bold('Creating'), colors.green('websocket'), 'server on', hostname + '@' + wsSettings.port + wsSettings.path);
 
   appWebsocket = new ws.Server(wsOptions);
   appWebsocket.on('connection', (ws, upgradeReq) => {
@@ -410,12 +411,12 @@ const initWebsockets = () => {
       if ( typeof websocketMap[sid] !== 'undefined' ) {
         delete websocketMap[sid];
       }
-      console.info('Closed a Websocket connection...');
+      console.info('< Closed a Websocket connection...');
     });
 
     websocketMap[sid] = ws;
 
-    console.info('Created a Websocket connection...');
+    console.info('> Created a Websocket connection...');
   });
 };
 
@@ -451,9 +452,11 @@ module.exports.start = (opts) => {
       initSettings(opts);
 
       const runningOptions = settings.option();
-      Object.keys(runningOptions).forEach((k) => {
-        console.log('-', k, '=', runningOptions[k]);
-      });
+      if ( runningOptions.DEBUG ) {
+        Object.keys(runningOptions).forEach((k) => {
+          console.log('-', k, '=', runningOptions[k]);
+        });
+      }
 
       initMiddleware();
       initWebserver();

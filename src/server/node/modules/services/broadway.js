@@ -89,7 +89,7 @@ module.exports.register = function(env, config, wrapper) {
 
   try {
     const port = defaults.spawner.port;
-    console.log('Starting broadway server on', port);
+    console.log('> Starting broadway server on', port);
 
     wss = new _ws({
       port: port
