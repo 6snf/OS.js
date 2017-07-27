@@ -314,7 +314,6 @@ class VFS {
 
           const range = args.download ? false : http.request.headers.range;
           if  ( range ) {
-            // FIXME: Respond to invalid ranges
             const positions = range.replace(/bytes=/, '').split('-');
             total = data.size;
             start = parseInt(positions[0], 10);
@@ -328,10 +327,17 @@ class VFS {
             http.response.setHeader('Content-Type', data.mime);
 
             if ( range ) {
-              http.response.setHeader('Content-Length', (end - start) + 1);
-              http.response.setHeader('Content-Range', 'bytes ' + start + '-' + end + '/' + total);
               http.response.setHeader('Accept-Ranges', 'bytes');
+              http.response.setHeader('Content-Range', 'bytes ' + start + '-' + end + '/' + total);
+              http.response.setHeader('Content-Length', (end - start) + 1);
+
+              if ( start > end || start > total - 1 || end >= total ) {
+                http.response.status(416).end();
+                return;
+              }
+
               http.response.status(206);
+
               stream.pipe(http.response);
             } else {
               stream.pipe(http.response);
