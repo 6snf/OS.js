@@ -99,36 +99,29 @@ function createWatch(name, mount, callback) {
     uid: '%USERNAME%'
   });
 
-  const parseWatch = (() => {
-    const reps = (s) => s.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+  const parseWatch = (realPath) => {
+    realPath = realPath.replace(/\\/g, '/');
 
     const tmpDir = configPath.replace(/\\/g, '/');
-    const tmpRestr = reps(tmpDir).replace(/%(.*)%/g, '([^\/]*)');
-    const tmpRe = new RegExp('^' + tmpRestr, 'g');
-    const tmpArgs = tmpDir.match(/%(.*)%/g) || [];
-    const hasArgs = configPath.match(/(%[A-z_]+%)/g) || [];
+    const reps = (s) => s.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+    const tmp = reps(tmpDir).replace(/%(.*)%/g, '([^\/]*)');
 
-    return (realPath) => {
-      realPath = realPath.replace(/\\/g, '/');
-      const matched = hasArgs.length ? realPath.match(tmpRe) || [] : [];
-      const relPath = realPath.replace(tmpRe, '');
+    const re = new RegExp('^' + tmp, 'g');
+    const cfg = tmpDir.split(/([^\/]*)/g);
+    const relPath = realPath.replace(re, '');
+    const result = {};
 
-      if ( hasArgs.length !== matched.length || !relPath ) {
-        return null;
+    realPath.split(/([^\/]*)/g).forEach((s, idx) => {
+      if ( String(cfg[idx]).match(/%(.*)%/)  ) {
+        result[cfg[idx]] = s;
       }
+    });
 
-      return {
-        virtual: relPath,
-        args: (function() {
-          const args = {};
-          tmpArgs.forEach((key, idx) => {
-            args[key.replace(/%/g, '').toLowerCase()] = matched[idx];
-          });
-          return args;
-        })()
-      };
+    return {
+      virtual: relPath,
+      args: result
     };
-  })();
+  };
 
   const found = configPath.indexOf('%');
   const dir = found > 0 ? configPath.substr(0, found) : configPath;
