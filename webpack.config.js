@@ -32,6 +32,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+const fs = require('fs-extra');
 const path = require('path');
 const osjs = require('osjs-build');
 
@@ -46,14 +47,6 @@ const standalone = process.env.OSJS_STANDALONE === 'true';
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
-const fixPath = (iter) => iter.replace(/^(dev|prod|standalone):/, '');
-const getAbsolute = (filename) => path.resolve(__dirname, filename);
-const getTemplateFile = (tpl, filename) => path.join(__dirname, 'src/templates/dist', tpl || 'default', filename);
-const getThemePath = (type) => path.join(__dirname, 'src/client/themes', type);
-const getThemeFile = (type, name) => path.join(__dirname, 'src/client/themes', type, name);
-const getStyleFile = (name) => path.join(__dirname, 'src/client/themes/styles', name, 'style.less');
-const getFontFile = (font) => path.join(__dirname, 'src/client/themes/fonts', font, 'style.css');
-
 function getFiltered(i) {
   if ( i.match(/^dev:/) && !debug ) {
     return false;
@@ -67,52 +60,121 @@ function getFiltered(i) {
   return true;
 }
 
-function getThemeFiles(cfg) {
+const fixPath = (iter) => iter.replace(/^(dev|prod|standalone):/, '');
+const getAbsolute = (filename) => path.resolve(__dirname, filename);
+
+const findFile = (cfg, filename) => {
+  const overlays = cfg.overlays || [];
+  const tries = ([
+    path.join(__dirname, 'src', filename)
+  ]).concat(overlays.map((o) => {
+    return path.resolve(__dirname, o, filename);
+  }));
+
+  return tries.find((iter) => {
+    return fs.existsSync(iter);
+  });
+};
+
+const getTemplateFile = (cfg, tpl, filename) => {
+  return findFile(cfg, path.join('templates/dist', tpl, filename));
+};
+
+const findThemeFolders = (cfg, base) => {
+  const overlays = cfg.overlays || [];
+  return ([
+    path.join(__dirname, 'src', base)
+  ]).concat(overlays.map((o) => {
+    return path.resolve(__dirname, o, base);
+  })).filter((iter) => fs.existsSync(iter));
+};
+
+const findThemeFile = (cfg, base, name, filename) => {
+  return findFile(cfg, path.join(base, name, filename));
+};
+
+const getStyleFile = (cfg, style) => {
+  return findThemeFile(cfg, 'client/themes/styles', style, 'style.less');
+};
+
+const getFontFile = (cfg, font) => {
+  return findThemeFile(cfg, 'client/themes/fonts', font, 'style.css');
+};
+
+const getIndexIncludes = (cfg) => {
+  const result = {
+    scripts: cfg.build.includes.scripts,
+    styles: cfg.build.includes.styles
+  };
+
+  const overlays = cfg.build.overlays || {};
+  Object.keys(overlays).forEach((n) => {
+    const ol = overlays[n];
+    if ( ol.includes ) {
+      Object.keys(ol.includes).forEach((k) => {
+        result[k] = result[k].concat(ol.includes[k]);
+      });
+    }
+  });
+
+  return {
+    scripts: result.scripts.filter(getFiltered).map(fixPath),
+    styles: result.styles.filter(getFiltered).map(fixPath)
+  };
+};
+
+const getThemeFiles = (cfg) => {
   let files = [];
-  files = files.concat(cfg.themes.fonts.map(getFontFile));
-  files = files.concat(cfg.themes.styles.map(getStyleFile));
+  files = files.concat(cfg.themes.fonts.map((f) => getFontFile(cfg, f)));
+  files = files.concat(cfg.themes.styles.map((f) => getStyleFile(cfg, f)));
 
-  return files;
-}
+  return files.filter((f) => !!f);
+};
 
-function getStaticFiles(cfg) {
-  let files = [
-    {
-      context: getAbsolute(getThemePath('wallpapers')),
+const getStaticFiles = (cfg) => {
+  let files = findThemeFolders(cfg, 'client/themes/wallpapers').map((f) => {
+    return {
+      context: getAbsolute(f),
       from: '*',
       to: 'themes/wallpapers'
-    }
-  ];
+    };
+  });
 
-  files = files.concat(cfg.build.static.filter(getFiltered).map((i) => {
+  const mapAbsolute = (i) => {
     return {
       from: getAbsolute(fixPath(i))
     };
-  }));
+  };
+
+  files = files.concat(cfg.build.static.filter(getFiltered).map(mapAbsolute));
+  Object.keys(cfg.build.overlays).forEach((name) => {
+    const ol = cfg.build.overlays[name];
+    files = files.concat(ol.static.filter(getFiltered).map(mapAbsolute));
+  });
 
   files = files.concat(cfg.themes.styles.map((i) => {
     return {
-      from: getAbsolute(path.join(getThemeFile('styles', i), 'theme.js')),
+      from: findThemeFile(cfg, 'client/themes/styles', i, 'theme.js'),
       to: 'themes/styles/' + i
     };
   }));
 
   files = files.concat(cfg.themes.icons.map((i) => {
     return {
-      from: getAbsolute(getThemeFile('icons', i)),
+      from: findThemeFile(cfg, 'client/themes/icons', i, ''),
       to: 'themes/icons/' + i
     };
   }));
 
   files = files.concat(cfg.themes.sounds.map((i) => {
     return {
-      from: getAbsolute(getThemeFile('sounds', i)),
+      from: findThemeFile(cfg, 'client/themes/sounds', i, ''),
       to: 'themes/sounds/' + i
     };
   }));
 
   return files;
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
@@ -131,14 +193,11 @@ module.exports = new Promise((resolve, reject) => {
     if ( options.assets !== false ) {
       webpack.plugins = webpack.plugins.concat([
         new HtmlWebpackPlugin({
-          template: getTemplateFile(cfg.build.template, 'index.ejs'),
-          osjs: {
-            scripts: cfg.build.includes.scripts.filter(getFiltered).map(fixPath),
-            styles: cfg.build.includes.styles.filter(getFiltered).map(fixPath)
-          }
+          template: getTemplateFile(cfg, cfg.build.template, 'index.ejs'),
+          osjs: getIndexIncludes(cfg)
         }),
 
-        new FaviconsWebpackPlugin(getTemplateFile(cfg.build.template, 'favicon.png')),
+        new FaviconsWebpackPlugin(getTemplateFile(cfg, cfg.build.template, 'favicon.png')),
 
         new CopyWebpackPlugin(getStaticFiles(cfg), {
           ignore: [
@@ -172,10 +231,32 @@ module.exports = new Promise((resolve, reject) => {
         .map(osjs.utils.fixWinPath);
     });
 
+    // Overlays
+    Object.keys(cfg.build.overlays).forEach((name) => {
+      const ol = cfg.build.overlays[name];
+      const wp = ol.webpack;
+      if ( wp ) {
+        if ( wp.resolve && wp.resolve.modules ) {
+          webpackConfig.resolve.modules = webpackConfig.resolve.modules.concat(wp.resolve.modules);
+        }
+        if ( wp.entry ) {
+          Object.keys(wp.entry).forEach((en) => {
+            if ( webpackConfig.entry[en] ) {
+              webpackConfig.entry[en] = webpackConfig.entry[en].concat(wp.entry[en]);
+            } else {
+              webpackConfig.entry[en] = wp.entry(en);
+            }
+
+          });
+        }
+      }
+    });
+
     const finalConfig = osjs.utils.mergeObject(webpack, webpackConfig);
     // Fixes "not an absolute path" problem in Webpack
     finalConfig.output.path = path.resolve(finalConfig.output.path);
     finalConfig.resolve.modules = finalConfig.resolve.modules.map(osjs.utils.fixWinPath);
+
     resolve(finalConfig);
   }).catch(reject);
 });

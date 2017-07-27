@@ -1,9 +1,11 @@
 {
   "build": {
     "template": "default",
+    "overlays": {
+    },
     "static": [
-      "src/templates/dist/%build.template%/api.php",
-      "src/templates/dist/%build.template%/blank.css",
+      "src/templates/dist/api.php",
+      "src/templates/dist/blank.css",
       "src/templates/dist/windows-live-oauth.html",
       "src/templates/dist/dropbox-oauth.html"
     ],
@@ -58,8 +60,6 @@
           "src/client/javascript/locales/ar_DZ.js"
         ]
       }
-    },
-    "overlays": {
     }
   }
 }

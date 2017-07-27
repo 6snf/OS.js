@@ -122,7 +122,7 @@ const getParsedQuery = (query, regexp, route) => {
  * Create route request wrapper
  */
 const createWrapper = () => {
-  const methods = ['use', 'post', 'get', 'head', 'put', 'delete'];
+  const methods = ['post', 'get', 'head', 'put', 'delete'];
 
   function getWebsocketFromUser(username) {
     let foundSid = null;
@@ -191,6 +191,19 @@ const createWrapper = () => {
   };
 
   const result = Object.assign({
+    use: (cb) => {
+      if ( cb.length > 4 ) { // We have one extra argument in wrapper
+        app.use(function(err, req, res, next) {
+          const nargs = [createHttpObject(req, res, next), err, req, res, next];
+          cb(...nargs);
+        });
+      } else {
+        app.use(function(req, res, next) {
+          const nargs = [createHttpObject(req, res, next), req, res, next];
+          cb(...nargs);
+        });
+      }
+    },
     upload: (q, cb) => {
       const form = new formidable.IncomingForm({
         uploadDir: tmpdir
@@ -198,7 +211,7 @@ const createWrapper = () => {
 
       app.post(q, (req, res, next) => {
         form.parse(req, (err, fields, files) => {
-          cb(createHttpObject(req, res, next, {fields, files}));
+          cb(createHttpObject(req, res, next, {fields, files}), req, res, next);
         });
       });
     }
@@ -207,7 +220,7 @@ const createWrapper = () => {
   methods.forEach((method) => {
     result[method] = (q, cb) => {
       return app[method](q, (req, res, next) => {
-        return cb(createHttpObject(req, res, next));
+        return cb(createHttpObject(req, res, next), req, res, next);
       });
     };
   });
