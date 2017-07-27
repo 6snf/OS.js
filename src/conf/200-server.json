@@ -42,7 +42,7 @@
         "level": -1
       },
       "session": {
-        "module": "memory",
+        "module": "session-file-store",
         "secret": "YOU SHOULD GENERATE YOUR OWN KEY",
         "name": null,
         "options": {

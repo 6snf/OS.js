@@ -275,7 +275,6 @@ const handleWebsocketMessage = (ws, msg, req) => {
 
   appSession(req, {}, (err) => {
     respond(Object.assign(req, {
-      //session: req.session || {},
       method: 'POST',
       query: query,
       body: args
