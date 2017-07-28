@@ -306,7 +306,7 @@ class Modules {
    */
   loadConnection(app) {
     let filename = 'http.js';
-    if ( settings.get('http.mode') === 'ws'  ) {
+    if ( settings.get('connection') === 'ws'  ) {
       filename = 'ws.js';
     }
 

@@ -54,7 +54,7 @@ class HttpConnection extends Connection {
   register() {
     return new Promise((resolve, reject) => {
       super.register(...arguments).then(() => {
-        const isHttp2 = settings.get('http.mode') === 'http2';
+        const isHttp2 = settings.get('connection') === 'http2';
         const httpServer = require(isHttp2 ? 'spdy' : 'http');
         const httpPort = settings.option('PORT') || settings.get('http.port');
         const hostname = settings.option('HOSTNAME') || settings.get('http.hostname');

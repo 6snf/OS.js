@@ -94,7 +94,7 @@ const initHandlers = (config) => new Promise((resolve, reject) => {
 
   const connectionType = options.Type === 'standalone'
     ? 'http'
-    : options.Type;
+    : (options.Type === 'ws' ? 'ws' : 'http');
 
   let Authenticator, Connection, Storage;
   try {

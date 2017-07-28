@@ -39,13 +39,18 @@ class Settings {
   /**
    * Loads and registers all settings
    * @param {Object} argv Launch arguments
-   * @param {Object} opts Options
-   * @param {Object} external Options from external scripts
+   * @param {Object} defaults Default options
+   * @param {Object} options Options
    */
-  load(argv, opts, external) {
-    opts = opts || {};
-    external = external || {};
+  load(argv, defaults, options) {
+    defaults = defaults || {};
+    options = options || {};
 
+    const result = Object.assign({}, defaults);
+    const allowedKeys = Object.keys(defaults)
+      .concat(['AUTH', 'STORAGE', 'CONNECTION']);
+
+    // Arguments from command-line
     const argvOptions = {
       DEBUG: argv.debug,
       HOSTNAME: argv.h || argv.hostname,
@@ -56,17 +61,23 @@ class Settings {
       STORAGE: argv.storage
     };
 
-    Object.keys(argvOptions).forEach((k) => {
-      if ( argvOptions[k] ) {
-        opts[k] = argvOptions[k];
-      }
-    });
+    // Arguments from environment
+    Object.keys(process.env)
+      .filter((k) => allowedKeys.indexOf(k) !== -1)
+      .forEach((k) => (result[k] = process.env[k]));
 
-    Object.keys(external).forEach((k) => {
-      opts[k] = external[k];
-    });
+    // Arguments from process
+    Object.keys(argvOptions)
+      .filter((k) => allowedKeys.indexOf(k) !== -1)
+      .filter((k) => typeof argvOptions[k] !== 'undefined')
+      .forEach((k) => (result[k] = argvOptions[k]));
 
-    const filename = path.resolve(opts.SERVERDIR, 'settings.json');
+    // Arguments from function
+    Object.keys(options)
+      .forEach((k) => (result[k] = options[k]));
+
+    // Our JSON storage
+    const filename = path.resolve(result.SERVERDIR, 'settings.json');
     const data = fs.readFileSync(filename, 'utf-8');
 
     const safeWords = [
@@ -94,6 +105,7 @@ class Settings {
       }
     });
 
+    // Finally create an object
     const config = Object.assign({
       api: {},
       vfs: {},
@@ -112,18 +124,17 @@ class Settings {
       config.http.session.secret = process.env.SECRET;
     }
 
-    if ( opts.CONNECTION || process.env.CONNECTION ) {
-      config.http.connection = opts.CONNECTION || process.env.CONNECTION;
+    if ( result.CONNECTION ) {
+      config.connection = result.CONNECTION;
     }
-
-    if ( opts.AUTH ) {
-      config.authenticator = opts.AUTH;
+    if ( result.AUTH ) {
+      config.authenticator = result.AUTH;
     }
-    if ( opts.STORAGE ) {
-      config.storage = opts.STORAGE;
+    if ( result.STORAGE ) {
+      config.storage = result.STORAGE;
     }
-    if ( opts.SESSION ) {
-      config.http.session.module = opts.SESSION;
+    if ( result.SESSION ) {
+      config.http.session.module = result.SESSION;
     }
 
     if ( config.tz ) {
@@ -131,7 +142,7 @@ class Settings {
     }
 
     this.settings = Object.freeze(config);
-    this.options = opts;
+    this.options = result;
   }
 
   /**

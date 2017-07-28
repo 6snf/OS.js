@@ -58,10 +58,7 @@ const start = (opts) => {
         LOGLEVEL: 7,
         NODEDIR: path.resolve(__dirname + '/../'),
         ROOTDIR: path.resolve(__dirname + '/../../../'),
-        SERVERDIR: path.resolve(__dirname + '/../'),
-        MODULEDIR: [
-          path.resolve(__dirname + '/modules')
-        ]
+        SERVERDIR: path.resolve(__dirname + '/../')
       }, opts);
 
       const runningOptions = settings.option();
