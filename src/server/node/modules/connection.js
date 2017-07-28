@@ -34,7 +34,6 @@ const formidable = require('formidable');
 const cookie = require('cookie');
 const parser = require('cookie-parser');
 const morgan = require('morgan');
-const express = require('express');
 
 const settings = require('./../settings.js');
 const modules = require('./../modules.js');
@@ -71,6 +70,7 @@ class Connection {
       }
 
       this.app.use(bodyParser.json());
+
       this.app.use(compression({
         level: settings.get('http.compression.level'),
         memLevel: settings.get('http.compression.memLevel')
@@ -84,25 +84,8 @@ class Connection {
         secret: settings.get('http.session.secret'),
         cookie: settings.get('http.session.cookie')
       });
+
       this.app.use(this.session);
-
-      this.getWrapper().get(/^\/?packages\/(.*\/.*)\/(.*)/, (http) => {
-        const name = http.request.params[0];
-
-        modules.getAuthenticator().checkPackagePermission(http, name).then(() => {
-          http.next();
-        }).catch((error) => {
-          http.response.status(403).send(error);
-        });
-      });
-
-      this.app.use(express.static('dist'));
-
-      this.app.use((err, req, res, next) => {
-        if ( err ) {
-          console.error(err);
-        }
-      });
 
       return resolve(true);
     });
@@ -173,13 +156,13 @@ class Connection {
    * @param {IncomingMessage} request The http request
    * @return {Object}
    */
-  getSessionWrapper(req) {
+  getSessionWrapper(request) {
     return {
       set: (k, v) => {
-        req.session[k] = v;
+        request.session[k] = v;
       },
       get: (k) => {
-        return req.session[k];
+        return request.session[k];
       }
     };
   }
