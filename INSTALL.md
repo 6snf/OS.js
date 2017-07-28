@@ -20,4 +20,4 @@ $ node osjs build
 $ node osjs run
 ```
 
-For more information, see the [Installation Manual](https://os-js.org/manual/installation/).
+For more information, see the [Installation Manual](https://manual.os-js.org/installation/).
