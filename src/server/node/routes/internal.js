@@ -27,11 +27,13 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const settings = require('./../settings.js');
 const modules = require('./../modules.js');
 const express = require('express');
 
 module.exports = function(app, wrapper) {
   const authenticator = () => modules.getAuthenticator();
+  const connection = () => modules.getConnection();
 
   /*
    * Package requests
@@ -47,6 +49,32 @@ module.exports = function(app, wrapper) {
   });
 
   /*
+   * Proxies
+   */
+  const proxy = connection().getProxy();
+  if ( proxy ) {
+    const proxies = settings.get('proxies', []);
+    Object.keys(proxies).forEach((uri) => {
+      let re = uri;
+      if ( re.substr(0, 1) === '/' ) {
+        try {
+          re = new RegExp(uri.substr(1));
+        } catch ( e ) {}
+      } else {
+        re = '/' + re;
+      }
+
+      console.log('> Proxy at', re);
+
+      app.all(re, (req, res, next) => {
+        proxy.web(req, res, {
+          target: proxies[uri]
+        });
+      });
+    });
+  }
+
+  /*
    * Static resources
    */
   app.use(express.static('dist'));
@@ -59,4 +87,5 @@ module.exports = function(app, wrapper) {
       console.error(err);
     }
   });
+
 };

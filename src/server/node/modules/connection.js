@@ -34,6 +34,7 @@ const formidable = require('formidable');
 const cookie = require('cookie');
 const parser = require('cookie-parser');
 const morgan = require('morgan');
+const proxy = require('http-proxy');
 
 const settings = require('./../settings.js');
 const modules = require('./../modules.js');
@@ -87,6 +88,11 @@ class Connection {
 
       this.app.use(this.session);
 
+      this.proxy = proxy.createProxyServer({});
+      this.proxy.on('error', (err) => {
+        console.warn(err);
+      });
+
       return resolve(true);
     });
   }
@@ -97,6 +103,10 @@ class Connection {
    */
   destroy() {
     this.sidMap = {};
+
+    if ( this.proxy ) {
+      this.proxy.close();
+    }
 
     return Promise.resolve(true);
   }
