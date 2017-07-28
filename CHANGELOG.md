@@ -1,3 +1,51 @@
+# 2.1.0
+
+Rewritten to ES6 (Babel), Webpack and Express.
+
+Many of these are *breaking* changes, but you can easily migrate to the new style.
+
+http://todo/migration-guide
+
+A backward-compability (client) module is provided, but is not guaranteed to work (100%).
+
+* Core: Rewritten to ES6
+* Core: Callbacks replaced with Promise
+* Core: Now using imports
+* Core: Deprecated all marked methods
+* Core: Removed global namespace (available as BC module)
+* Core: Removed support for "simple" packages
+* Core: Removed support for "dummy" packages
+* Core: Removed support for "old" packages
+* Core: Detached Scheme files from applications
+* Core: Changed in namespaces (code separation)
+* API: Now using axios for XHR
+* API: Now using bluebird for better promises
+* Packages: Default packages refactored
+* build: Now using Ygor as task system
+* build: Rewritten
+* build: Now using Webpack for themes
+* build: Now using Webpack for packages
+* build: Now using Webpack for core
+* build: Removed grunt entirely
+* build: Split up into separate package
+* build: Changed templating generation
+* build: Simplified configuration capabilities
+* build: Better overlay support
+* server-node: Rewritten to ES6
+* server-node: Now using Express
+* server-node: Changed how modules look
+* server-node: Better module APIs
+* conf: Changed overlays
+* conf: Changed vfs configuration
+* misc: Bugfixes and general cleanups
+* misc: Performance improvements
+* misc: No more 'dist/vendor' by default
+* misc: Removed automated installers from repo
+* misc: Separated graphics sources to own repo
+* misc: Separated x11 sources to own repo
+* misc: Updated documentation
+* misc: Now using esdoc
+
 # 2.0.0-97
 
 Bugfixes, updated dependencies, build system updates and moved some methods from Storage to Authenticator module
