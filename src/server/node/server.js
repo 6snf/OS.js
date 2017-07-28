@@ -27,20 +27,80 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const app = require('./express.js');
+require('app-module-path/register');
 
-process.on('uncaughtException', (error) => {
-  console.log('UNCAUGHT EXCEPTION', error, error.stack);
-});
+const express = require('express');
+const path = require('path');
+const minimist = require('minimist');
 
-process.on('unhandledRejection', (error) => {
-  console.log('UNCAUGHT REJECTION', error);
-});
+const modules = require('./modules.js');
+const settings = require('./settings.js');
 
-['SIGTERM', 'SIGINT'].forEach((sig) => {
-  process.on(sig, () => app.shutdown());
-});
+const shutdown = () => {
+  console.log('\n');
 
-process.on('exit', () => app.shutdown());
+  modules.destroy()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+};
 
-app.start();
+const start = (opts) => {
+  opts = opts || {};
+
+  return new Promise((resolve, reject) => {
+    const app = express();
+
+    try {
+      settings.load(minimist(process.argv.slice(2)), {
+        HOSTNAME: null,
+        DEBUG: false,
+        PORT: null,
+        LOGLEVEL: 7,
+        NODEDIR: path.resolve(__dirname + '/../'),
+        ROOTDIR: path.resolve(__dirname + '/../../../'),
+        SERVERDIR: path.resolve(__dirname + '/../'),
+        MODULEDIR: [
+          path.resolve(__dirname + '/modules')
+        ]
+      }, opts);
+
+      const runningOptions = settings.option();
+      if ( runningOptions.DEBUG ) {
+        Object.keys(runningOptions).forEach((k) => {
+          console.log('-', k, '=', runningOptions[k]);
+        });
+      }
+    } catch ( e ) {
+      reject(e);
+      return;
+    }
+
+    modules.load(app).then(() => {
+      console.info('Running...');
+
+      return resolve(modules.getConnection().getServer());
+    }).catch(reject);
+  });
+};
+
+module.exports = {start, shutdown};
+
+if ( require.main === module ) {
+
+  process.on('uncaughtException', (error) => {
+    console.log('UNCAUGHT EXCEPTION', error, error.stack);
+  });
+
+  process.on('unhandledRejection', (error) => {
+    console.log('UNCAUGHT REJECTION', error);
+  });
+
+  ['SIGTERM', 'SIGINT'].forEach((sig) => {
+    process.on(sig, () => shutdown());
+  });
+
+  process.on('exit', () => shutdown());
+
+  start();
+}
+

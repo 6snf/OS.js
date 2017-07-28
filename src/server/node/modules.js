@@ -59,7 +59,8 @@ class Modules {
       services: [],
       authenticator: null,
       storage: null,
-      session: null
+      session: null,
+      connection: null
     };
   }
 
@@ -94,6 +95,37 @@ class Modules {
     return Promise.each(modules, (module) => {
       return module ? module.destroy() : Promise.resolve(true);
     });
+  }
+
+  /**
+   * Loads all modules
+   * @param {Object} app The express app
+   * @return {Promise<Boolean, Error>}
+   */
+  load(app) {
+    const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
+    this.metadata = fs.readJsonSync(metaPath);
+
+    return Promise.each([
+      this.loadConnection,
+      this.loadRoutes,
+      this.loadVFS,
+      this.loadMiddleware,
+      this.loadServices,
+      this.loadPackages,
+      this.loadAuthenticator,
+      this.loadStorage
+    ], (fn) => {
+      return fn.call(this, app);
+    });
+  }
+
+  /**
+   * Gets the loaded Connection module
+   * @return {Connection}
+   */
+  getConnection() {
+    return this.instances.connection;
   }
 
   /**
@@ -156,6 +188,27 @@ class Modules {
     });
   }
 
+  getModuleFile(folder, name) {
+    const dirs = this.getModulePaths(folder);
+    const found = dirs.map((f) => {
+      return path.resolve(f, name + '.js');
+    }).filter((f) => fs.existsSync(f));
+
+    return found.length ? found[0] : null;
+  }
+
+  getModulePaths(folder) {
+    const overlays = settings.get('overlays', []);
+    const root = settings.option('ROOTDIR');
+    const base = [
+      path.resolve(__dirname, 'modules', folder)
+    ];
+
+    return base.concat(overlays.map((o) => {
+      return path.resolve(root, o, 'server/node/modules', folder);
+    })).filter((f) => fs.existsSync(f));
+  }
+
   /**
    * Loads a file
    * @param {String} key Type of file
@@ -195,11 +248,12 @@ class Modules {
    * @param {String} type Type
    * @param {String} directory Directory
    * @param {Object} app The express app
-   * @param {Object} wrapper Our express wrapper layer
    * @param {Function} [loader] The loader
    * @return {Promise<Boolean, Error>}
    */
-  loadDirectory(type, directory, app, wrapper, loader) {
+  loadDirectory(type, directory, app, loader) {
+    const wrapper = this.getConnection().getWrapper();
+
     loader = loader || function(files) {
       return new Promise((resolve, reject) => {
         files.forEach((f) => {
@@ -217,31 +271,8 @@ class Modules {
 
     return new Promise((resolve, reject) => {
       this._loadDirectory(directory).then((files) => {
-        return loader(files).then(resolve).catch(reject);
+        return loader(files, wrapper).then(resolve).catch(reject);
       }).catch(reject);
-    });
-  }
-
-  /**
-   * Loads all modules
-   * @param {Object} app The express app
-   * @param {Object} wrapper Our express wrapper layer
-   * @return {Promise<Boolean, Error>}
-   */
-  load(app, wrapper) {
-    const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
-    this.metadata = fs.readJsonSync(metaPath);
-
-    return Promise.each([
-      this.loadRoutes,
-      this.loadVFS,
-      this.loadMiddleware,
-      this.loadServices,
-      this.loadPackages,
-      this.loadAuthenticator,
-      this.loadStorage
-    ], (fn) => {
-      return fn.call(this, app, wrapper);
     });
   }
 
@@ -269,45 +300,58 @@ class Modules {
   }
 
   /**
-   * Loads all routes
+   * Loads the Connection
    * @param {Object} app The express app
-   * @param {Object} wrapper Our express wrapper layer
    * @return {Promise<Boolean, Error>}
    */
-  loadRoutes(app, wrapper) {
+  loadConnection(app) {
+    let filename = 'http.js';
+    if ( settings.get('http.mode') === 'ws'  ) {
+      filename = 'ws.js';
+    }
+
+    const Connection = require(path.resolve(__dirname, 'modules/connections', filename));
+    this.instances.connection = new Connection(app);
+    return this.instances.connection.register();
+  }
+
+  /**
+   * Loads all routes
+   * @param {Object} app The express app
+   * @return {Promise<Boolean, Error>}
+   */
+  loadRoutes(app) {
     const routeFolder = path.resolve(__dirname, 'routes');
-    return this.loadDirectory('route', routeFolder, app, wrapper);
+    return this.loadDirectory('route', routeFolder, app);
   }
 
   /**
    * Loads all middleware
    * @param {Object} app The express app
-   * @param {Object} wrapper Our express wrapper layer
    * @return {Promise<Boolean, Error>}
    */
-  loadMiddleware(app, wrapper) {
+  loadMiddleware(app) {
     if ( settings.option('MOCHA') ) {
       return Promise.resolve(true);
     }
 
     return Promise.each(this.getModulePaths('middleware'), (dir) => {
-      return this.loadDirectory('middleware', dir, app, wrapper);
+      return this.loadDirectory('middleware', dir, app);
     });
   }
 
   /**
    * Loads all services
    * @param {Object} app The express app
-   * @param {Object} wrapper Our express wrapper layer
    * @return {Promise<Boolean, Error>}
    */
-  loadServices(app, wrapper) {
+  loadServices(app) {
     if ( settings.option('MOCHA') ) {
       return Promise.resolve(true);
     }
 
     return Promise.each(this.getModulePaths('services'), (dir) => {
-      return this.loadDirectory('middleware', dir, app, wrapper, (files) => {
+      return this.loadDirectory('middleware', dir, app, (files, wrapper) => {
         return Promise.each(files, (f) => {
           log(colors.bold('Loading'), colors.green('service'), f);
 
@@ -321,10 +365,9 @@ class Modules {
   /**
    * Loads all packages
    * @param {Object} app The express app
-   * @param {Object} wrapper Our express wrapper layer
    * @return {Promise<Boolean, Error>}
    */
-  loadPackages(app, wrapper) {
+  loadPackages(app) {
     if ( settings.option('MOCHA') ) {
       return Promise.resolve(true);
     }
@@ -348,6 +391,7 @@ class Modules {
     };
 
     const options = settings.option();
+    const connection = this.getConnection();
     return Promise.each(Object.keys(this.metadata), (name) => {
       const meta = this.metadata[name];
       const filename = path.resolve(options.ROOTDIR, meta._src);
@@ -363,9 +407,9 @@ class Modules {
             launchSpawners(filename, meta);
           } else {
             result = pkg.register(options, meta, {
-              http: wrapper.getServer(),
-              ws: wrapper.getWebsocket(),
-              proxy: wrapper.getProxy()
+              http: connection.getServer(),
+              ws: connection.getWebsocket(),
+              proxy: connection.getProxy()
             });
           }
         }
@@ -432,27 +476,6 @@ class Modules {
         }).catch(reject);
       });
     });
-  }
-
-  getModuleFile(folder, name) {
-    const dirs = this.getModulePaths(folder);
-    const found = dirs.map((f) => {
-      return path.resolve(f, name + '.js');
-    }).filter((f) => fs.existsSync(f));
-
-    return found.length ? found[0] : null;
-  }
-
-  getModulePaths(folder) {
-    const overlays = settings.get('overlays', []);
-    const root = settings.option('ROOTDIR');
-    const base = [
-      path.resolve(__dirname, 'modules', folder)
-    ];
-
-    return base.concat(overlays.map((o) => {
-      return path.resolve(root, o, 'server/node/modules', folder);
-    })).filter((f) => fs.existsSync(f));
   }
 
 }

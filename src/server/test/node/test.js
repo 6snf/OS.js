@@ -1,7 +1,7 @@
 /*eslint strict: ["warn"]*/
 const assert = require('assert');
 const request = require('request');
-const osjs = require('../../node/express.js');
+const osjs = require('../../node/server.js');
 
 var url;
 var cookie;
