@@ -75,7 +75,7 @@
     "less": "^2.7.2",
     "less-loader": "^4.0.4",
     "mocha": "^3.4.2",
-    "osjs-build": "^0.6.5",
+    "osjs-build": "^0.6.6",
     "osjs-scheme-loader": "^1.0.5",
     "promise-limit": "^2.4.0",
     "style-loader": "^0.18.2",

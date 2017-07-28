@@ -16,7 +16,8 @@
         "vendor.js"
       ],
       "styles": [
-        "vendor.css"
+        "vendor.css",
+        "themes.css"
       ]
     },
     "webpack": {
