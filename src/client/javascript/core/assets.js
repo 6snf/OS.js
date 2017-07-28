@@ -270,7 +270,7 @@ export function playSound(name, volume) {
  * @return {String}
  */
 export function getPackageResource(app, name, vfspath) {
-  if ( name.match(/^(https?:)?\//) ) {
+  if ( name.match(/^((https?:)|\.)?\//) ) {
     return name;
   }
   name = name.replace(/^\.\//, '');
