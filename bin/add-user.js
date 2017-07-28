@@ -39,7 +39,7 @@ const _fs = require('fs');
 const ROOT = _path.join(__dirname, '/../');
 const ARGS = process.argv;
 
-const _db = require(_path.join(ROOT, 'src/server/node/lib/database.js'));
+const _db = require(_path.join(ROOT, 'src/server/node/database.js'));
 
 const config = JSON.parse(_fs.readFileSync(_path.join(ROOT, 'src', 'server', 'settings.json')));
 
