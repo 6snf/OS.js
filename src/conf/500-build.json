@@ -20,7 +20,7 @@
     },
     "webpack": {
       "output": {
-        "publicPath": "/",
+        "publicPath": "",
         "path": "%ROOT%/dist",
         "chunkFilename": "[name].js"
       },
