@@ -2,11 +2,19 @@
 
 Rewritten to ES6 (Babel), Webpack and Express.
 
-Many of these are *breaking* changes, but you can easily migrate to the new style.
-
-http://todo/migration-guide
+Many of these are **breaking** changes, but you can easily migrate to the new style.
 
 A backward-compability (client) module is provided, but is not guaranteed to work (100%).
+
+For a full writeup of changes etc, see links below.
+
+Relevant:
+
+* http://community.os.js.org/t/update-version-bump-2-1-0/142
+* http://community.os.js.org/t/roat-to-es6-es2015/131/8
+* https://github.com/os-js/OS.js/issues/617
+
+Digest:
 
 * Core: Rewritten to ES6
 * Core: Callbacks replaced with Promise
@@ -20,6 +28,8 @@ A backward-compability (client) module is provided, but is not guaranteed to wor
 * Core: Changed in namespaces (code separation)
 * API: Now using axios for XHR
 * API: Now using bluebird for better promises
+* VFS: Removed 'delete' operation (use 'unlink')
+* GUI: Schemes now embed in bundles if used
 * Packages: Default packages refactored
 * build: Now using Ygor as task system
 * build: Rewritten
@@ -35,8 +45,11 @@ A backward-compability (client) module is provided, but is not guaranteed to wor
 * server-node: Now using Express
 * server-node: Changed how modules look
 * server-node: Better module APIs
-* conf: Changed overlays
+* conf: Changed overlay layouts
+* conf: Overlays now support themes
+* conf: Overlays now support configuration includes
 * conf: Changed vfs configuration
+* misc: Added `OSjs.require()` for externals
 * misc: Moved src/client/themes to src/themes
 * misc: Bugfixes and general cleanups
 * misc: Performance improvements
