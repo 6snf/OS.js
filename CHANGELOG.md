@@ -37,6 +37,7 @@ A backward-compability (client) module is provided, but is not guaranteed to wor
 * server-node: Better module APIs
 * conf: Changed overlays
 * conf: Changed vfs configuration
+* misc: Moved src/client/themes to src/themes
 * misc: Bugfixes and general cleanups
 * misc: Performance improvements
 * misc: No more 'dist/vendor' by default
