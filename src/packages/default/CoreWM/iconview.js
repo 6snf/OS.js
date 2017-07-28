@@ -133,7 +133,7 @@ export default class DesktopIconView {
     this.shortcutCache = [];
     this.refreshTimeout = null;
 
-    GUI.Helpers.createDroppable(this.$element, {
+    GUI.createDroppable(this.$element, {
       onOver: function(ev, el, args) {
         wm.onDropOver(ev, el, args);
       },
@@ -155,7 +155,7 @@ export default class DesktopIconView {
       }
     });
 
-    this.$iconview = GUI.Element.createFromNode(this.$element);
+    this.$iconview = GUIElement.createFromNode(this.$element);
     this.$iconview.build();
 
     this.$iconview.on('select', () => {

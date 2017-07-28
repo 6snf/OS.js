@@ -136,27 +136,32 @@ const FilesystemModule = {
     }
 
     let found = [];
-    return Promise.each(settings.paths, (e) => {
-      return new Promise((n) => {
-        VFS.find(e, {query: q, limit: (args.limit ? args.dlimit : 0), recursive: args.recursive}).then((result) => {
-          if ( result ) {
-            const list = result.map((iter) => {
-              return {
-                title: iter.filename,
-                description: iter.path,
-                icon: Assets.getFileIcon(new FileMetadata(iter)),
-                launch: {application: '', args: '', file: iter}
-              };
-            });
+    const append = (result) => {
+      if ( result ) {
+        found = found.concat(result.map((iter) => {
+          return {
+            title: iter.filename,
+            description: iter.path,
+            icon: Assets.getFileIcon(new FileMetadata(iter)),
+            launch: {application: '', args: '', file: iter}
+          };
+        }));
+      }
+    };
 
-            found = found.concat(list);
-          }
-          return n();
-        }).catch((error) => {
-          console.warn(error);
-          n();
+    return new Promise((resolve, reject) => {
+      Promise.each(settings.paths, (e) => {
+        return new Promise((n) => {
+          VFS.find(e, {query: q, limit: (args.limit ? args.dlimit : 0), recursive: args.recursive}).then((result) => {
+            return n(append(result));
+          }).catch((error) => {
+            console.warn(error);
+            n();
+          });
         });
-      });
+      }).then(() => {
+        return resolve(found);
+      }).catch(reject);
     });
   },
   reindex: function(args) {
@@ -238,27 +243,27 @@ class SearchEngine {
       args.dlimit = args.limit;
     }
 
-    return Promise.each([this.modules], (module) => {
-      return new Promise((next, reject) => {
+    return new Promise((resolve, reject) => {
+      Promise.each(this.modules, (module) => {
+        return new Promise((next, reject) => {
 
-        console.debug('SearchEngine::search()', '=>', module);
+          console.debug('SearchEngine::search()', '=>', module);
 
-        if ( !args.limit || args.dlimit > 0 ) {
-          module.search(q, args, this.settings, (err, res) => {
-            if ( err ) {
-              errors.push(err);
-            } else {
+          if ( !args.limit || args.dlimit > 0 ) {
+            module.search(q, args, this.settings).then((res) => {
               args.dlimit -= res.length;
-
               result = result.concat(res);
-            }
 
-            next();
-          });
-        } else {
-          reject(new Error(errors.join(', ')));
-        }
-      });
+              next();
+            }).catch((err) => {
+              errors.push(err);
+              next();
+            });
+          } else {
+            reject(new Error(errors.join(', ')));
+          }
+        });
+      }).then(() => resolve(result)).catch(reject);
     });
   }
 
