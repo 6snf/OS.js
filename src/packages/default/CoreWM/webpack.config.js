@@ -7,9 +7,9 @@ module.exports = new Promise((resolve, reject) => {
   const metadataFile = path.join(__dirname, 'metadata.json');
 
   osjs.webpack.createPackageConfiguration(metadataFile).then((result) => {
-    result.webpack.plugins.push(new CopyWebpackPlugin([
+    result.config.plugins.push(new CopyWebpackPlugin([
       {from: 'animations.css'}
     ]));
-    resolve(result.webpack);
+    resolve(result.config);
   }).catch(reject);
 });

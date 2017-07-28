@@ -12,18 +12,17 @@
     "includes": {
       "scripts": [
         "standalone:packages.js",
-        "settings.js",
-        "vendor.js"
+        "settings.js"
       ],
       "styles": [
-        "vendor.css",
         "themes.css"
       ]
     },
     "webpack": {
       "output": {
         "publicPath": "/",
-        "path": "%ROOT%/dist"
+        "path": "%ROOT%/dist",
+        "chunkFilename": "[name].js"
       },
       "resolve": {
         "modules": [

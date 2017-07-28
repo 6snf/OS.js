@@ -1,11 +1,36 @@
-body[data-theme="default"] {
-  @import '../../../stylesheets/theme.less';
+body[data-theme="dark"] {
+
+  @import 'theme.less';
+
+  @base_background_color  : #353535;
+  @base_foreground_color  : #ffffff;
+  @base_shadow_unfocused  : 0px 0px 10px 1px rgba(0, 0, 0, .3);
+  @base_shadow_focused    : 0px 0px 10px 1px rgba(0, 0, 0, .6);
+
+  @gui_selected_background_color       : #2d73d2;
+  @gui_selected_foreground_color       : #ffffff;
+
+  @gui_zebra_foreground_color          : inherit;
+  @gui_zebra_background_color          : #5A5A5A;
+
+  @gui_border_color                    : #232323;
+  @gui_background_color                : #444444;
+
+  @gui_input_border_color              : #232323;
+  @gui_input_background_color          : #777777;
+  @gui_input_foreground_color          : @base_foreground_color;
+  @gui_input_disabled_border_color     : #000000;
+  @gui_input_disabled_background_color : #333232;
+  @gui_input_disabled_foreground_color : #565656;
+
+  @gui_button_border_color             : @gui_input_border_color;
+  @gui_button_background_color         : @base_background_color;
+  @gui_button_foreground_color         : @base_foreground_color;
+  @gui_button_background               : @base_background_color;
+  @gui_button_active_border_color      : #333333;
+  @gui_button_active_foreground_color  : @gui_button_foreground_color;
 
   @gui_progress_bar_background : @gui_selected_background_color url('./gui/progressbar.png') repeat-x center;
-
-  application-window:before {
-    .theme_border_top(3px);
-  }
 
   .application-window-button-entry::after,
   .application-window-button-entry::before {
