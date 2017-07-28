@@ -49,10 +49,10 @@
     "minimist": "^1.2.0",
     "morgan": "^1.8.2",
     "request": "^2.81.0",
-    "session-file-store": "^1.0.0",
+    "session-file-store": "^1.1.1",
     "simplejsonconf": "^1.0.6",
     "unzip-stream": "^0.1.2",
-    "ws": "^3.0.0",
+    "ws": "^3.1.0",
     "ygor": "^4.0.4",
     "zlibjs": "^0.3.0"
   },
@@ -75,11 +75,11 @@
     "less": "^2.7.2",
     "less-loader": "^4.0.4",
     "mocha": "^3.4.2",
-    "osjs-build": "^0.6.6",
+    "osjs-build": "^0.6.7",
     "osjs-scheme-loader": "^1.0.5",
     "promise-limit": "^2.4.0",
     "style-loader": "^0.18.2",
     "then-jsonp": "^1.0.3",
-    "webpack": "^3.3.0"
+    "webpack": "^3.4.1"
   }
 }
