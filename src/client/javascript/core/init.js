@@ -47,8 +47,6 @@ import {playSound} from 'core/assets';
 import * as GUI from 'utils/gui';
 import * as Utils from 'utils/misc';
 import Preloader from 'utils/preloader';
-import Broadway from 'broadway/broadway';
-import BroadwayConnection from 'broadway/connection';
 import ServiceNotificationIcon from 'helpers/service-notification-icon';
 
 import AlertDialog from 'dialogs/alert';
@@ -183,20 +181,6 @@ const initPackageManager = (config) => new Promise((resolve, reject) => {
  * @return {Promise}
  */
 const initExtensions = (config) => new Promise((resolve, reject) => {
-  if ( config.Broadway.enabled ) {
-    addHook('onSessionLoaded', function() {
-      BroadwayConnection.init();
-    });
-
-    addHook('onLogout', function() {
-      BroadwayConnection.disconnect();
-    });
-
-    addHook('onBlurMenu', function() {
-      Broadway.inject(null, 'blur');
-    });
-  }
-
   const packages = PackageManager.getPackages();
 
   const preloadExtensions = () => new Promise((resolve, reject) => {

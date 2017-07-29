@@ -57,6 +57,7 @@ Digest:
 * misc: Removed automated installers from repo
 * misc: Separated graphics sources to own repo
 * misc: Separated x11 sources to own repo
+* misc: Separated Broadway (will be replaced with Xpra)
 * misc: Updated documentation
 * misc: Now using esdoc
 
