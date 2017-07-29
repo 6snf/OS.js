@@ -35,6 +35,7 @@ import MountManager from 'core/mount-manager';
 import PackageManager from 'core/package-manager';
 import SettingsManager from 'core/settings-manager';
 import Connection from 'core/connection';
+import Promise from 'bluebird';
 import {_} from 'core/locales';
 
 let watches = [];
@@ -316,14 +317,14 @@ function convertWriteData(data, mime) {
 }
 
 function requestWrapper(mountpoint, method, args, options, appRef) {
-  console.info('VFS operation', method, args);
+  console.info('VFS operation', ...arguments);
   if ( !mountpoint ) {
     return Promise.reject(new Error(_('ERR_VFSMODULE_INVALID')));
   }
 
   return new Promise((resolve, reject) => {
     mountpoint.request(method, args, options).then((response) => {
-      return Connection.instance.onVFSRequestCompleted(mountpoint, method, args, response)
+      return Connection.instance.onVFSRequestCompleted(mountpoint, method, args, response, appRef)
         .then(() => resolve(response)).catch(reject);
     }).catch(reject);
   });

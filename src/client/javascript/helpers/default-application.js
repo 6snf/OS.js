@@ -166,19 +166,18 @@ export default class DefaultApplication extends Application {
     }
 
     win._toggleLoading(true);
-    VFS.write(file, value || '').then(() => {
-      win._toggleLoading(false);
-
+    VFS.write(file, value || '', null, this).then(() => {
       this._setArgument('file', file);
       win.updateFile(file);
     }).catch((error) => {
-      win._toggleLoading(false);
       Main.error(this.__label,
                  _('ERR_FILE_APP_SAVE'),
                  _('ERR_FILE_APP_SAVE_ALT_FMT', file.path, error)
       );
 
-    }, null, this);
+    }).finally(() => {
+      win._toggleLoading(false);
+    });
   }
 
   /**

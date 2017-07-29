@@ -194,9 +194,10 @@ export default class Connection {
    * @param   {String}     method    VFS Method Name
    * @param   {Object}     args      VFS Method Arguments
    * @param   {Mixed}      response  VFS Response Result
+   * @param   {Process}    [appRef]  Application reference
    * @return  {Promise<Boolean, Error>}
    */
-  onVFSRequestCompleted(mount, method, args, response) {
+  onVFSRequestCompleted(mount, method, args, response, appRef) {
     return Promise.resolve(true);
   }
 
