@@ -51,8 +51,6 @@ class ApplicationAboutWindow extends Window {
 
     this._render('AboutWindow', require('osjs-scheme-loader!scheme.html'));
 
-    root.getElementsByTagName('img')[0].src = app._getResource('about.png');
-
     return root;
   }
 }

@@ -50,6 +50,7 @@ import PackageManager from 'core/package-manager';
 import Process from 'core/process';
 
 let loaders = [];
+let alreadyLaunching = [];
 let loaderGraze;
 
 function createSplash(name, icon, label, parentEl) {
@@ -248,6 +249,12 @@ export function launch(name, args, onconstruct) {
   args = args || {};
   onconstruct = onconstruct || function() {};
 
+  const hash = name + JSON.stringify(args);
+  if ( alreadyLaunching.indexOf(hash) !== -1 )  {
+    return Promise.resolve(null);
+  }
+  alreadyLaunching.push(hash);
+
   console.info('launch()', name, args);
 
   let removeSplash = () => {};
@@ -284,7 +291,8 @@ export function launch(name, args, onconstruct) {
       console.warn('API::launch()', 'detected that this application is a singular and already running...');
       alreadyRunning._onMessage('attention', args);
 
-      throw new Error(_('ERR_APP_LAUNCH_ALREADY_RUNNING_FMT', name));
+      //throw new Error(_('ERR_APP_LAUNCH_ALREADY_RUNNING_FMT', name));
+      return Promise.resolve(alreadyRunning);
     }
 
     triggerHook('onApplicationLaunch', [name, args]);
@@ -387,7 +395,15 @@ export function launch(name, args, onconstruct) {
   };
 
   return new Promise((resolve, reject) => {
+    const remove = () => {
+      const i = alreadyLaunching.indexOf(hash);
+      if ( i >= 0 ) {
+        alreadyLaunching.splice(i, 1);
+      }
+    };
+
     const fail = (e) => {
+      remove();
       onerror(e);
       removeSplash();
       return reject(e);
@@ -397,7 +413,7 @@ export function launch(name, args, onconstruct) {
       init().then((r) => {
         removeSplash();
         return resolve(r);
-      }).catch(fail);
+      }).catch(fail).finally(remove);
     } catch ( e ) {
       fail(e);
     }
