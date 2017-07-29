@@ -84,11 +84,15 @@ function parseDynamic(node, win, args) {
     el.setAttribute('data-icon', image);
   });
 
-  node.querySelectorAll('*[data-src]').forEach(function(el) {
-    const old = el.getAttribute('data-src') || '';
-    if ( win._app && old.match(/^app:\/\//) ) {
-      const source = Assets.getPackageResource(win._app, old.replace('app://', ''));
-      el.setAttribute('data-src', source);
+  node.querySelectorAll('*[data-src],*[src]').forEach(function(el) {
+    const isNative = el.hasAttribute('src');
+    const src = isNative
+      ? el.getAttribute('src')
+      : el.getAttribute('data-src') || '';
+
+    if ( win._app && !src.match(/^(https?:)?\//) ) {
+      const source = Assets.getPackageResource(win._app, src);
+      el.setAttribute(isNative ? 'src' : 'data-src', source);
     }
   });
 }
