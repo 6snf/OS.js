@@ -30,7 +30,6 @@
 import * as DOM from 'utils/dom';
 import * as GUI from 'utils/gui';
 import * as Events from 'utils/events';
-import * as Utils from 'utils/misc';
 
 /*
  * Holds information about current behaviour
@@ -52,7 +51,7 @@ class BehaviourState {
       b: win._dimension.h + win._position.y
     };
 
-    const theme = Utils.cloneObject(wm.getStyleTheme(true, true));
+    const theme = Object.assign({}, wm.getStyleTheme(true, true));
     if ( !theme.style ) {
       theme.style = {'window': {margin: 0, border: 0}};
     }
