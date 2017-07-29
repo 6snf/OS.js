@@ -2,6 +2,8 @@
 const assert = require('assert');
 const request = require('request');
 const osjs = require('../../node/server.js');
+const path = require('path');
+const fs = require('fs');
 
 var url;
 var cookie;
@@ -36,6 +38,8 @@ function post(uurl, data, cb) {
   });
 }
 
+let indexContent;
+
 /////////////////////////////////////////////////////////////////////////////
 // TESTS
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +55,8 @@ describe('HTTP Server', function() {
       STORAGE: 'test',
       CONNECTION: 'http',
       SESSION: 'memory'
-    }).then(() => {
+    }).then((instance) => {
+      indexContent = fs.readFileSync(path.join(instance.options.ROOTDIR, 'dist/index.html'), 'utf8');
       done();
     }).catch((err) => {
       assert.equal(null, err);
@@ -276,10 +281,43 @@ describe('HTTP Server', function() {
         done();
       });
     });
+
+    it('should get correct file content (raw stream)', function(done) {
+      post(url + '/FS/read', {path: 'home:///foo'}, function(err, res, body) {
+        assert.equal(200, res.statusCode);
+        assert.equal('mocha', body);
+        done();
+      });
+    });
+
+    it('should get correct file content (raw body)', function(done) {
+      post(url + '/FS/read', {path: 'home:///foo', options: {stream: false}}, function(err, res, body) {
+        assert.equal(200, res.statusCode);
+        assert.equal('mocha', body);
+        done();
+      });
+    });
+
+    it('should get correct file content (base body)', function(done) {
+      post(url + '/FS/read', {path: 'home:///foo', options: {raw: false, stream: false}}, function(err, res, body) {
+        assert.equal(200, res.statusCode);
+        assert.equal('data:application/octet-stream;base64,bW9jaGE=', body);
+        done();
+      });
+    });
+
     it('should successfully read file', function(done) {
       post(url + '/FS/read', {path: 'osjs:///index.html'}, function(err, res, body) {
         assert.equal(200, res.statusCode);
-        assert.notEqual(null, body);
+        assert.equal(indexContent, body);
+        done();
+      });
+    });
+
+    it('should successfully read file', function(done) {
+     get(url + '/FS/read?path=' + encodeURIComponent('osjs:///index.html'), function(err, res, body) {
+        assert.equal(200, res.statusCode);
+        assert.equal(indexContent, body);
         done();
       });
     });

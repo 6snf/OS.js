@@ -282,33 +282,32 @@ const VFS = {
     const options = args.options || {};
     const mime = _vfs.getMime(args.path);
 
-    if ( options.raw !== false ) {
-      _fs.stat(resolved.real, (e, stat) => {
-        if ( e ) {
-          reject(e);
-          return;
-        }
+    _fs.stat(resolved.real, (e, stat) => {
+      if ( e ) {
+        reject(e);
+        return;
+      }
 
-        if ( options.stream !== false ) {
-          resolve({resource: (options) => {
-            return createReadStream(http, args.path, options);
-          }, mime: mime, filename: resolved.real, size: stat.size});
-        } else {
-          _fs.readFile(resolved.real, (e, r) => {
-            return e ? reject(e) : resolve({raw: r, mime: mime, filename: resolved.real, size: stat.size});
+      if ( options.stream !== false ) {
+        resolve({
+          resource: (options) => createReadStream(http, args.path, options),
+          mime: mime,
+          filename: resolved.real,
+          size: stat.size,
+          options: options
+        });
+      } else {
+        _fs.readFile(resolved.real, (e, r) => {
+          return e ? reject(e) : resolve({
+            resource: r,
+            mime: mime,
+            filename: resolved.real,
+            size: stat.size,
+            options: options
           });
-        }
-      });
-    } else {
-      _fs.readFile(resolved.real, (e, r) => {
-        if ( e ) {
-          return reject(e);
-        }
-
-        const enc = 'data:' + mime + ';base64,' + (new Buffer(r).toString('base64'));
-        return resolve(enc.toString());
-      });
-    }
+        });
+      }
+    });
   },
 
   upload: function(http, args, resolve, reject) {
@@ -394,12 +393,12 @@ const VFS = {
       });
     }
 
-    if ( options.raw ) {
-      writeFile(data, options.rawtype || 'binary');
-    } else {
+    if ( options.raw === false ) {
       data = unescape(data.substring(data.indexOf(',') + 1));
       data = new Buffer(data, 'base64');
       writeFile(data);
+    } else {
+      writeFile(data, options.rawtype || 'binary');
     }
   },
 

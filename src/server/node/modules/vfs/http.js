@@ -43,32 +43,32 @@ const VFS = {
       });
     }
 
-    if ( options.raw !== false ) {
-      if ( options.stream !== false ) {
-        _request.head(args.path).on('response', (response) => {
-          const size = response.headers['content-length'];
-          const mime = response.headers['content-type'];
+    if ( options.stream !== false ) {
+      _request.head(args.path).on('response', (response) => {
+        const size = response.headers['content-length'];
+        const mime = response.headers['content-type'];
 
-          if ( response.statusCode < 200 || response.statusCode >= 300 ) {
-            reject('Failed to fetch file: ' + response.statusCode);
-          } else {
-            resolve({
-              resource: () => createReadStream(http, args.path),
-              mime: mime,
-              size: size,
-              filename: args.path
-            });
-          }
-        }).on('error', reject);
-      } else {
-        createRequest(args.path).then((result) => {
-          resolve({raw: result.data, mime: result.mime, size: result.size, filename: _path.basename(args.path)});
-        }).catch(reject);
-      }
+        if ( response.statusCode < 200 || response.statusCode >= 300 ) {
+          reject('Failed to fetch file: ' + response.statusCode);
+        } else {
+          resolve({
+            resource: () => createReadStream(http, args.path),
+            mime: mime,
+            size: size,
+            filename: args.path,
+            options: options
+          });
+        }
+      }).on('error', reject);
     } else {
       createRequest(args.path).then((result) => {
-        const enc = 'data:' + result.mime + ';base64,' + (new Buffer(result.data).toString('base64'));
-        resolve(enc.toString());
+        resolve({
+          raw: result.data,
+          mime: result.mime,
+          size: result.size,
+          filename: _path.basename(args.path),
+          options: options
+        });
       }).catch(reject);
     }
   }

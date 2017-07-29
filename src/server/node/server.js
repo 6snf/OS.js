@@ -75,7 +75,13 @@ const start = (opts) => {
     modules.load(app).then(() => {
       console.info('Running...');
 
-      return resolve(modules.getConnection().getServer());
+      return resolve({
+        settings: settings.get(),
+        options: settings.option(),
+        connection: modules.getConnection(),
+        authenticator: modules.getAuthenticator(),
+        storage: modules.getStorage()
+      });
     }).catch(reject);
   });
 };

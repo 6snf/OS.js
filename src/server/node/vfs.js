@@ -305,11 +305,12 @@ class VFS {
   respond(http, method, args, data) {
     if ( method === 'read' ) {
       if ( typeof data === 'object' ) {
+
         if ( args.download && data.filename ) {
           http.response.setHeader('Content-Disposition', 'attachment; filename=' + path.basename(data.filename));
         }
 
-        if ( data.resource ) {
+        if ( typeof data.resource === 'function' ) {
           let start, end, total;
 
           const range = args.download ? false : http.request.headers.range;
@@ -347,9 +348,14 @@ class VFS {
           });
 
           return;
-        } else if ( data.raw ) {
-          http.response.setHeader('Content-Type', data.mime);
-          http.response.send(data, args.options);
+        } else {
+          if ( data.options.raw === false  ) {
+            const enc = 'data:' + data.mime + ';base64,' + (new Buffer(data.resource).toString('base64'));
+            http.response.send(enc.toString());
+          } else {
+            http.response.setHeader('Content-Type', data.mime);
+            http.response.send(data.resource);
+          }
 
           return;
         }
