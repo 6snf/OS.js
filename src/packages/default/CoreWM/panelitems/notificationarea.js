@@ -83,7 +83,7 @@ class NotificationAreaItem {
       ev.stopPropagation();
       ev.preventDefault();
       GUI.blurMenu();
-      self.onClick.call(this, arguments);
+      self.onClick.apply(this, arguments);
       return false;
     });
 
