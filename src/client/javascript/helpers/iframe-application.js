@@ -73,7 +73,7 @@ export default class IFrameApplication extends Application {
     super.init(...arguments);
 
     const name = this.__pname + 'Window';
-    this._addWindow(new IFrameApplicationWindow(name, this.options, this), null, true);
+    this._addWindow(new IFrameApplicationWindow(name, this.options, this));
   }
 
   /**

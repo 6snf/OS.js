@@ -577,6 +577,7 @@ export default class WindowManager extends Process {
    */
   onResize(ev) {
     this._onDisplayChange();
+    this._emit('resized');
   }
 
   /**

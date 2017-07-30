@@ -368,7 +368,8 @@ export default class UIDataView extends GUIElement {
             }
 
             body.insertBefore(row, insertBefore);
-            this.remove(null, className, insertBefore, body);
+            //this.remove(null, className, insertBefore, body);
+            UIDataView.prototype.remove.call(this, null, className, insertBefore, body);
           } else {
             body.appendChild(row);
           }
@@ -379,7 +380,8 @@ export default class UIDataView extends GUIElement {
 
     if ( !single ) {
       Object.keys(inView).forEach((k) => {
-        this.remove(null, className, inView[k]);
+        //this.remove(null, className, inView[k]);
+        UIDataView.prototype.remove.call(this, null, className, inView[k]);
       });
     }
 

@@ -52,10 +52,13 @@ import Window from 'core/window';
  *
  * @desc The class used for creating Applications.
  *
- * @param   {String}            name        Process name
- * @param   {Object}            args        Process arguments
- * @param   {Metadata}          metadata    Application metadata
- * @param   {Object}            [settings]  Application settings
+ * @param   {String}    name                         Process name
+ * @param   {Object}    args                         Process arguments
+ * @param   {Metadata}  metadata                     Application metadata
+ * @param   {Object}    [settings]                   Application settings
+ * @param   {Object}    [options]                    Options
+ * @param   {Boolean}   [options.closeWithMain=true] Close application when main window closes
+ * @param   {Boolean}   [options.closeOnEmpty=false] Close applications when all windows have been removed
  *
  * @link https://os-js.org/manual/package/application/
  *
@@ -63,8 +66,13 @@ import Window from 'core/window';
  */
 export default class Application extends Process {
 
-  constructor(name, args, metadata, settings) {
+  constructor(name, args, metadata, settings, options) {
     console.group('Application::constructor()', arguments);
+
+    options = Object.assign({
+      closeWithMain: true,
+      closeOnEmpty: true
+    }, options || {});
 
     super(...arguments);
 
@@ -103,6 +111,12 @@ export default class Application extends Process {
      * @type {Boolean}
      */
     this.__destroying = false;
+
+    /**
+     * Custom options
+     * @type {Object}
+     */
+    this.__options = options;
 
     try {
       this.__settings = SettingsManager.instance(name, settings || {});
@@ -167,31 +181,21 @@ export default class Application extends Process {
    *
    * @override
    */
-  destroy(sourceWid) {
+  destroy() {
     if ( this.__destroying || this.__destroyed ) { // From 'process.js'
       return true;
     }
-    this.__destroying = true;
 
     console.group('Application::destroy()', this.__pname);
-
-    this.__windows.forEach((w) => {
-      try {
-        if ( w && w._wid !== sourceWid ) {
-          w.destroy();
-        }
-      } catch ( e ) {
-        console.warn('Application::destroy()', e, e.stack);
-      }
-    });
-
-    this.__mainwindow = null;
-    this.__settings = {};
-    this.__windows = [];
 
     if ( this.__scheme && typeof this.__scheme.destroy === 'function' ) {
       this.__scheme.destroy();
     }
+
+    this.__destroying = true;
+    this.__mainwindow = null;
+    this.__settings = {};
+    this.__windows = [];
     this.__scheme = null;
 
     const result = super.destroy(...arguments);
@@ -213,10 +217,16 @@ export default class Application extends Process {
     }
 
     if ( msg === 'destroyWindow' ) {
-      if ( obj._name === this.__mainwindow ) {
-        this.destroy(obj._wid);
-      } else {
-        this._removeWindow(obj);
+      this._removeWindow(obj);
+
+      if ( this.__options.closeOnEmpty && !this.__windows.length ) {
+        console.info('All windows removed, destroying application');
+        this.destroy();
+      } else if ( obj._name === this.__mainwindow ) {
+        if ( this.__options.closeWithMain ) {
+          console.info('Main window was closed, destroying application');
+          this.destroy();
+        }
       }
     } else if ( msg === 'attention' ) {
       if ( this.__windows.length && this.__windows[0] ) {
@@ -280,20 +290,21 @@ export default class Application extends Process {
       throw new TypeError('Application::_removeWindow() expects Core.Window');
     }
 
-    return this.__windows.some((win, i) => {
-      if ( win ) {
-        if ( win._wid === w._wid ) {
-          console.debug('Application::_removeWindow()', w._wid);
-          win.destroy();
+    const found = this.__windows.findIndex((win) => win && win._wid === w._wid);
+    if ( found !== -1 ) {
+      const win = this.__windows[found];
 
-          this.__windows.splice(i, 1);
-
-          return true;
-        }
+      console.debug('Application::_removeWindow()', win._wid);
+      try {
+        win.destroy();
+      } catch ( e ) {
+        console.warn(e);
       }
 
-      return true;
-    });
+      this.__windows.splice(found, 1);
+    }
+
+    return found !== -1;
   }
 
   /**

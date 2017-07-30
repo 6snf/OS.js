@@ -1269,10 +1269,10 @@ export default class Window {
    * @return  {Boolean}     On succes
    */
   _close() {
-    console.debug('Window::_close()');
     if ( this._disabled || this._destroyed ) {
       return false;
     }
+    console.debug('Window::_close()');
 
     this._blur();
     this.destroy();
