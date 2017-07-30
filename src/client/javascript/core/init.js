@@ -41,7 +41,7 @@ import DialogWindow from 'core/dialog';
 import Storage from 'core/storage';
 import Process from 'core/process';
 import Connection from 'core/connection';
-import {addHook, triggerHook} from 'helpers/hooks';
+import {triggerHook} from 'helpers/hooks';
 import {getConfig} from 'core/config';
 import {playSound} from 'core/assets';
 import * as GUI from 'utils/gui';
