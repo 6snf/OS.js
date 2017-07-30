@@ -485,5 +485,8 @@ module.exports = {
   'LBL_OPACITY': 'Opactiy',
   'LBL_ITEMS': 'Items',
   'LBL_ONTOP': 'On top',
-  'LBL_BACKGROUND': 'Background'
+  'LBL_BACKGROUND': 'Background',
+  'LBL_QUIT': 'Quit',
+  'LBL_EXIT': 'Exit',
+  'LBL_WINDOWS': 'Windows'
 };

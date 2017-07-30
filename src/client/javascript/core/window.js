@@ -2081,6 +2081,14 @@ export default class Window {
   }
 
   /**
+   * Get the title
+   * @return {String}
+   */
+  _getTitle() {
+    return this._title;
+  }
+
+  /**
    * Set Window title
    *
    * @param   {String}      t           Title

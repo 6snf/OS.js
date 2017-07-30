@@ -1000,7 +1000,7 @@ class ApplicationFileManager extends Application {
       wm.notification({
         title: 'External Storage',
         message: 'Using external services requires authorization. A popup-window may appear.',
-        icon: 'status/dialog-information.png'
+        icon: Assets.getIcon('status/dialog-information.png', '32x32')
       });
     }
   }

@@ -249,7 +249,7 @@ class CoreWM extends WindowManager {
 
       if ( Config.getConfig('Debug') ) {
         this.createNotificationIcon('_DeveloperNotification', {
-          image: Assets.getIcon('categories/applications-development.png', '16x16'),
+          icon: Assets.getIcon('categories/applications-development.png', '16x16'),
           title: 'Developer Tools',
           onContextMenu: displayDevMenu,
           onClick: displayDevMenu
@@ -258,7 +258,7 @@ class CoreWM extends WindowManager {
 
       if ( this.getSetting('fullscreen') ) {
         this.createNotificationIcon('_FullscreenNotification', {
-          image: Assets.getIcon('actions/view-fullscreen.png', '16x16'),
+          icon: Assets.getIcon('actions/view-fullscreen.png', '16x16'),
           title: 'Enter fullscreen',
           onClick: toggleFullscreen,
           _isFullscreen: false
@@ -266,7 +266,7 @@ class CoreWM extends WindowManager {
       }
 
       this.createNotificationIcon('_HandlerUserNotification', {
-        image: Assets.getIcon('status/avatar-default.png', '16x16'),
+        icon: Assets.getIcon('status/avatar-default.png', '16x16'),
         title: Locales._('TITLE_SIGNED_IN_AS_FMT', user.username),
         onContextMenu: displayMenu,
         onClick: displayMenu
@@ -412,7 +412,7 @@ class CoreWM extends WindowManager {
             console.warn('stack', e.stack);
 
             this.notification({
-              icon: 'status/dialog-warning.png',
+              icon: Assets.getIcon('status/dialog-warning.png', '32x32'),
               title: 'CoreWM',
               message: translate('An error occured while creating PanelItem: {0}', e)
             });
@@ -426,7 +426,7 @@ class CoreWM extends WindowManager {
     if ( !added ) {
       this.notification({
         timeout: 0,
-        icon: 'status/dialog-warning.png',
+        icon: Assets.getIcon('status/dialog-warning.png', '32x32'),
         title: 'CoreWM',
         message: translate('Your panel has no items. Go to settings to reset default or modify manually\n(This error may occur after upgrades of OS.js)')
       });
@@ -758,7 +758,7 @@ class CoreWM extends WindowManager {
     if ( opts.icon ) {
       const icon = document.createElement('img');
       icon.alt = '';
-      icon.src = Assets.getIcon(opts.icon, '32x32');
+      icon.src = opts.icon;
       classNames.push('HasIcon');
       container.appendChild(icon);
     }
