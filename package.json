@@ -52,8 +52,7 @@
     "session-file-store": "^1.1.1",
     "simplejsonconf": "^1.0.6",
     "unzip-stream": "^0.1.2",
-    "ws": "^3.1.0",
-    "zlibjs": "^0.3.0"
+    "ws": "^3.1.0"
   },
   "devDependencies": {
     "axios": "^0.16.2",

@@ -32,7 +32,6 @@
       },
       "entry": {
         "vendor": [
-          "node_modules/zlibjs/bin/rawinflate.min.js"
         ],
         "osjs": [
           "src/client/javascript/boot.js",
