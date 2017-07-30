@@ -31,8 +31,6 @@
         ]
       },
       "entry": {
-        "vendor": [
-        ],
         "osjs": [
           "src/client/javascript/boot.js",
           "src/client/stylesheets/core.css",
