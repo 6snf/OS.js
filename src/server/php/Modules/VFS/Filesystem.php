@@ -91,6 +91,7 @@ abstract class Filesystem
         '%UID%' => isset($_SESSION['username']) ? $_SESSION['username'] : -1,
         '%USERNAME%' => isset($_SESSION['username']) ? $_SESSION['username'] : '',
         '%DROOT%' => DIR_ROOT,
+        '%SROOT%' => DIR_SERVER,
         '%MOUNTPOINT%' => $protocol
         ];
 
