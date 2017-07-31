@@ -209,9 +209,18 @@ class Connection {
         data = req.method.toUpperCase() === 'POST' ? req.body : req.query;
       }
 
+      const newResponse = Object.assign({}, res);
+      newResponse.json = function(data) {
+        if ( data.error instanceof Error ) {
+          console.warn(data.error);
+          data.error = data.error.toString();
+        }
+        return res.json(...arguments);
+      };
+
       return Object.assign({
         request: req,
-        response: res,
+        response: newResponse,
         next: next,
         data: data,
         session: this.getSessionWrapper(req)
