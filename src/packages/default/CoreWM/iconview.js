@@ -33,6 +33,7 @@ import Translations from './locales';
 
 const _ = OSjs.require('core/locales').createLocalizer(Translations);
 const FS = OSjs.require('utils/fs');
+const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const GUI = OSjs.require('utils/gui');
 const VFS = OSjs.require('vfs/fs');
@@ -392,7 +393,7 @@ export default class DesktopIconView {
   createContextMenu(item, ev) {
     const wm = WindowManager.instance;
     const menu = wm._getContextMenu(item);
-    GUI.createMenu(menu, ev);
+    Menu.create(menu, ev);
   }
 
   openShortcutEdit(item) {

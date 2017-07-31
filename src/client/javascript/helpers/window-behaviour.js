@@ -27,8 +27,8 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+import * as Menu from 'gui/menu';
 import * as DOM from 'utils/dom';
-import * as GUI from 'utils/gui';
 import * as Events from 'utils/events';
 
 /*
@@ -332,7 +332,7 @@ export function createWindowBehaviour(win, wm) {
    * When mouse button is pressed
    */
   function onMouseDown(ev, action, win, mousePosition) {
-    GUI.blurMenu();
+    Menu.blur();
     ev.preventDefault();
 
     if ( win._state.maximized ) {

@@ -40,6 +40,7 @@ import * as GUI from 'utils/gui';
 import * as Events from 'utils/events';
 import * as Compability from 'utils/compability';
 import * as Keycodes from 'utils/keycodes';
+import * as Menu from 'gui/menu';
 import {_} from 'core/locales';
 import {running} from 'core/init';
 
@@ -69,7 +70,7 @@ import {running} from 'core/init';
  */
 
 function _noEvent(ev) {
-  GUI.blurMenu();
+  Menu.blur();
   ev.preventDefault();
   ev.stopPropagation();
   return false;
@@ -702,7 +703,7 @@ export default class Window {
         ev.stopPropagation();
       }
 
-      GUI.blurMenu();
+      Menu.blur();
 
       return !!r;
     });
@@ -1975,7 +1976,7 @@ export default class Window {
       }
     });
 
-    GUI.createMenu(list, ev);
+    Menu.create(list, ev);
   }
 
   /**

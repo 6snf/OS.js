@@ -32,7 +32,7 @@
 import Translations from './locales';
 
 const _ = OSjs.require('core/locales').createLocalizer(Translations);
-const GUI = OSjs.require('utils/gui');
+const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const Utils = OSjs.require('utils/misc');
 const Events = OSjs.require('utils/events');
@@ -425,7 +425,7 @@ export default class Widget {
       }
     }
 
-    GUI.createMenu(menu, ev);
+    Menu.create(menu, ev);
   }
 
   /**

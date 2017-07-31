@@ -44,8 +44,8 @@ import Connection from 'core/connection';
 import {triggerHook} from 'helpers/hooks';
 import {getConfig} from 'core/config';
 import {playSound} from 'core/assets';
-import * as GUI from 'utils/gui';
 import * as Utils from 'utils/misc';
+import * as Menu from 'gui/menu';
 import Preloader from 'utils/preloader';
 import ServiceNotificationIcon from 'helpers/service-notification-icon';
 
@@ -98,7 +98,7 @@ function onError(title, message, error, exception, bugreport) {
     return false;
   }
 
-  GUI.blurMenu();
+  Menu.blur();
 
   if ( (exception instanceof Error) && (exception.message.match(/^Script Error/i) && String(exception.lineNumber).match(/^0/)) ) {
     console.error('VENDOR ERROR', {
@@ -546,7 +546,7 @@ export function stop(restart = false) {
   }
 
   Preloader.clear();
-  GUI.blurMenu();
+  Menu.blur();
   Process.killAll();
   ServiceNotificationIcon.destroy();
   SearchEngine.destroy();

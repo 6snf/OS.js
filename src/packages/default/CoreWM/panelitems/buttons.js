@@ -32,6 +32,7 @@
 import PanelItem from '../panelitem';
 
 const GUI = OSjs.require('utils/gui');
+const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const Main = OSjs.require('core/main');
 const Assets = OSjs.require('core/assets');
@@ -250,7 +251,7 @@ export default class PanelItemButtons extends PanelItem {
       ev.preventDefault();
       ev.stopPropagation();
       if ( menu ) {
-        GUI.createMenu(menu, ev);
+        Menu.create(menu, ev);
       }
     });
 

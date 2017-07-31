@@ -29,6 +29,7 @@
  */
 import * as GUI from 'utils/gui';
 import * as DOM from 'utils/dom';
+import * as Menu from 'gui/menu';
 import * as Events from 'utils/events';
 import * as Clipboard from 'utils/clipboard';
 import * as Keycodes from 'utils/keycodes';
@@ -589,7 +590,7 @@ export default class UIDataView extends GUIElement {
 
     const select = (ev) => {
       ev.stopPropagation();
-      GUI.blurMenu();
+      Menu.blur();
 
       if ( wasResized ) {
         return false;
@@ -642,7 +643,7 @@ export default class UIDataView extends GUIElement {
 
     const activate = (ev) => {
       ev.stopPropagation();
-      GUI.blurMenu();
+      Menu.blur();
 
       if ( isHeader(ev) ) {
         return;

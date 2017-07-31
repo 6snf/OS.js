@@ -50,7 +50,7 @@ const Window = OSjs.require('core/window');
 const Events = OSjs.require('utils/events');
 const Assets = OSjs.require('core/assets');
 const Utils = OSjs.require('utils/misc');
-const GUI = OSjs.require('utils/gui');
+const Menu = OSjs.require('gui/menu');
 const SettingsManager = OSjs.require('core/settings-manager');
 const WindowManager = OSjs.require('core/windowmanager');
 const Application = OSjs.require('core/application');
@@ -235,7 +235,7 @@ class ApplicationSettingsWindow extends Window {
 
     Events.$bind(container, 'click', (ev) => {
       const t = ev.isTrusted ? ev.target : (ev.relatedTarget || ev.target);
-      GUI.blurMenu();
+      Menu.blur();
 
       if ( t && t.tagName === 'LI' && t.hasAttribute('data-module') ) {
         ev.preventDefault();

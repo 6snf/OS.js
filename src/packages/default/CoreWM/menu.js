@@ -32,6 +32,7 @@
 import Translations from './locales';
 
 const _ = OSjs.require('core/locales').createLocalizer(Translations);
+const Menu = OSjs.require('gui/menu');
 const GUI = OSjs.require('utils/gui');
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
@@ -105,7 +106,7 @@ class CategorizedApplicationMenu {
   }
 
   show(ev) {
-    var m = GUI.createMenu(this.list, ev);
+    var m = Menu.create(this.list, ev);
     if ( m && m.$element ) {
       DOM.$addClass(m.$element, 'CoreWMDefaultApplicationMenu');
     }
@@ -133,7 +134,7 @@ class ApplicationMenu {
       Events.$bind(entry, 'click', function(ev) {
         ev.stopPropagation();
         Main.launch(a);
-        GUI.blurMenu();
+        Menu.blur();
       });
 
       entry.appendChild(img);
@@ -220,7 +221,7 @@ export function showMenu(ev) {
         }
       }
     }
-    GUI.createMenu(null, pos, inst);
+    Menu.create(null, pos, inst);
   } else {
     inst = new CategorizedApplicationMenu();
     inst.show(ev);

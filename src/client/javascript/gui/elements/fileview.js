@@ -33,6 +33,7 @@ import * as DOM from 'utils/dom';
 import * as GUI from 'utils/gui';
 import * as Utils from 'utils/misc';
 import * as Events from 'utils/events';
+import * as Menu from 'gui/menu';
 import GUIElement from 'gui/element';
 import GUIDataView from 'gui/dataview';
 import SettingsManager from 'core/settings-manager';
@@ -465,7 +466,7 @@ class GUIFileView extends GUIElement {
       vfsOptions.set(null, opts, true);
     }
 
-    GUI.createMenu([{
+    Menu.create([{
       title: _('LBL_SHOW_HIDDENFILES'),
       type: 'checkbox',
       checked: scandirOptions.showHiddenFiles === true,

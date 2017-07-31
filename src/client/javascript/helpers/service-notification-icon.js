@@ -29,7 +29,7 @@
  */
 
 import WindowManager from 'core/windowmanager';
-import * as GUI from 'utils/gui';
+import * as Menu from 'gui/menu';
 import * as Assets from 'core/assets';
 import {_} from 'core/locales';
 
@@ -102,7 +102,7 @@ class ServiceNotificationIcon {
       });
     });
 
-    GUI.createMenu(menu, ev);
+    Menu.create(menu, ev);
   }
 
   /*

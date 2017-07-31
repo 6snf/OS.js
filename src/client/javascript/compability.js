@@ -66,6 +66,7 @@ module.exports = function() {
   const UIScheme = require('gui/scheme.js');
   const GUIHelpers = require('utils/gui.js');
   const Hooks = require('helpers/hooks.js');
+  const Menu = require('gui/menu.js');
 
   const assignInto = (lib, ns) => {
     return Object.keys(lib).forEach((k) => {
@@ -127,8 +128,8 @@ module.exports = function() {
   OSjs.API.isStandalone = Config.isStandalone;
   OSjs.API.getBrowserPath = Config.getBrowserPath;
   OSjs.API.createDialog = Dialog.default.create;
-  OSjs.API.createMenu = GUIHelpers.createMenu;
-  OSjs.API.blurMenu = GUIHelpers.blurMenu;
+  OSjs.API.createMenu = Menu.create;
+  OSjs.API.blurMenu = Menu.blur;
   OSjs.API.signOut = Init.logout;
   OSjs.API.createNotification = (opts) => WindowManager.default.instance.notification(opts);
   assignInto(Assets, OSjs.API);

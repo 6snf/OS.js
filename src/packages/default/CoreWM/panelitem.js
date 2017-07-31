@@ -1,7 +1,7 @@
 import Translations from './locales';
 
 const _ = OSjs.require('core/locales').createLocalizer(Translations);
-const GUI = OSjs.require('utils/gui');
+const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
 const SettingsFragment = OSjs.require('helpers/settings-fragment');
@@ -44,7 +44,7 @@ export default class PanelItem {
         ev.stopPropagation();
         ev.preventDefault();
 
-        GUI.createMenu([{
+        Menu.create([{
           title: title,
           onClick: () => this.openSettings()
         }], ev);

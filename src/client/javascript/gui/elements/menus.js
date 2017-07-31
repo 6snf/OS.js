@@ -31,6 +31,7 @@ import * as DOM from 'utils/dom';
 import * as GUI from 'utils/gui';
 import * as Events from 'utils/events';
 import * as Compability from 'utils/compability';
+import * as Menu from 'gui/menu';
 import GUIElement from 'gui/element';
 
 /////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ function onEntryClick(ev, pos, target, original) {
   const isExpander = !!target.querySelector('gui-menu');
 
   if ( !isExpander ) {
-    GUI.blurMenu(ev);
+    Menu.blur(ev);
 
     const hasInput = target.querySelector('input');
     if ( hasInput ) {
@@ -226,10 +227,10 @@ class GUIMenu extends GUIElement {
     // This is to use a menu-bar > menu as a contextmenu
     const newNode = this.$element.cloneNode(true);
     const el = this.$element;
-    GUI.createMenu(null, ev, newNode);
+    Menu.create(null, ev, newNode);
 
     Events.$bind(newNode, 'click', (ev, pos) => {
-      GUI._menuClickWrapper(ev, pos, onEntryClick, el);
+      Menu.clickWrapper(ev, pos, onEntryClick, el);
     }, true);
   }
 
@@ -270,7 +271,7 @@ class GUIMenu extends GUIElement {
 
     if ( !customMenu ) {
       Events.$bind(el, 'click', (ev, pos) => {
-        GUI._menuClickWrapper(ev, pos, onEntryClick);
+        Menu.clickWrapper(ev, pos, onEntryClick);
       }, true);
     }
 
@@ -324,7 +325,7 @@ class GUIMenuBar extends GUIElement {
     }
 
     function _onClick(ev, mel) {
-      GUI.blurMenu(ev);
+      Menu.blur(ev);
 
       ev.preventDefault();
       ev.stopPropagation();
@@ -340,7 +341,7 @@ class GUIMenuBar extends GUIElement {
       });
 
       if ( submenu ) {
-        GUI._menuSetActive((ev) => {
+        Menu.setActive((ev) => {
           if ( ev ) {
             ev.stopPropagation();
           }
@@ -373,7 +374,7 @@ class GUIMenuBar extends GUIElement {
 
       const submenu = mel.querySelector('gui-menu');
 
-      GUI._menuClamp(submenu);
+      Menu.clamp(submenu);
 
       mel.setAttribute('aria-haspopup', String(!!submenu));
       mel.setAttribute('data-index', String(idx));

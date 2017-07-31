@@ -32,8 +32,8 @@ import PanelItem from './panelitem';
 
 const _ = OSjs.require('core/locales').createLocalizer(Translations);
 const DOM = OSjs.require('utils/dom');
-const GUI = OSjs.require('utils/gui');
 const Events = OSjs.require('utils/events');
+const Menu = OSjs.require('gui/menu');
 const WindowManager = OSjs.require('core/windowmanager');
 
 /*eslint valid-jsdoc: "off"*/
@@ -85,7 +85,7 @@ export default class Panel {
         });
       }
 
-      GUI.createMenu(menu, ev);
+      Menu.create(menu, ev);
     }
 
     this._$container = document.createElement('corewm-panel-container');
@@ -103,7 +103,7 @@ export default class Panel {
       this.onMouseOut(ev);
     });
     Events.$bind(this._$element, 'click', function(ev) {
-      GUI.blurMenu();
+      Menu.blur();
     });
     Events.$bind(this._$element, 'contextmenu', function(ev) {
       createMenu(ev);

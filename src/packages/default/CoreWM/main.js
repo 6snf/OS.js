@@ -43,6 +43,7 @@ import PanelItemSearch from './panelitems/search';
 import PanelItemWeather from './panelitems/weather';
 import PanelItemWindowList from './panelitems/windowlist';
 
+const Menu = OSjs.require('gui/menu');
 const Locales = OSjs.require('core/locales');
 const GUIScheme = OSjs.require('gui/scheme');
 const Config = OSjs.require('core/config');
@@ -194,7 +195,7 @@ class CoreWM extends WindowManager {
       const user = Authenticator.instance.getUser();
 
       const displayMenu = (ev) => {
-        GUI.createMenu([{
+        Menu.create([{
           title: Locales._('TITLE_SIGN_OUT'),
           onClick: function() {
             Init.logout();
@@ -244,7 +245,7 @@ class CoreWM extends WindowManager {
           menu: apps
         }];
 
-        GUI.createMenu(mnu, ev);
+        Menu.create(mnu, ev);
       };
 
       if ( Config.getConfig('Debug') ) {
@@ -590,7 +591,7 @@ class CoreWM extends WindowManager {
     };
 
     const _openMenu = (data) =>  {
-      GUI.createMenu([{
+      Menu.create([{
         title: translate('LBL_COPY'),
         onClick: () => {
           const dst = FS.pathJoin(this.getSetting('desktopPath'), data.filename);
@@ -910,7 +911,7 @@ class CoreWM extends WindowManager {
     }
 
     const menu = this._getContextMenu();
-    GUI.createMenu(menu, ev);
+    Menu.create(menu, ev);
   }
 
   applySettings(settings, force, save, triggerWatch) {

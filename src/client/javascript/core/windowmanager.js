@@ -29,7 +29,7 @@
  */
 
 import * as DOM from 'utils/dom';
-import * as GUI from 'utils/gui';
+import * as Menu from 'gui/menu';
 import * as Events from 'utils/events';
 import * as Utils from 'utils/misc';
 import * as Assets from 'core/assets';
@@ -721,7 +721,7 @@ export default class WindowManager extends Process {
     const t = ev.target;
     const allowed = ['GUI-MENU-BAR-ENTRY', 'GUI-MENU-ENTRY'];
     if ( !t || allowed.indexOf(t.tagName) === -1  ) {
-      GUI.blurMenu();
+      Menu.blur();
     }
 
     if ( t === document.body ) {

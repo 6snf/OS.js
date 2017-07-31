@@ -29,7 +29,7 @@
  */
 import PanelItem from '../panelitem';
 
-const GUI = OSjs.require('utils/gui');
+const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
 
@@ -82,7 +82,7 @@ class NotificationAreaItem {
     Events.$bind(this.$container, 'click', function(ev) {
       ev.stopPropagation();
       ev.preventDefault();
-      GUI.blurMenu();
+      Menu.blur();
       self.onClick.apply(this, arguments);
       return false;
     });
@@ -90,7 +90,7 @@ class NotificationAreaItem {
     Events.$bind(this.$container, 'contextmenu', function(ev) {
       ev.stopPropagation();
       ev.preventDefault();
-      GUI.blurMenu();
+      Menu.blur();
       self.onContextMenu.apply(this, arguments);
       return false;
     });
