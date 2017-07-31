@@ -35,6 +35,7 @@ const glob = require('glob-promise');
 const settings = require('./settings.js');
 const colors = require('colors');
 const child_process = require('child_process');
+const chokidar = require('chokidar');
 
 const log = function() {
   if ( settings.option('LOGLEVEL') ) {
@@ -52,8 +53,10 @@ class Modules {
    */
   constructor() {
     this.destroyed = false;
+    this.watchers = [];
     this.spawners = [];
     this.metadata = {};
+    this.loadedPackages = [];
     this.instances = {
       vfs: [],
       services: [],
@@ -90,6 +93,10 @@ class Modules {
       }
     });
 
+    this.watchers = this.watchers.forEach((w) => {
+      w.close();
+    });
+
     console.log('Destroying', modules.length, 'modules');
 
     return Promise.each(modules, (module) => {
@@ -105,6 +112,15 @@ class Modules {
   load(app) {
     const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
     this.metadata = fs.readJsonSync(metaPath);
+
+    chokidar.watch(metaPath).on('change', () => {
+      console.log('Reloading manifest');
+      this.metadata = fs.readJsonSync(metaPath);
+
+      this.loadPackages(app).then(() => {
+        console.log('Loaded new packages');
+      });
+    });
 
     return Promise.each([
       this.loadConnection,
@@ -392,7 +408,11 @@ class Modules {
 
     const options = settings.option();
     const connection = this.getConnection();
-    return Promise.each(Object.keys(this.metadata), (name) => {
+    const loadPackages = Object.keys(this.metadata).filter((key) => {
+      return this.loadedPackages.indexOf(key) === -1;
+    });
+
+    return Promise.each(loadPackages, (name) => {
       const meta = this.metadata[name];
       const filename = path.resolve(options.ROOTDIR, meta._src);
 
@@ -412,6 +432,8 @@ class Modules {
               proxy: connection.getProxy()
             });
           }
+
+          this.loadedPackages.push(name);
         }
       } catch ( e ) {
         console.warn(e);

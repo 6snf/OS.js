@@ -114,6 +114,7 @@ module.exports = function(app, wrapper) {
       try {
         module = require(modules.getPackageEntry(apath));
       } catch ( e ) {
+        console.warn(e);
       }
 
       if ( module ) {
