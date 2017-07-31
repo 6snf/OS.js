@@ -563,6 +563,46 @@ export default class Process {
   }
 
   /**
+   * Reloads a process
+   * @param {String|String[]} n  Process name(s)
+   */
+  static reload(n) {
+    if ( !(n instanceof Array) ) {
+      n = [n];
+    }
+
+    n.map((name) => this.getProcess(name)).filter((p) => !!p).forEach((p) => {
+      let promise = null;
+      let data = p instanceof Process ? p._getSessionData() : null;
+      let args = {};
+
+      try {
+        n = p.__pname;
+        promise = p.destroy(); // kill
+      } catch ( e ) {
+        console.warn('reloadProcess()', e.stack, e);
+      }
+
+      if ( data !== null ) {
+        args = data.args;
+        args.__resume__ = true;
+        args.__windows__ = data.windows || [];
+      }
+      args.__preload__ = {force: true};
+
+      if ( !(promise instanceof Promise) ) {
+        promise = Promise.resolve(true);
+      }
+
+      promise.then(() => {
+        return setTimeout(() => {
+          this.create(n, args);
+        }, 500);
+      });
+    });
+  }
+
+  /**
    * Launch a Process
    *
    * @param   {String}      name          Application Name

@@ -234,40 +234,7 @@ module.exports = function() {
   };
 
   OSjs.API.relaunch = function(n) {
-    function relaunch(p) {
-      let data = null;
-      let args = {};
-      if ( p instanceof Process ) {
-        data = p._getSessionData();
-      }
-
-      try {
-        n = p.__pname;
-        p.destroy(); // kill
-      } catch ( e ) {
-        console.warn('OSjs.module.exports.relaunch()', e.stack, e);
-      }
-
-      if ( data !== null ) {
-        args = data.args;
-        args.__resume__ = true;
-        args.__windows__ = data.windows || [];
-      }
-
-      args.__preload__ = {force: true};
-
-      //setTimeout with 500 ms is used to allow applications that might need
-      //  some time to destroy resources before it can be relaunched.
-      setTimeout(() => {
-        module.exports.launch(n, args);
-      }, 500);
-    }
-
-    let res = Process.getProcess(n);
-    if ( !(res instanceof Array) ) {
-      res = [res];
-    }
-    res.forEach(relaunch);
+    return Process.reload(n);
   };
 
   OSjs.API.call = function(m, a, cb, options) {

@@ -220,7 +220,7 @@ class CoreWM extends WindowManager {
           return {
             title: iter.__label + ' (pid:' + iter.__pid + ')',
             onClick: function() {
-              Application.recreate(iter.__pid); // TODO
+              Application.reload(iter.__pid);
             }
           };
         });
