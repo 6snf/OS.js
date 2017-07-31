@@ -256,6 +256,43 @@ class VFS {
     return watching;
   }
 
+  /*
+   * Wrapper for making stream
+   */
+  _createStream(method, vpath, options, streamOptions) {
+    const transportName = this.getTransportName(vpath);
+    const transport = modules.getVFS(transportName);
+    const resolved = this.parseVirtualPath(vpath, options);
+
+    if ( !transport ) {
+      return Promise.reject('Could not find any supported VFS module');
+    }
+
+    return transport[method](resolved.real, streamOptions);
+  }
+
+  /**
+   * Creates a new Reade Stream
+   * @param {String} vpath Virtual path
+   * @param {Object} options Options
+   * @param {Object} [streamOptions] Stream options
+   * @return {ReadeableStream}
+   */
+  createReadStream(vpath, options, streamOptions) {
+    return this._createStream('createReadStream', vpath, options, streamOptions);
+  }
+
+  /**
+   * Creates a new Write Stream
+   * @param {String} vpath Virtual path
+   * @param {Object} options Options
+   * @param {Object} [streamOptions] Stream options
+   * @return {WriteableStream}
+   */
+  createWriteStream(vpath, options, streamOptions) {
+    return this._createStream('createWriteStream', vpath, options, streamOptions);
+  }
+
   /**
    * Perform a VFS request
    * @param {ServerObject} http The HTTP object

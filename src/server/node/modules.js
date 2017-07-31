@@ -177,7 +177,7 @@ class Modules {
    */
   getPackageEntry(name) {
     const manifest = this.metadata[name];
-    if ( manifest ) {
+    if ( manifest && manifest.scope !== 'user' ) {
       let filename = 'api.js';
       if ( manifest.main ) {
         if ( typeof manifest.main === 'string' ) {

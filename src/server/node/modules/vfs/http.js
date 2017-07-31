@@ -6,13 +6,13 @@ const _path = require('path');
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
-function createReadStream(http, path) {
+function createReadStream(path) {
   return new Promise((resolve, reject) => {
     resolve(_request.get(path));
   });
 }
 
-function createWriteStream(http, path) {
+function createWriteStream(path) {
   return new Promise((resolve, reject) => {
     reject('Unavailable');
   });
@@ -52,7 +52,7 @@ const VFS = {
           reject('Failed to fetch file: ' + response.statusCode);
         } else {
           resolve({
-            resource: () => createReadStream(http, args.path),
+            resource: () => createReadStream(args.path),
             mime: mime,
             size: size,
             filename: args.path,

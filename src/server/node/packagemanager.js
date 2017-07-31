@@ -32,6 +32,12 @@ const fs = require('fs-extra');
 const path = require('path');
 const settings = require('./settings.js');
 const vfs = require('./vfs.js');
+const glob = require('glob-promise');
+const unzip = require('unzip-stream');
+
+///////////////////////////////////////////////////////////////////////////////
+// HELPERS
+///////////////////////////////////////////////////////////////////////////////
 
 const readManifestFile = (filename, scope) => {
   return new Promise((resolve, reject) => {
@@ -47,6 +53,63 @@ const readManifestFile = (filename, scope) => {
 const getSystemMetadata = () => {
   const filename = path.resolve(settings.option('SERVERDIR'), 'packages.json');
   return readManifestFile(filename, 'system');
+};
+
+const traversePackageDirectory = (fake, real) => {
+  const packages = [];
+
+  const readMetadata = (filename) => {
+    return new Promise((yes, no) => {
+      fs.readJson(filename).then((json) => {
+        json.path = fake + '/' + path.basename(path.dirname(filename));
+        return yes(packages.push(json));
+      }).catch(no);
+    });
+  };
+
+  const promise = new Promise((resolve, reject) => {
+    glob(path.join(real, '*/metadata.json')).then((files) => {
+      return Promise.all(files.map((filename) => readMetadata(filename)))
+        .then(resolve).catch(reject);
+    }).catch(reject);
+  });
+
+  return new Promise((resolve, reject) => {
+    promise.then(() => {
+      const result = {};
+
+      packages.filter((p) => !!p).forEach((p) => {
+        result[p.className] = p;
+      });
+
+      resolve(result);
+    }).catch(reject);
+  });
+};
+
+const generateUserMetadata = (username, paths) => {
+  return new Promise((resolve, reject) => {
+    let result = {};
+
+    Promise.each(paths, (p) => {
+      try {
+        const parsed = vfs.parseVirtualPath(p, {username});
+        return new Promise((yes, no) => {
+          traversePackageDirectory(p, parsed.real).then((packages) => {
+            result = Object.assign(result, packages);
+            return yes();
+          }).catch(no);
+        });
+      } catch ( e ) {
+        return Promise.reject('Failed to read user packages');
+      }
+    }).then(() => {
+      const dest = 'home:///.packages/packages.json';
+      const parsed = vfs.parseVirtualPath(dest, {username});
+      fs.writeJson(parsed.real, result).then(resolve).catch(reject);
+      return resolve(result);
+    }).catch(reject);
+  });
 };
 
 const getUserMetadata = (username, paths) => {
@@ -72,20 +135,112 @@ const getUserMetadata = (username, paths) => {
   });
 };
 
-module.exports.install = function() {
-  return Promise.reject('Not yet implemented');
+const installFromZip = (username, args) => {
+  return new Promise((resolve, reject) => {
+    vfs.createReadStream(args.zip, {username}).then((zipStream) => {
+      /*eslint new-cap: "warn"*/
+      zipStream.pipe(unzip.Parse()).on('entry', (entry) => {
+        const target = [args.dest, entry.path].join('/');
+        const targetParent = entry.type === 'Directory' ? target : path.dirname(target);
+        const targetRealParent = vfs.parseVirtualPath(targetParent, {username}).real;
+
+        try {
+          if ( !fs.existsSync(targetRealParent) ) {
+            fs.mkdirSync(targetRealParent);
+          }
+        } catch ( e  ) {
+          console.warn(e);
+        }
+
+        vfs.createWriteStream(target, {username}).then((writeStream) => {
+          return entry.pipe(writeStream);
+        }).catch((e) => {
+          console.warn(e);
+          entry.autodrain();
+        });
+      }).on('finish', () => {
+        resolve(true);
+      }).on('error', reject);
+    }).catch(reject);
+  });
 };
 
-module.exports.uninstall = function() {
-  return Promise.reject('Not yet implemented');
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTS
+///////////////////////////////////////////////////////////////////////////////
+
+module.exports.install = function(http, args) {
+  // FIXME: Make totally async
+  if ( args.zip && args.dest && args.paths ) {
+    return new Promise((resolve, reject) => {
+      try {
+        const overwrite =  args.overwrite !== false;
+        const username = http.session.get('username');
+        const realDst = vfs.parseVirtualPath(args.dest, {username}).real;
+
+        const onError = (err) => {
+          if ( realDst ) {
+            try {
+              fs.removeSync(realDst);
+            } catch (e) {
+              console.warn(e);
+            }
+          }
+          return reject(err);
+        };
+
+        const exists = fs.existsSync(realDst);
+        if ( exists && !overwrite ) {
+          reject('Package already installed');
+        } else {
+          if ( !exists ) {
+            fs.mkdirSync(realDst);
+          }
+
+          installFromZip(username, args).then(resolve).catch(onError);
+        }
+      } catch ( e ) {
+        reject(e);
+      }
+    });
+  }
+
+  return Promise.reject('Not enough arguments');
+};
+
+module.exports.uninstall = function(http, args) {
+  if ( !args.path ) {
+    return Promise.reject('Missing path');
+  }
+
+  const username = http.session.get('username');
+
+  let result = Promise.reject('Uninstallation failed');
+
+  try {
+    const parsed = vfs.parseVirtualPath(args.path, {username: username});
+    result = fs.remove(parsed.real);
+  } catch ( e ) {
+    result = Promise.reject(e);
+  }
+
+  return result;
 };
 
 module.exports.update = function() {
   return Promise.reject('Not yet implemented');
 };
 
-module.exports.cache = function() {
-  return Promise.reject('Not yet implemented');
+module.exports.cache = function(http, args) {
+  const username = http.session.get('username');
+
+  if ( args.action === 'generate' ) {
+    if ( args.scope === 'user' ) {
+      return generateUserMetadata(username, args.paths);
+    }
+  }
+
+  return Promise.reject('Not available');
 };
 
 module.exports.list = function(http, args) {
