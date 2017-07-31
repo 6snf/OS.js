@@ -1,22 +1,28 @@
 /* eslint new-cap:"off" */
+/* eslint dot-notation:"off" */
+let layer;
 
 //
 // This is the backward compability layer for OS.js v2.0.x
 //
 module.exports = function() {
-  window.OSjs = window.OSjs || {};
+  if ( layer ) {
+    return layer;
+  }
+
+  layer = Object.assign({}, window.OSjs || {});
 
   // Make sure these namespaces exist
   (['Utils', 'API', 'GUI', 'Core', 'Dialogs', 'Helpers', 'Applications', 'Locales', 'VFS', 'Extensions', 'Auth', 'Storage', 'Connections', 'Broadway']).forEach(function(ns) {
-    OSjs[ns] = OSjs[ns] || {};
+    layer[ns] = layer[ns] || {};
   });
 
   (['Helpers']).forEach(function(ns) {
-    OSjs.GUI[ns] = OSjs.GUI[ns] || {};
+    layer.GUI[ns] = layer.GUI[ns] || {};
   });
 
   (['Helpers', 'Transports']).forEach(function(ns) {
-    OSjs.VFS[ns] = OSjs.VFS[ns] || {};
+    layer.VFS[ns] = layer.VFS[ns] || {};
   });
 
   const Process = require('core/process.js');
@@ -73,145 +79,145 @@ module.exports = function() {
     });
   };
 
-  OSjs.Core.DialogWindow = Dialog.default;
-  OSjs.Core.Window = Object.seal(require('core/window.js').default);
-  OSjs.Core.WindowManager = Object.seal(WindowManager.default);
-  OSjs.Core.Service = Object.seal(require('core/service.js').default);
-  OSjs.Core.Process = Object.seal(Process.default);
-  OSjs.Core.Application = Object.seal(require('core/application.js').default);
+  layer.Core.DialogWindow = Dialog.default;
+  layer.Core.Window = Object.seal(require('core/window.js').default);
+  layer.Core.WindowManager = Object.seal(WindowManager.default);
+  layer.Core.Service = Object.seal(require('core/service.js').default);
+  layer.Core.Process = Object.seal(Process.default);
+  layer.Core.Application = Object.seal(require('core/application.js').default);
 
-  OSjs.GUI.Element = Object.seal(UIElement.default);
-  OSjs.GUI.DataView = Object.seal(UIDataView.default);
-  OSjs.GUI.Scheme = Object.seal(UIScheme.default);
-  OSjs.GUI.Helpers = Object.seal(GUIHelpers);
+  layer.GUI.Element = Object.seal(UIElement.default);
+  layer.GUI.DataView = Object.seal(UIDataView.default);
+  layer.GUI.Scheme = Object.seal(UIScheme.default);
+  layer.GUI.Helpers = Object.seal(GUIHelpers);
 
-  assignInto(Hooks, OSjs.API);
-  OSjs.VFS.FileDataURL = VFSFileData.default;
-  OSjs.VFS.File = VFSFile.default;
-  assignInto(FS, OSjs.VFS.Helpers);
+  assignInto(Hooks, layer.API);
+  layer.VFS.FileDataURL = VFSFileData.default;
+  layer.VFS.File = VFSFile.default;
+  assignInto(FS, layer.VFS.Helpers);
 
-  assignInto(FS, OSjs.Utils);
-  assignInto(DOM, OSjs.Utils);
-  assignInto(Utils, OSjs.Utils);
-  assignInto(Events, OSjs.Utils);
-  assignInto(Compability, OSjs.Utils);
+  assignInto(FS, layer.Utils);
+  assignInto(DOM, layer.Utils);
+  assignInto(Utils, layer.Utils);
+  assignInto(Events, layer.Utils);
+  assignInto(Compability, layer.Utils);
 
-  OSjs.Utils.Keys = Keycodes.default;
-  OSjs.Utils.preload = function() {
+  layer.Utils.Keys = Keycodes.default;
+  layer.Utils.preload = function() {
     console.error('THIS FUNCTION WAS REMOVED');
   };
-  OSjs.Utils.preloader = Preloader.default.preload;
+  layer.Utils.preloader = Preloader.default.preload;
 
-  OSjs.Helpers.Date = ExtendedDate.default;
-  OSjs.Helpers.DefaultApplicationWindow = DefaultApplicationWindow.default;
-  OSjs.Helpers.DefaultApplication = DefaultApplication.default;
-  OSjs.Helpers.EventHandler = EventHandler.default;
-  OSjs.Helpers.IFrameApplication = IFrameApplication.default;
-  OSjs.Helpers.IFrameApplicationWindow = IFrameApplicationWindow.default;
-  OSjs.Helpers.SettingsFragment = SettingsFragment.default;
-  OSjs.Helpers.GoogleAPI = OSjs.Helpers.GoogleAPI || {};
-  OSjs.Helpers.WindowsLiveAPI = OSjs.Helpers.WindowsLiveAPI || {};
-  OSjs.Helpers.ZipArchiver = OSjs.Helpers.ZipArchiver || {};
+  layer.Helpers.Date = ExtendedDate.default;
+  layer.Helpers.DefaultApplicationWindow = DefaultApplicationWindow.default;
+  layer.Helpers.DefaultApplication = DefaultApplication.default;
+  layer.Helpers.EventHandler = EventHandler.default;
+  layer.Helpers.IFrameApplication = IFrameApplication.default;
+  layer.Helpers.IFrameApplicationWindow = IFrameApplicationWindow.default;
+  layer.Helpers.SettingsFragment = SettingsFragment.default;
+  layer.Helpers.GoogleAPI = layer.Helpers.GoogleAPI || {};
+  layer.Helpers.WindowsLiveAPI = layer.Helpers.WindowsLiveAPI || {};
+  layer.Helpers.ZipArchiver = layer.Helpers.ZipArchiver || {};
 
-  OSjs.API.killAll = Process.default.killAll;
-  OSjs.API.kill = Process.default.kill;
-  OSjs.API.message = Process.default.message;
-  OSjs.API.getProcess = Process.default.getProcess;
-  OSjs.API.getProcesses = Process.default.getProcesses;
-  OSjs.API._ = Locales._;
-  OSjs.API.__ = Locales.__;
-  OSjs.API.setLocale = Locales.setLocale;
-  OSjs.API.getLocale = Locales.getLocale;
-  OSjs.API.getConfig = Config.getConfig;
-  OSjs.API.getDefaultPath = Config.getDefaultPath;
-  OSjs.API.isStandalone = Config.isStandalone;
-  OSjs.API.getBrowserPath = Config.getBrowserPath;
-  OSjs.API.createDialog = Dialog.default.create;
-  OSjs.API.createMenu = Menu.create;
-  OSjs.API.blurMenu = Menu.blur;
-  OSjs.API.signOut = Init.logout;
-  OSjs.API.createNotification = (opts) => WindowManager.default.instance.notification(opts);
-  assignInto(Assets, OSjs.API);
-  assignInto(Clipboard, OSjs.API);
+  layer.API.killAll = Process.default.killAll;
+  layer.API.kill = Process.default.kill;
+  layer.API.message = Process.default.message;
+  layer.API.getProcess = Process.default.getProcess;
+  layer.API.getProcesses = Process.default.getProcesses;
+  layer.API._ = Locales._;
+  layer.API.__ = Locales.__;
+  layer.API.setLocale = Locales.setLocale;
+  layer.API.getLocale = Locales.getLocale;
+  layer.API.getConfig = Config.getConfig;
+  layer.API.getDefaultPath = Config.getDefaultPath;
+  layer.API.isStandalone = Config.isStandalone;
+  layer.API.getBrowserPath = Config.getBrowserPath;
+  layer.API.createDialog = Dialog.default.create;
+  layer.API.createMenu = Menu.create;
+  layer.API.blurMenu = Menu.blur;
+  layer.API.signOut = Init.logout;
+  layer.API.createNotification = (opts) => WindowManager.default.instance.notification(opts);
+  assignInto(Assets, layer.API);
+  assignInto(Clipboard, layer.API);
 
-  OSjs.VFS.find = function(item, args, callback, options) {
+  layer.VFS.find = function(item, args, callback, options) {
     VFS.find(item, args, options).then((res) => callback(false, res)).catch(callback);
   };
-  OSjs.VFS.scandir =  function(item, callback, options) {
+  layer.VFS.scandir =  function(item, callback, options) {
     VFS.scandir(item, options).then((res) => callback(false, res)).catch(callback);
   };
-  OSjs.VFS.write = function(item, data, callback, options, appRef) {
+  layer.VFS.write = function(item, data, callback, options, appRef) {
     VFS.write(item, data, options, appRef).then((res) => callback(false, res)).catch(callback);
   };
-  OSjs.VFS.read = function(item, callback, options) {
+  layer.VFS.read = function(item, callback, options) {
     VFS.read(item, options).then((res) => callback(false, res)).catch(callback);
   };
-  OSjs.VFS.copy = function(src, dest, callback, options, appRef) {
+  layer.VFS.copy = function(src, dest, callback, options, appRef) {
     VFS.copy(src, dest, options, appRef).then((res) => callback(false, res)).catch(callback);
   };
-  OSjs.VFS.move = function(src, dest, callback, options, appRef) {
+  layer.VFS.move = function(src, dest, callback, options, appRef) {
     VFS.move(src, dest, options, appRef).then((res) => callback(false, res)).catch(callback);
   };
-  OSjs.VFS.rename = OSjs.VFS.move;
+  layer.VFS.rename = layer.VFS.move;
 
-  OSjs.VFS.unlink = function(item, callback, options, appRef) {
+  layer.VFS.unlink = function(item, callback, options, appRef) {
     VFS.unlink(item, options, appRef).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.mkdir = function(item, callback, options, appRef) {
+  layer.VFS.mkdir = function(item, callback, options, appRef) {
     VFS.mkdir(item, options, appRef).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.exists = function(item, callback) {
+  layer.VFS.exists = function(item, callback) {
     VFS.exists(item).then((res) => callback(false, res)).catch(callback);
   };
-  OSjs.VFS.fileinfo = function(item, callback) {
+  layer.VFS.fileinfo = function(item, callback) {
     VFS.fileinfo(item).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.url = function(item, callback, options) {
+  layer.VFS.url = function(item, callback, options) {
     VFS.url(item, options).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.upload = function(args, callback, options, appRef) {
+  layer.VFS.upload = function(args, callback, options, appRef) {
 
   };
 
-  OSjs.VFS.download = function(item, callback) {
+  layer.VFS.download = function(item, callback) {
     VFS.download(item).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.transh = function(item, callback) {
+  layer.VFS.transh = function(item, callback) {
     VFS.trash(item).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.untransh = function(item, callback) {
+  layer.VFS.untransh = function(item, callback) {
     VFS.untrash(item).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.emptyTrash = function(callback) {
+  layer.VFS.emptyTrash = function(callback) {
     VFS.emptyTrash().then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.freeSpace = function(item, callback) {
+  layer.VFS.freeSpace = function(item, callback) {
     VFS.freeSpace(item).then((res) => callback(false, res)).catch(callback);
   };
 
-  OSjs.VFS.watch = function(item, cb) {
+  layer.VFS.watch = function(item, cb) {
     VFS.watch(item, cb);
   };
 
-  OSjs.VFS.unwatch = VFS.unwatch;
+  layer.VFS.unwatch = VFS.unwatch;
 
-  OSjs.VFS.triggerWatch = VFS.triggerWatch;
+  layer.VFS.triggerWatch = VFS.triggerWatch;
 
-  OSjs.VFS['delete'] = OSjs.VFS.unlink;
+  layer.VFS['delete'] = layer.VFS.unlink;
 
   module.exports.getServiceNotificationIcon = function() {
     return ServiceNotificationIcon;
   };
 
-  OSjs.API.launch = function(name, args, ondone, onerror, onconstruct) {
+  layer.API.launch = function(name, args, ondone, onerror, onconstruct) {
     ondone = ondone || function() {};
     onerror = onerror || function() {};
 
@@ -220,7 +226,7 @@ module.exports = function() {
       .catch(onerror);
   };
 
-  OSjs.API.launchList = function(list, onSuccess, onError, onFinished) {
+  layer.API.launchList = function(list, onSuccess, onError, onFinished) {
     list        = list        || []; /* idx => {name: 'string', args: 'object', data: 'mixed, optional'} */
     onSuccess   = onSuccess   || function() {};
     onError     = onError     || function() {};
@@ -229,25 +235,25 @@ module.exports = function() {
     Process.createFromArray(list, onSuccess).then(onFinished).catch(onError);
   };
 
-  OSjs.API.open = function(file, launchArgs) {
+  layer.API.open = function(file, launchArgs) {
     return Process.createFromFile(file, launchArgs);
   };
 
-  OSjs.API.relaunch = function(n) {
+  layer.API.relaunch = function(n) {
     return Process.reload(n);
   };
 
-  OSjs.API.call = function(m, a, cb, options) {
+  layer.API.call = function(m, a, cb, options) {
     Connection.request(m, a, options).then((res) => {
       cb(false, res);
     }).catch(cb);
   };
 
-  OSjs.API.getApplicationResource = function(app, name, vfspath) {
+  layer.API.getApplicationResource = function(app, name, vfspath) {
     return Assets.getPackageResource(app, name, vfspath);
   };
 
-  OSjs.API.curl = function(args, callback) {
+  layer.API.curl = function(args, callback) {
     args = args || {};
     callback = callback || {};
 
@@ -258,35 +264,35 @@ module.exports = function() {
       opts = args;
     }
 
-    return OSjs.API.call('curl', opts, callback, args.options);
+    return layer.API.call('curl', opts, callback, args.options);
   };
 
   module.exports.checkPermission = function(group) {
     return Authenticator.default.instance().checkPermission(group);
   };
 
-  OSjs.Core.getSettingsManager = function Core_getSettingsManager() {
+  layer.Core.getSettingsManager = function Core_getSettingsManager() {
     return SettingsManager.default;
   };
 
-  OSjs.Core.getSearchEngine = function Core_getSearchEngine() {
+  layer.Core.getSearchEngine = function Core_getSearchEngine() {
     return SearchEngine.default;
   };
 
-  OSjs.Core.getPackageManager = function Core_getPackageManager() {
+  layer.Core.getPackageManager = function Core_getPackageManager() {
     return PackageManager.default;
   };
 
-  OSjs.Core.getMountManager = function Core_getMountManager() {
+  layer.Core.getMountManager = function Core_getMountManager() {
     return MountManager.default;
   };
 
-  OSjs.Core.getHandler = function() {
+  layer.Core.getHandler = function() {
     console.warn('HANDLER IS DEPRECATED. YOU SHOULD UPDATE YOUR CODE!');
     return (function() {
-      var auth = OSjs.Core.getAuthenticator();
-      var conn = OSjs.Core.getConnection();
-      var stor = OSjs.Core.getStorage();
+      var auth = layer.Core.getAuthenticator();
+      var conn = layer.Core.getConnection();
+      var stor = layer.Core.getStorage();
 
       return {
         loggedIn: auth.isLoggedIn(),
@@ -298,35 +304,35 @@ module.exports = function() {
     })();
   };
 
-  OSjs.Core.getConfig = OSjs.Core.getConfig || function() {
-    return OSjs.getConfig ? OSjs.getConfig() : {};
+  layer.Core.getConfig = layer.Core.getConfig || function() {
+    return layer.getConfig ? layer.getConfig() : {};
   };
 
-  OSjs.Core.getMetadata = OSjs.Core.getMetadata || function() {
-    return OSjs.getManifest ? OSjs.getManifest() : {};
+  layer.Core.getMetadata = layer.Core.getMetadata || function() {
+    return layer.getManifest ? layer.getManifest() : {};
   };
 
-  OSjs.Core.getConnection = function Core_getConnection() {
+  layer.Core.getConnection = function Core_getConnection() {
     return Connection.default.instance;
   };
 
-  OSjs.Core.getStorage = function Core_getStorage() {
+  layer.Core.getStorage = function Core_getStorage() {
     return Storage.default.instance;
   };
 
-  OSjs.Core.getAuthenticator = function Core_getAuthenticator() {
+  layer.Core.getAuthenticator = function Core_getAuthenticator() {
     return Authenticator.default.instance;
   };
 
-  OSjs.Core.getWindowManager  = function Core_getWindowManager() {
+  layer.Core.getWindowManager  = function Core_getWindowManager() {
     return WindowManager.default.instance;
   };
 
-  OSjs.GUI.createScheme = function(url) {
+  layer.GUI.createScheme = function(url) {
     console.error('FUNCTION REMOVED');
   };
 
-  OSjs.Utils.getRect = function Utils_getRect() {
+  layer.Utils.getRect = function Utils_getRect() {
     const body = document.body || {};
     return {
       top: 0,
@@ -336,32 +342,33 @@ module.exports = function() {
     };
   };
 
-  OSjs.VFS.file = function createFileInstance(arg, mime) {
+  layer.VFS.file = function createFileInstance(arg, mime) {
     return new VFSFile.default(arg, mime);
   };
 
-  OSjs.Helpers.GoogleAPI.getInstance = function() {
+  layer.Helpers.GoogleAPI.getInstance = function() {
     return GoogleAPI.instance();
   };
 
-  OSjs.Helpers.GoogleAPI.createInstance = function(args, callback) {
+  layer.Helpers.GoogleAPI.createInstance = function(args, callback) {
     return GoogleAPI.craete(args, callback);
   };
 
-  OSjs.Helpers.WindowsLiveAPI.getInstance = function() {
+  layer.Helpers.WindowsLiveAPI.getInstance = function() {
     return WindowsLiveAPI.instance();
   };
 
-  OSjs.Helpers.WindowsLiveAPI.createInstance = function(args, callback) {
+  layer.Helpers.WindowsLiveAPI.createInstance = function(args, callback) {
     return WindowsLiveAPI.create(args, callback);
   };
 
-  OSjs.Helpers.ZipArchiver.getInstance = function() {
+  layer.Helpers.ZipArchiver.getInstance = function() {
     return ZipArchiver.instance();
   };
 
-  OSjs.Helpers.ZipArchiver.createInstance = function(args, callback) {
+  layer.Helpers.ZipArchiver.createInstance = function(args, callback) {
     ZipArchiver.create(args, callback);
   };
 
+  return layer;
 };
