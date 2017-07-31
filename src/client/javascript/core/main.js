@@ -35,6 +35,7 @@ import {getConfig} from 'core/config';
 import {triggerHook} from 'helpers/hooks';
 import WM from 'core/windowmanager';
 import DialogWindow from 'core/dialog';
+import Loader from 'helpers/loader';
 
 import * as DOM from 'utils/dom';
 import * as Config from 'core/config';
@@ -49,9 +50,7 @@ import SettingsManager from 'core/settings-manager';
 import PackageManager from 'core/package-manager';
 import Process from 'core/process';
 
-let loaders = [];
 let alreadyLaunching = [];
-let loaderGraze;
 
 function createSplash(name, icon, label, parentEl) {
   label = label || _('LBL_STARTING');
@@ -193,51 +192,6 @@ export function error(title, message, error, exception, bugreport) {
 }
 
 /**
- * Create (or show) loading indicator
- *
- * @param   {String}    name          Name of notification (unique)
- * @param   {Object}    opts          Options
- */
-export function createLoading(name, opts) {
-  if ( loaders.indexOf(name) === -1 ) {
-    loaders.push(name);
-  }
-
-  if ( loaders.length ) {
-    let el = document.querySelector('osjs-loading');
-    if ( !el ) {
-      el = document.createElement('osjs-loading');
-      document.body.appendChild(el);
-    }
-
-    loaderGraze = setTimeout(() => {
-      el.style.display = 'block';
-    }, 100);
-  }
-}
-
-/**
- * Destroy (or hide) loading indicator
- *
- * @param   {String}    name          Name of notification (unique)
- */
-export function destroyLoading(name) {
-  const index = loaders.indexOf(name);
-  if ( index  !== -1 ) {
-    loaders.splice(index, 1);
-  }
-
-  clearTimeout(loaderGraze);
-
-  if ( !loaders.length ) {
-    let el = document.querySelector('osjs-loading');
-    if ( el ) {
-      el.style.display = 'none';
-    }
-  }
-}
-
-/**
  * Launch a Process
  *
  * @param   {String}      name          Application Name
@@ -302,14 +256,14 @@ export function launch(name, args, onconstruct) {
     //
     let splash = null;
     removeSplash = () => {
-      destroyLoading('Main.launch');
+      Loader.destroy('Main.launch');
       if ( splash ) {
         splash.destroy();
         splash = null;
       }
     };
 
-    createLoading('Main.launch');
+    Loader.create('Main.launch');
 
     if ( !OSjs.Applications[name] ) {
       if ( metadata.splash !== false ) {

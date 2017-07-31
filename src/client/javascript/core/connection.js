@@ -31,7 +31,7 @@
 import axios from 'axios';
 import Promise from 'bluebird';
 import EventHandler from 'helpers/event-handler';
-import {createLoading, destroyLoading} from 'core/main';
+import Loader from 'helpers/loader';
 import {getConfig} from 'core/config';
 
 //let _CALL_INDEX = 1;
@@ -343,7 +343,7 @@ export default class Connection {
       return Promise.reject(new TypeError('call() expects an object as options'));
     }
 
-    createLoading('Connection.request');
+    Loader.create('Connection.request');
 
     if ( typeof options.indicator !== 'undefined' ) {
       delete options.indicator;
@@ -351,13 +351,13 @@ export default class Connection {
 
     return new Promise((resolve, reject) => {
       this.instance.createRequest(m, a, options).then((response) => {
-        destroyLoading('Connection.request');
+        Loader.destroy('Connection.request');
         if ( response.error ) {
           return reject(new Error(response.error));
         }
         return resolve(response.result);
       }).catch(((err) => {
-        destroyLoading('Connection.request');
+        Loader.destroy('Connection.request');
         reject(new Error(err));
       }));
     });
