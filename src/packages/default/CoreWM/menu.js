@@ -36,7 +36,7 @@ const Menu = OSjs.require('gui/menu');
 const GUI = OSjs.require('utils/gui');
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
-const Main = OSjs.require('core/main');
+const Process = OSjs.require('core/process');
 const Assets = OSjs.require('core/assets');
 const WindowManager = OSjs.require('core/windowmanager');
 const PackageManager = OSjs.require('core/package-manager');
@@ -61,7 +61,7 @@ class CategorizedApplicationMenu {
 
     function clickEvent(iter) {
       return function() {
-        Main.launch(iter.name);
+        Process.create(iter.name);
       };
     }
 
@@ -133,7 +133,7 @@ class ApplicationMenu {
 
       Events.$bind(entry, 'click', function(ev) {
         ev.stopPropagation();
-        Main.launch(a);
+        Process.create(a);
         Menu.blur();
       });
 

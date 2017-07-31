@@ -37,7 +37,7 @@ const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const GUI = OSjs.require('utils/gui');
 const VFS = OSjs.require('vfs/fs');
-const Main = OSjs.require('core/main');
+const Process = OSjs.require('core/process');
 const Assets = OSjs.require('core/assets');
 const Dialog = OSjs.require('core/dialog');
 const FileMetadata = OSjs.require('vfs/file');
@@ -171,7 +171,7 @@ export default class DesktopIconView {
         ev.detail.entries.forEach((entry) => {
           const item = entry.data;
           const file = new FileMetadata(item);
-          Main.openFile(file, item.args);
+          Process.createFromFile(file, item.args);
         });
       }
     }).on('contextmenu', (ev) => {

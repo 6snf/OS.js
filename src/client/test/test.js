@@ -57,7 +57,6 @@ function describeTests() {
   const Clipboard = OSjs.require('utils/clipboard');
   const FileMetadata = OSjs.require('vfs/file');
   const Process = OSjs.require('core/process');
-  const Main = OSjs.require('core/main');
 
   describe('format()', function() {
     it('should return correct string', function() {
@@ -458,13 +457,13 @@ function describeTests() {
 
   describe('launch()', function() {
     it('should recieve error on invalid Application', function() {
-      return Main.launch('InvalidApplication').catch((err) => {
+      return Process.create('InvalidApplication').catch((err) => {
         expect(err).to.be.an.instanceof(Error);
       });
     });
 
     it('should launch About application', function() {
-      return Main.launch('ApplicationAbout');
+      return Process.create('ApplicationAbout');
     });
   });
 

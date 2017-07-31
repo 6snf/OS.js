@@ -28,7 +28,6 @@
  * @licence Simplified BSD License
  */
 import Promise from 'bluebird';
-import * as Main from 'core/main';
 import * as Locales from 'core/locales';
 import SplashScreen from 'core/splash';
 import MountManager from 'core/mount-manager';
@@ -331,7 +330,7 @@ const initWindowManager = (config) => new Promise((resolve, reject) => {
   if ( !wmConfig || !wmConfig.exec ) {
     reject(new Error(Locales._('ERR_CORE_INIT_NO_WM')));
   } else {
-    Main.launch(wmConfig.exec, (wmConfig.args || {})).then((app) => {
+    Process.create(wmConfig.exec, (wmConfig.args || {})).then((app) => {
       return app.setup().then(resolve).catch(reject);
     }).catch((error) => {
       reject(new Error(Locales._('ERR_CORE_INIT_WM_FAILED_FMT', error)));
@@ -419,7 +418,7 @@ function initSession(config) {
       });
 
       console.info('initSession()->autostart()', list);
-      return Main.launchList(list).then(resolve).catch(resolve);
+      return Process.create(list).then(resolve).catch(resolve);
     }).catch((err) => {
       console.warn(err);
       resolve();

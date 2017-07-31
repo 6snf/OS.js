@@ -49,7 +49,6 @@ const Clipboard = OSjs.require('utils/clipboard');
 const Keycodes = OSjs.require('utils/keycodes');
 const Config = OSjs.require('core/config');
 const Assets = OSjs.require('core/assets');
-const Main = OSjs.require('core/main');
 const doTranslate = Locales.createLocalizer(Translations);
 
 function getSelected(view) {
@@ -414,7 +413,7 @@ class ApplicationFileManagerWindow extends Window {
         return false;
       }
 
-      Main.openFile(new FileMetadata(f.data));
+      Application.createFromFile(new FileMetadata(f.data));
 
       return true;
     });
@@ -808,7 +807,7 @@ class ApplicationFileManager extends Application {
 
     items.forEach(function(item) {
       if ( item.type === 'file' ) {
-        Main.openFile(new FileMetadata(item), {forceList: true});
+        Application.createFromFile(new FileMetadata(item), {forceList: true});
       }
     });
   }

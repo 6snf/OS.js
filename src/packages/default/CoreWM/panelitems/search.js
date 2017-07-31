@@ -31,12 +31,12 @@
 import PanelItem from '../panelitem';
 
 const DOM = OSjs.require('utils/dom');
-const Main = OSjs.require('core/main');
 const Hooks = OSjs.require('helpers/hooks');
 const Assets = OSjs.require('core/assets');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
 const Keycodes = OSjs.require('utils/keycodes');
+const Process = OSjs.require('core/process');
 const FileMetadata = OSjs.require('vfs/file');
 const SearchEngine = OSjs.require('core/search-engine');
 const WindowManager = OSjs.require('core/windowmanager');
@@ -149,7 +149,7 @@ export default class PanelItemSearch extends PanelItem {
   }
 
   openSettings() {
-    Main.launch('ApplicationSettings', {category: 'search'});
+    Process.create('ApplicationSettings', {category: 'search'});
   }
 
   destroy() {
@@ -181,12 +181,12 @@ export default class PanelItemSearch extends PanelItem {
 
     if ( file ) {
       if ( type === 'dir' ) {
-        Main.launch('ApplicationFileManager', {path: file});
+        Process.create('ApplicationFileManager', {path: file});
       } else {
-        Main.openFile(new FileMetadata(file, mime));
+        Process.createFromFile(new FileMetadata(file, mime));
       }
     } else {
-      Main.launch(launch, args);
+      Process.create(launch, args);
     }
 
     this.hide();

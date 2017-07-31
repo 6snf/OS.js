@@ -55,7 +55,6 @@ module.exports = function() {
   const Locales = require('core/locales.js');
   const Config = require('core/config.js');
   const Dialog = require('core/dialog.js');
-  const Main = require('core/main.js');
   const Clipboard = require('utils/clipboard.js');
   const Keycodes = require('utils/keycodes.js');
 
@@ -133,7 +132,6 @@ module.exports = function() {
   OSjs.API.signOut = Init.logout;
   OSjs.API.createNotification = (opts) => WindowManager.default.instance.notification(opts);
   assignInto(Assets, OSjs.API);
-  assignInto(Main, OSjs.API);
   assignInto(Clipboard, OSjs.API);
 
   OSjs.VFS.find = function(item, args, callback, options) {
@@ -217,7 +215,7 @@ module.exports = function() {
     ondone = ondone || function() {};
     onerror = onerror || function() {};
 
-    Main.launch(name, args, onconstruct)
+    Process.create(name, args, onconstruct)
       .then(ondone)
       .catch(onerror);
   };
@@ -228,11 +226,11 @@ module.exports = function() {
     onError     = onError     || function() {};
     onFinished  = onFinished  || function() {};
 
-    Main.launchList(list, onSuccess).then(onFinished).catch(onError);
+    Process.createFromArray(list, onSuccess).then(onFinished).catch(onError);
   };
 
   OSjs.API.open = function(file, launchArgs) {
-    return Main.openFile(file, launchArgs);
+    return Process.createFromFile(file, launchArgs);
   };
 
   OSjs.API.relaunch = function(n) {

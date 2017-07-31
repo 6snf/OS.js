@@ -59,7 +59,6 @@ const Compability = OSjs.require('utils/compability');
 const FileMetadata = OSjs.require('vfs/file');
 const DOM = OSjs.require('utils/dom');
 const Utils = OSjs.require('utils/misc');
-const Main = OSjs.require('core/main');
 const Init = OSjs.require('core/init');
 const GUI = OSjs.require('utils/gui');
 const VFS = OSjs.require('vfs/fs');
@@ -221,7 +220,7 @@ class CoreWM extends WindowManager {
           return {
             title: iter.__label + ' (pid:' + iter.__pid + ')',
             onClick: function() {
-              Main.relaunch(iter.__pid);
+              Application.recreate(iter.__pid); // TODO
             }
           };
         });
@@ -683,7 +682,7 @@ class CoreWM extends WindowManager {
   }
 
   showSettings(category) {
-    Main.launch('ApplicationSettings', {category: category});
+    Application.create('ApplicationSettings', {category: category});
   }
 
   eventWindow(ev, win) {

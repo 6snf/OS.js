@@ -30,7 +30,6 @@
 import {$empty, $addClass, $escape} from 'utils/dom';
 import Keycodes from 'utils/keycodes';
 import Window from 'core/window';
-import Process from 'core/process';
 import Application from 'core/application';
 import WindowManager from 'core/windowmanager';
 import GUIScheme from 'gui/scheme';
@@ -253,11 +252,11 @@ export default class DialogWindow extends Window {
 
     let parentObj = options;
     let parentIsWindow = (parentObj instanceof Window);
-    let parentIsProcess = (parentObj instanceof Process);
+    let parentIsProcess = (parentObj instanceof Application);
     if ( parentObj && !(parentIsWindow && parentIsProcess) ) {
       parentObj = options.parent;
       parentIsWindow = (parentObj instanceof Window);
-      parentIsProcess = (parentObj instanceof Process);
+      parentIsProcess = (parentObj instanceof Application);
     }
 
     function cb() {

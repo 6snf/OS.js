@@ -34,10 +34,11 @@ import PanelItem from '../panelitem';
 const GUI = OSjs.require('utils/gui');
 const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
-const Main = OSjs.require('core/main');
+const Init = OSjs.require('core/init');
 const Assets = OSjs.require('core/assets');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
+const Process = OSjs.require('core/process');
 const PackageManager = OSjs.require('core/package-manager');
 const WindowManager = OSjs.require('core/windowmanager');
 
@@ -153,7 +154,7 @@ export default class PanelItemButtons extends PanelItem {
         }
       },
       exit: (ev) => {
-        Main.logout();
+        Init.logout();
       }
     };
 
@@ -167,7 +168,7 @@ export default class PanelItemButtons extends PanelItem {
         }
       }];
       let callback = () => {
-        Main.launch(btn.launch);
+        Process.create(btn.launch);
       };
 
       if ( btn.system ) {
