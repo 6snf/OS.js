@@ -52,6 +52,53 @@ export function getThemeCSS(name) {
 }
 
 /**
+ * Default method for getting a icon from theme
+ *
+ * @param   {String}    name          Resource filename
+ * @param   {String}    [size=16x16]  Icon size
+ * @param   {Process}   [app]         Application instance reference. Can also be String. For `name` starting with './'
+ *
+ * @return  {String}            The absolute URL to the resource
+ */
+export function getIcon(name, size, app) {
+  name = name || null;
+  size = size || '16x16';
+  app  = app  || null;
+
+  const root = getConfig('Connection.IconURI');
+  const theme = document.body.getAttribute('data-icon-theme') || 'default';
+
+  function checkIcon() {
+    if ( name.match(/^\.\//) ) {
+      name = name.replace(/^\.\//, '');
+      if ( (app instanceof Process) || (typeof app === 'string') ) {
+        return getPackageResource(app, name);
+      } else {
+        if ( app !== null && typeof app === 'object' ) {
+          return getPackageResource(app.className, name);
+        } else if ( typeof app === 'string' ) {
+          return getPackageResource(app, name);
+        }
+      }
+    } else {
+      if ( !name.match(/^\//) ) {
+        name = root + '/' + theme + '/' + size + '/' + name;
+      }
+    }
+    return null;
+  }
+
+  if ( name && !name.match(/^(http|\/\/)/) ) {
+    const chk = checkIcon();
+    if ( chk !== null ) {
+      return chk;
+    }
+  }
+
+  return name;
+}
+
+/**
  * Get a icon based in file and mime
  *
  * @param   {File}      file            File Data (see supported types)
@@ -180,53 +227,6 @@ export function getSound(name) {
       name = root + '/' + theme + '/' + name + '.' + ext;
     }
   }
-  return name;
-}
-
-/**
- * Default method for getting a icon from theme
- *
- * @param   {String}    name          Resource filename
- * @param   {String}    [size=16x16]  Icon size
- * @param   {Process}   [app]         Application instance reference. Can also be String. For `name` starting with './'
- *
- * @return  {String}            The absolute URL to the resource
- */
-export function getIcon(name, size, app) {
-  name = name || null;
-  size = size || '16x16';
-  app  = app  || null;
-
-  const root = getConfig('Connection.IconURI');
-  const theme = document.body.getAttribute('data-icon-theme') || 'default';
-
-  function checkIcon() {
-    if ( name.match(/^\.\//) ) {
-      name = name.replace(/^\.\//, '');
-      if ( (app instanceof Process) || (typeof app === 'string') ) {
-        return getPackageResource(app, name);
-      } else {
-        if ( app !== null && typeof app === 'object' ) {
-          return getPackageResource(app.className, name);
-        } else if ( typeof app === 'string' ) {
-          return getPackageResource(app, name);
-        }
-      }
-    } else {
-      if ( !name.match(/^\//) ) {
-        name = root + '/' + theme + '/' + size + '/' + name;
-      }
-    }
-    return null;
-  }
-
-  if ( name && !name.match(/^(http|\/\/)/) ) {
-    const chk = checkIcon();
-    if ( chk !== null ) {
-      return chk;
-    }
-  }
-
   return name;
 }
 

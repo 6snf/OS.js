@@ -62,6 +62,17 @@ export function getPathProtocol(orig) {
 }
 
 /**
+ * Get filename from path
+ *
+ * @param   {String}    p     Path
+ *
+ * @return  {String}          The filename
+ */
+export function filename(p) {
+  return (p || '').replace(/\/$/, '').split('/').pop();
+}
+
+/**
  * Get file extension of filename/path
  *
  * @param   {String}    d       filename/path
@@ -115,17 +126,6 @@ export function dirname(f) {
   }
 
   return f.match(/^((.*)\:\/\/)?\/$/) ? f : _parentDir(f.replace(/\/$/, ''));
-}
-
-/**
- * Get filename from path
- *
- * @param   {String}    p     Path
- *
- * @return  {String}          The filename
- */
-export function filename(p) {
-  return (p || '').replace(/\/$/, '').split('/').pop();
 }
 
 /**

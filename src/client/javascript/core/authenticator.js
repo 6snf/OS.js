@@ -49,7 +49,7 @@ export default class Authenticator {
   }
 
   constructor() {
-    /* eslint consistent-this: "warn" */
+    /* eslint consistent-this: "off" */
     _instance = this;
 
     /**

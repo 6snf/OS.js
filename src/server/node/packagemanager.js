@@ -138,7 +138,7 @@ const getUserMetadata = (username, paths) => {
 const installFromZip = (username, args) => {
   return new Promise((resolve, reject) => {
     vfs.createReadStream(args.zip, {username}).then((zipStream) => {
-      /*eslint new-cap: "warn"*/
+      /*eslint new-cap: "off"*/
       zipStream.pipe(unzip.Parse()).on('entry', (entry) => {
         const target = [args.dest, entry.path].join('/');
         const targetParent = entry.type === 'Directory' ? target : path.dirname(target);

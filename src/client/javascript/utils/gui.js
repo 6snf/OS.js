@@ -173,6 +173,35 @@ export function getProperty(el, param, tagName) {
 }
 
 /**
+ * Creates a label for given input element
+ *
+ * @param   {Node}            el        Element root
+ * @param   {String}          type      Input element type
+ * @param   {Node}            input     The input element
+ * @param   {String}          [label]   Used when updating
+ */
+export function createInputLabel(el, type, input, label) {
+  label = label || getLabel(el);
+
+  if ( label ) {
+    const lbl = document.createElement('label');
+    const span = document.createElement('span');
+    span.appendChild(document.createTextNode(label));
+
+    if ( type === 'checkbox' || type === 'radio' ) {
+      lbl.appendChild(input);
+      lbl.appendChild(span);
+    } else {
+      lbl.appendChild(span);
+      lbl.appendChild(input);
+    }
+    el.appendChild(lbl);
+  } else {
+    el.appendChild(input);
+  }
+}
+
+/**
  * Wrapper for setting custom dom element property value
  *
  * @param   {Node}            el            Element
@@ -266,35 +295,6 @@ export function setProperty(el, param, value, tagName) {
   // Set the actual root element property value
   if ( param !== 'value' ) {
     _setValueAttribute(el, 'data-' + param, value);
-  }
-}
-
-/**
- * Creates a label for given input element
- *
- * @param   {Node}            el        Element root
- * @param   {String}          type      Input element type
- * @param   {Node}            input     The input element
- * @param   {String}          [label]   Used when updating
- */
-export function createInputLabel(el, type, input, label) {
-  label = label || getLabel(el);
-
-  if ( label ) {
-    const lbl = document.createElement('label');
-    const span = document.createElement('span');
-    span.appendChild(document.createTextNode(label));
-
-    if ( type === 'checkbox' || type === 'radio' ) {
-      lbl.appendChild(input);
-      lbl.appendChild(span);
-    } else {
-      lbl.appendChild(span);
-      lbl.appendChild(input);
-    }
-    el.appendChild(lbl);
-  } else {
-    el.appendChild(input);
   }
 }
 

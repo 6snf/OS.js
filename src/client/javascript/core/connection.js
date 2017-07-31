@@ -83,7 +83,7 @@ export default class Connection {
    * Create a new Connection
    */
   constructor() {
-    /* eslint consistent-this: "warn" */
+    /* eslint consistent-this: "off" */
     if ( !_instance ) {
       _instance = this;
     }

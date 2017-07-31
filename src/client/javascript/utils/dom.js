@@ -442,6 +442,8 @@ export function $css(el, ink, inv) {
   Object.keys(obj).forEach((k) => {
     el.style[rep(k)] = String(obj[k]);
   });
+
+  return null;
 }
 
 /**

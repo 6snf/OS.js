@@ -48,7 +48,7 @@ export default class Storage {
   }
 
   constructor() {
-    /* eslint consistent-this: "warn" */
+    /* eslint consistent-this: "off" */
     _instance = this;
 
     this.saveTimeout = null;

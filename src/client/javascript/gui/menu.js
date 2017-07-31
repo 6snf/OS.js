@@ -36,6 +36,60 @@ import {triggerHook} from 'helpers/hooks';
 
 let lastMenu;
 
+export function clickWrapper(ev, pos, onclick, original) {
+  let t = ev.isTrusted ? ev.target : (ev.relatedTarget || ev.target);
+
+  if ( t && t.tagName === 'LABEL' ) {
+    t = t.parentNode;
+  }
+
+  ev.preventDefault();
+  if ( t && t.tagName === 'GUI-MENU-ENTRY' ) {
+    let subMenu = t.querySelector('gui-menu');
+    let isExpander = !!subMenu;
+    let hasInput = t.querySelector('input');
+
+    if ( hasInput || isExpander ) {
+      ev.stopPropagation();
+    }
+
+    try {
+      if ( isExpander ) {
+        t.parentNode.querySelectorAll('gui-menu-entry').forEach(function(pn) {
+          DOM.$removeClass(pn, 'active');
+        });
+
+        DOM.$addClass(t, 'active');
+      }
+    } catch ( e ) {
+      console.warn(e);
+    }
+
+    onclick(ev, pos, t, original);
+  }
+}
+
+export function clamp(r) {
+  function _clamp(rm) {
+    rm.querySelectorAll('gui-menu-entry').forEach(function(srm) {
+      const sm = srm.querySelector('gui-menu');
+      if ( sm ) {
+        sm.style.left = String(-parseInt(sm.offsetWidth, 10)) + 'px';
+        _clamp(sm);
+      }
+    });
+  }
+
+  const pos = DOM.$position(r);
+  if ( pos && (window.innerWidth - pos.right) < r.offsetWidth ) {
+    DOM.$addClass(r, 'gui-overflowing');
+    _clamp(r);
+  }
+
+  // this class is used in caclulations (DOM needs to be visible for that)
+  DOM.$addClass(r, 'gui-showing');
+}
+
 /**
  * Blur the currently open menu (aka hiding)
  *
@@ -158,58 +212,4 @@ export function create(items, ev, customInstance) {
 
 export function setActive(menu) {
   lastMenu = menu;
-}
-
-export function clickWrapper(ev, pos, onclick, original) {
-  let t = ev.isTrusted ? ev.target : (ev.relatedTarget || ev.target);
-
-  if ( t && t.tagName === 'LABEL' ) {
-    t = t.parentNode;
-  }
-
-  ev.preventDefault();
-  if ( t && t.tagName === 'GUI-MENU-ENTRY' ) {
-    let subMenu = t.querySelector('gui-menu');
-    let isExpander = !!subMenu;
-    let hasInput = t.querySelector('input');
-
-    if ( hasInput || isExpander ) {
-      ev.stopPropagation();
-    }
-
-    try {
-      if ( isExpander ) {
-        t.parentNode.querySelectorAll('gui-menu-entry').forEach(function(pn) {
-          DOM.$removeClass(pn, 'active');
-        });
-
-        DOM.$addClass(t, 'active');
-      }
-    } catch ( e ) {
-      console.warn(e);
-    }
-
-    onclick(ev, pos, t, original);
-  }
-}
-
-export function clamp(r) {
-  function _clamp(rm) {
-    rm.querySelectorAll('gui-menu-entry').forEach(function(srm) {
-      const sm = srm.querySelector('gui-menu');
-      if ( sm ) {
-        sm.style.left = String(-parseInt(sm.offsetWidth, 10)) + 'px';
-        _clamp(sm);
-      }
-    });
-  }
-
-  const pos = DOM.$position(r);
-  if ( pos && (window.innerWidth - pos.right) < r.offsetWidth ) {
-    DOM.$addClass(r, 'gui-overflowing');
-    _clamp(r);
-  }
-
-  // this class is used in caclulations (DOM needs to be visible for that)
-  DOM.$addClass(r, 'gui-showing');
 }

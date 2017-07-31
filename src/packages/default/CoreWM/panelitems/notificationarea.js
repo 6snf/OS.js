@@ -59,6 +59,7 @@ class NotificationAreaItem {
   }
 
   _build(name) {
+    /* eslint no-invalid-this: "off" */
     const classNames = ['NotificationArea', 'NotificationArea_' + name];
     if ( this.opts.className ) {
       classNames.push(this.opts.className);

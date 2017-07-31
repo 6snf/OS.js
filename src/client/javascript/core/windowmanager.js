@@ -150,7 +150,7 @@ export default class WindowManager extends Process {
 
     super(name, args, metadata);
 
-    /* eslint consistent-this: "warn" */
+    /* eslint consistent-this: "off" */
     _instance = this;
 
     this._$notifications = null;
