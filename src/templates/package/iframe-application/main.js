@@ -43,7 +43,14 @@ class ApplicationEXAMPLE extends IFrameApplication {
       allow_maximize: false
     });
   }
-}
 
+  onPostMessage(message, ev) {
+    console.log('Application got message', message);
+    if ( message === 'ping' ) {
+      // Send a message back
+      this.postMessage({foo: 'bar'});
+    }
+  }
+}
 
 OSjs.Applications.ApplicationEXAMPLE = ApplicationEXAMPLE;
