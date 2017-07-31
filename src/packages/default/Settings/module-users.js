@@ -32,7 +32,6 @@
 import Translations from './locales';
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
-const Main = OSjs.require('core/main');
 const Config = OSjs.require('core/config');
 const Connection = OSjs.require('core/connection');
 const _ = Locales.createLocalizer(Translations);
@@ -71,7 +70,7 @@ function showDialog(win, scheme, data, passwd) {
         renderUsers(win, scheme);
       }).catch((err) => {
         win._toggleDisabled(false);
-        Main.error('Settings', _('Error while managing users'), err);
+        OSjs.error('Settings', _('Error while managing users'), err);
       });
     });
     return;
@@ -128,7 +127,7 @@ function showDialog(win, scheme, data, passwd) {
         renderUsers(win, scheme);
         nwin._close();
       }).catch((err) => {
-        Main.error('Settings', _('Error while managing users'), err);
+        OSjs.error('Settings', _('Error while managing users'), err);
       });
     });
   });
@@ -140,7 +139,7 @@ function removeUser(win, scheme, data) {
   Connection.request('users', {command: 'remove', user: data}).then((users) => {
     renderUsers(win, scheme);
   }).catch((err) => {
-    Main.error('Settings', _('Error while managing users'), err);
+    OSjs.error('Settings', _('Error while managing users'), err);
   });
 }
 

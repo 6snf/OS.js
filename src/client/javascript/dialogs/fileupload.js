@@ -29,7 +29,6 @@
  */
 import DialogWindow from 'core/dialog';
 import * as VFS from 'vfs/fs';
-import * as Main from 'core/main';
 import {_} from 'core/locales';
 import {getConfig, getDefaultPath} from 'core/config';
 
@@ -93,7 +92,7 @@ export default class FileUploadDialog extends DialogWindow {
     let progressDialog;
 
     const error = (msg, ev) => {
-      Main.error(
+      OSjs.error(
         _('DIALOG_UPLOAD_FAILED'),
         _('DIALOG_UPLOAD_FAILED_MSG'),
         msg || _('DIALOG_UPLOAD_FAILED_UNKNOWN')

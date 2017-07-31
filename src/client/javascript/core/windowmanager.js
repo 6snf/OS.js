@@ -33,7 +33,6 @@ import * as GUI from 'utils/gui';
 import * as Events from 'utils/events';
 import * as Utils from 'utils/misc';
 import * as Assets from 'core/assets';
-import * as Main from 'core/main';
 import Keycodes from 'utils/keycodes';
 
 import Process from 'core/process';
@@ -800,7 +799,7 @@ export default class WindowManager extends Process {
 
     console.warn('window::onerror()', arguments);
 
-    Main.error(_('ERR_JAVASCRIPT_EXCEPTION'),
+    OSjs.error(_('ERR_JAVASCRIPT_EXCEPTION'),
                _('ERR_JAVACSRIPT_EXCEPTION_DESC'),
                _('BUGREPORT_MSG'),
                exception,

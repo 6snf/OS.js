@@ -65,6 +65,62 @@ let hasBooted = false;
 let hasShutDown = false;
 
 ///////////////////////////////////////////////////////////////////////////////
+// HELPERS
+///////////////////////////////////////////////////////////////////////////////
+
+function onError(title, message, error, exception, bugreport) {
+  bugreport = (() => {
+    if ( getConfig('BugReporting.enabled') ) {
+      return typeof bugreport === 'undefined' ? false : (bugreport ? true : false);
+    }
+    return false;
+  })();
+
+  function _dialog() {
+    const wm = WindowManager.instance;
+    if ( wm && wm._fullyLoaded ) {
+      try {
+        DialogWindow.create('Error', {
+          title: title,
+          message: message,
+          error: error,
+          exception: exception,
+          bugreport: bugreport
+        });
+
+        return true;
+      } catch ( e ) {
+        console.warn('An error occured while creating Dialogs.Error', e);
+        console.warn('stack', e.stack);
+      }
+    }
+
+    return false;
+  }
+
+  GUI.blurMenu();
+
+  if ( (exception instanceof Error) && (exception.message.match(/^Script Error/i) && String(exception.lineNumber).match(/^0/)) ) {
+    console.error('VENDOR ERROR', {
+      title: title,
+      message: message,
+      error: error,
+      exception: exception
+    });
+    return;
+  } else {
+    console.error(title, message, error, exception);
+  }
+
+  const testMode = getConfig('Debug') && window.location.hash.match(/mocha=true/);
+  if ( !testMode ) {
+    if ( !_dialog() ) {
+      window.alert(title + '\n\n' + message + '\n\n' + error);
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // INITIALIZERS
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -248,6 +304,7 @@ const initGUI = (config) => new Promise((resolve, reject) => {
     });
   });
 
+  OSjs.error = onError;
   OSjs.Dialogs.Alert = AlertDialog;
   OSjs.Dialogs.ApplicationChooser = ApplicationChooserDialog;
   OSjs.Dialogs.Color = ColorDialog;

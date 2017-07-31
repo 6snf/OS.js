@@ -33,7 +33,6 @@ import FileMetadata from 'vfs/file';
 import SettingsManager from 'core/settings-manager';
 import MountManager from 'core/mount-manager';
 import * as FS from 'utils/fs';
-import * as Main from 'core/main';
 import * as Utils from 'utils/misc';
 import * as VFS from 'vfs/fs';
 import {_} from 'core/locales';
@@ -149,7 +148,7 @@ export default class FileDialog extends DialogWindow {
           VFS.mkdir(new FileMetadata(path, 'dir')).then(() => {
             return this.changePath(path);
           }).catch((err) => {
-            Main.error(_('DIALOG_FILE_ERROR'), _('ERR_VFSMODULE_MKDIR'), err);
+            OSjs.error(_('DIALOG_FILE_ERROR'), _('ERR_VFSMODULE_MKDIR'), err);
           });
         }
       }, this);
@@ -336,7 +335,7 @@ export default class FileDialog extends DialogWindow {
       let check = this.checkFileExtension();
 
       if ( !this.path || !check.filename ) {
-        Main.error(_('DIALOG_FILE_ERROR'), _('DIALOG_FILE_MISSING_FILENAME'));
+        OSjs.error(_('DIALOG_FILE_ERROR'), _('DIALOG_FILE_MISSING_FILENAME'));
         return false;
       }
 
@@ -374,13 +373,13 @@ export default class FileDialog extends DialogWindow {
         if ( this._destroyed ) {
           return;
         }
-        Main.error(_('DIALOG_FILE_ERROR'), _('DIALOG_FILE_MISSING_FILENAME'));
+        OSjs.error(_('DIALOG_FILE_ERROR'), _('DIALOG_FILE_MISSING_FILENAME'));
       });
 
       return false;
     } else {
       if ( !this.selected && this.args.select !== 'dir' ) {
-        Main.error(_('DIALOG_FILE_ERROR'), _('DIALOG_FILE_MISSING_SELECTION'));
+        OSjs.error(_('DIALOG_FILE_ERROR'), _('DIALOG_FILE_MISSING_SELECTION'));
         return false;
       }
 

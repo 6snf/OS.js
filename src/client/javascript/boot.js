@@ -32,6 +32,9 @@
 // Makes sure a global namespace is available
 //
 window.OSjs = Object.assign({
+  error: (title, message, error, exception, bugreport) => {
+    console.error(title, message, error, exception);
+  },
   runTests: () => {
     // void
   },

@@ -31,7 +31,6 @@ const SettingsManager = OSjs.require('core/settings-manager');
 const MountManager = OSjs.require('core/mount-manager');
 const Authenticator = OSjs.require('core/authenticator');
 const Utils = OSjs.require('utils/misc');
-const Main = OSjs.require('core/main');
 
 /*eslint valid-jsdoc: "off"*/
 const TEMPLATES = {
@@ -243,7 +242,7 @@ export default {
 
         mounts.push(iter); // FIXME: Move this  down ?
       } catch ( e ) {
-        Main.error('Settings', 'An error occured while trying to mount', e);
+        OSjs.error('Settings', 'An error occured while trying to mount', e);
         console.warn(e.stack, e);
       }
     });

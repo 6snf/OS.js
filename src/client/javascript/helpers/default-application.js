@@ -34,7 +34,6 @@ import DialogWindow from 'core/dialog';
 import FileMetadata from 'vfs/file';
 import * as VFS from 'vfs/fs';
 import * as FS from 'utils/fs';
-import * as Main from 'core/main';
 import {_} from 'core/locales';
 
 /////////////////////////////////////////////////////////////////////////////
@@ -106,7 +105,7 @@ export default class DefaultApplication extends Application {
 
     const onError = (error) => {
       if ( error ) {
-        Main.error(this.__label,
+        OSjs.error(this.__label,
                    _('ERR_FILE_APP_OPEN'),
                    _('ERR_FILE_APP_OPEN_ALT_FMT',
                      file.path, error)
@@ -123,7 +122,7 @@ export default class DefaultApplication extends Application {
 
     const check = this.__metadata.mime || [];
     if ( !FS.checkAcceptMime(file.mime, check) ) {
-      Main.error(this.__label,
+      OSjs.error(this.__label,
                  _('ERR_FILE_APP_OPEN'),
                  _('ERR_FILE_APP_OPEN_FMT', file.path, file.mime)
       );
@@ -170,7 +169,7 @@ export default class DefaultApplication extends Application {
       this._setArgument('file', file);
       win.updateFile(file);
     }).catch((error) => {
-      Main.error(this.__label,
+      OSjs.error(this.__label,
                  _('ERR_FILE_APP_SAVE'),
                  _('ERR_FILE_APP_SAVE_ALT_FMT', file.path, error)
       );

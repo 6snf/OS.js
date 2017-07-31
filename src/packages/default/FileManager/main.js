@@ -929,7 +929,7 @@ class ApplicationFileManager extends Application {
       } catch ( e ) {}
 
       if ( error ) {
-        Main.error(Locales._('ERR_GENERIC_APP_FMT', self.__label), Locales._('ERR_GENERIC_APP_REQUEST'), error);
+        OSjs.error(Locales._('ERR_GENERIC_APP_FMT', self.__label), Locales._('ERR_GENERIC_APP_REQUEST'), error);
         return;
       }
     };
@@ -948,7 +948,7 @@ class ApplicationFileManager extends Application {
       function done(error, file) {
         win._toggleLoading(false);
         if ( error ) {
-          Main.error(Locales._('ERR_GENERIC_APP_FMT', self.__label), Locales._('ERR_GENERIC_APP_REQUEST'), error);
+          OSjs.error(Locales._('ERR_GENERIC_APP_FMT', self.__label), Locales._('ERR_GENERIC_APP_REQUEST'), error);
         } else {
           //win.changePath(null, file, false, false, true);
         }
@@ -1010,7 +1010,7 @@ class ApplicationFileManager extends Application {
     VFS[name].apply(VFS, args.concat(null, this)).then((res) => {
       return callback(false, res);
     }).catch((error) => {
-      Main.error(Locales._('ERR_GENERIC_APP_FMT', this.__label), Locales._('ERR_GENERIC_APP_REQUEST'), error);
+      OSjs.error(Locales._('ERR_GENERIC_APP_FMT', this.__label), Locales._('ERR_GENERIC_APP_REQUEST'), error);
       callback(error);
     });
   }

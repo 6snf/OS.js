@@ -346,7 +346,7 @@ export default class DesktopIconView {
           onClick: () => {
             createCreateDialog('New file', desktopPath, (f) => {
               VFS.write(f, '').catch((err) => {
-                Main.error('CoreWM', _('ERR_VFSMODULE_MKFILE'), err);
+                OSjs.error('CoreWM', _('ERR_VFSMODULE_MKFILE'), err);
               });
             });
           }
@@ -355,7 +355,7 @@ export default class DesktopIconView {
           onClick: () => {
             createCreateDialog('New directory', desktopPath, (f) => {
               VFS.mkdir(f).catch((err) => {
-                Main.error('CoreWM', _('ERR_VFSMODULE_MKDIR'), err);
+                OSjs.error('CoreWM', _('ERR_VFSMODULE_MKDIR'), err);
               });
             });
           }

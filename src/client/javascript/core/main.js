@@ -30,10 +30,7 @@
 import Promise from 'bluebird';
 
 import * as FS from 'utils/fs';
-import * as GUI from 'utils/gui';
-import {getConfig} from 'core/config';
 import {triggerHook} from 'helpers/hooks';
-import WM from 'core/windowmanager';
 import DialogWindow from 'core/dialog';
 import Loader from 'helpers/loader';
 
@@ -128,67 +125,6 @@ function getLaunchObject(s) {
   }
 
   return s;
-}
-
-/**
- * Global function for showing an error dialog
- *
- * @param   {String}    title               Dialog title
- * @param   {String}    message             Dialog message
- * @param   {String}    error               Error message
- * @param   {Object}    [exception]         Exception reference
- * @param   {Boolean}   [bugreport=false]   Enable bugreporting for this error
- */
-export function error(title, message, error, exception, bugreport) {
-  bugreport = (() => {
-    if ( getConfig('BugReporting.enabled') ) {
-      return typeof bugreport === 'undefined' ? false : (bugreport ? true : false);
-    }
-    return false;
-  })();
-
-  function _dialog() {
-    const wm = WM.instance;
-    if ( wm && wm._fullyLoaded ) {
-      try {
-        DialogWindow.create('Error', {
-          title: title,
-          message: message,
-          error: error,
-          exception: exception,
-          bugreport: bugreport
-        });
-
-        return true;
-      } catch ( e ) {
-        console.warn('An error occured while creating Dialogs.Error', e);
-        console.warn('stack', e.stack);
-      }
-    }
-
-    return false;
-  }
-
-  GUI.blurMenu();
-
-  if ( (exception instanceof Error) && (exception.message.match(/^Script Error/i) && String(exception.lineNumber).match(/^0/)) ) {
-    console.error('VENDOR ERROR', {
-      title: title,
-      message: message,
-      error: error,
-      exception: exception
-    });
-    return;
-  } else {
-    console.error(title, message, error, exception);
-  }
-
-  const testMode = getConfig('Debug') && window.location.hash.match(/mocha=true/);
-  if ( !testMode ) {
-    if ( !_dialog() ) {
-      window.alert(title + '\n\n' + message + '\n\n' + error);
-    }
-  }
 }
 
 /**
@@ -342,10 +278,9 @@ export function launch(name, args, onconstruct) {
   };
 
   const onerror = (err) => {
-    error(_('ERR_APP_LAUNCH_FAILED'),
-          _('ERR_APP_LAUNCH_FAILED_FMT', name),
-          err, err, true);
-
+    OSjs.error(_('ERR_APP_LAUNCH_FAILED'),
+               _('ERR_APP_LAUNCH_FAILED_FMT', name),
+               err, err, true);
   };
 
   return new Promise((resolve, reject) => {
@@ -449,9 +384,9 @@ export function openFile(file, args) {
     }
 
     if ( pack.length === 0 ) {
-      error(_('ERR_FILE_OPEN'),
-            _('ERR_FILE_OPEN_FMT', file.path),
-            _('ERR_APP_MIME_NOT_FOUND_FMT', file.mime) );
+      OSjs.error(_('ERR_FILE_OPEN'),
+                 _('ERR_FILE_OPEN_FMT', file.path),
+                 _('ERR_APP_MIME_NOT_FOUND_FMT', file.mime) );
 
       reject(new Error(_('ERR_APP_MIME_NOT_FOUND_FMT', file.mime)));
     } else if ( pack.length === 1 ) {

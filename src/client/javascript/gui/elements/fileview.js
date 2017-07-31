@@ -41,7 +41,6 @@ import DateExtended from 'helpers/date';
 import {_} from 'core/locales';
 import {getConfig, getDefaultPath} from 'core/config';
 import * as Assets from 'core/assets';
-import * as Main from 'core/main';
 
 /////////////////////////////////////////////////////////////////////////////
 // ABSTRACTION HELPERS
@@ -498,7 +497,7 @@ class GUIFileView extends GUIElement {
     el._readdirTimeout = setTimeout(() => {
       readdir(this, dir, (error, result, summary) => {
         if ( error ) {
-          Main.error(_('ERR_VFSMODULE_XHR_ERROR'), _('ERR_VFSMODULE_SCANDIR_FMT', dir), error);
+          OSjs.error(_('ERR_VFSMODULE_XHR_ERROR'), _('ERR_VFSMODULE_SCANDIR_FMT', dir), error);
         } else {
           child.clear();
           child.add(result);
