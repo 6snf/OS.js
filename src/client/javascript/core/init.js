@@ -418,7 +418,7 @@ function initSession(config) {
       });
 
       console.info('initSession()->autostart()', list);
-      return Process.create(list).then(resolve).catch(resolve);
+      return Process.createFromArray(list).then(resolve).catch(resolve);
     }).catch((err) => {
       console.warn(err);
       resolve();
