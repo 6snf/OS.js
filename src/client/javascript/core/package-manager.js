@@ -256,27 +256,29 @@ class PackageManager {
 
     let entries = [];
 
-    return Promise.all(repos, (url) => {
-      return new Promise((yes, no) => {
-        Connection.request('curl', {
-          url: url,
-          method: 'GET'
-        }).then((result) => {
-          let list = [];
-          if ( typeof result.body === 'string' ) {
-            try {
-              list = JSON.parse(result.body);
-            } catch ( e ) {}
-          }
+    return new Promise((resolve, reject) => {
+      Promise.all(repos.map((url) => {
+        return new Promise((yes, no) => {
+          Connection.request('curl', {
+            url: url,
+            method: 'GET'
+          }).then((result) => {
+            let list = [];
+            if ( typeof result.body === 'string' ) {
+              try {
+                list = JSON.parse(result.body);
+              } catch ( e ) {}
+            }
 
-          entries = entries.concat(list.map((iter) => {
-            iter._repository = url;
-            return iter;
-          }));
+            entries = entries.concat(list.map((iter) => {
+              iter._repository = url;
+              return iter;
+            }));
 
-          return yes();
-        }).catch(no);
-      });
+            return yes();
+          }).catch(no);
+        });
+      })).then(() => resolve(entries)).catch(reject);
     });
   }
 

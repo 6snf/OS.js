@@ -48,7 +48,7 @@ function installSelected(download, cb) {
       });
 
       VFS.write(dest, ab).then(() => {
-        PackageManager.install(dest, true).then(() => {
+        return PackageManager.install(dest, true).then(() => {
           PackageManager.generateUserMetadata()
             .then(resolve).catch(reject);
         }).catch((error) => {

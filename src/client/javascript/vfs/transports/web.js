@@ -37,12 +37,19 @@ export default class WebTransport extends Transport {
 
   _request(url, responseType, method, options) {
     return new Promise((resolve, reject) => {
-      if ( options.cors ) {
+      if ( !options.cors ) {
+        const binary = options.type === 'text' ? false : (responseType === 'arraybuffer');
+
         Connection.request('curl', {
           url: url,
           method: method,
-          binary: options.type === 'text' ? false : (responseType === 'arraybuffer')
+          binary: binary
         }).then((result) => {
+          if ( binary ) {
+            return FS.dataSourceToAb(result.body, 'application/octet-stream', (err, ab) => {
+              return err ? reject(err) : resolve(ab);
+            });
+          }
           return resolve(result.body);
         }).catch(reject);
       } else {
