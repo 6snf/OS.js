@@ -35,6 +35,7 @@ const cookie = require('cookie');
 const parser = require('cookie-parser');
 const morgan = require('morgan');
 const proxy = require('http-proxy');
+const jsonTransform = require('express-json-transform');
 
 const settings = require('./../settings.js');
 const modules = require('./../modules.js');
@@ -71,6 +72,15 @@ class Connection {
       }
 
       this.app.use(bodyParser.json());
+
+      this.app.use(jsonTransform((json) => {
+        if ( json.error instanceof Error ) {
+          console.warn(json.error);
+          json.error = json.error.toString();
+        }
+
+        return json;
+      }));
 
       this.app.use(compression({
         level: settings.get('http.compression.level'),
@@ -209,18 +219,9 @@ class Connection {
         data = req.method.toUpperCase() === 'POST' ? req.body : req.query;
       }
 
-      const newResponse = Object.assign({}, res);
-      newResponse.json = function(data) {
-        if ( data.error instanceof Error ) {
-          console.warn(data.error);
-          data.error = data.error.toString();
-        }
-        return res.json(...arguments);
-      };
-
       return Object.assign({
         request: req,
-        response: newResponse,
+        response: res,
         next: next,
         data: data,
         session: this.getSessionWrapper(req)
