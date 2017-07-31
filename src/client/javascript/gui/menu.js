@@ -41,7 +41,7 @@ let lastMenu;
  *
  * @param {Event} [ev] Browser event
  */
-export function blurMenu(ev) {
+export function blur(ev) {
   if ( lastMenu ) {
     lastMenu(ev);
   }
@@ -54,7 +54,7 @@ export function blurMenu(ev) {
  * Create and show a new menu
  *
  * @example
- * createMenu([
+ * create([
  *    {
  *      title: "Title",
  *      icon: "Icon",
@@ -67,10 +67,10 @@ export function blurMenu(ev) {
  * @param   {(Event|Object)}       ev                DOM Event or dict with x/y
  * @param   {Object}               [customInstance]  Show a custom created menu
  */
-export function createMenu(items, ev, customInstance) {
+export function create(items, ev, customInstance) {
   items = items || [];
 
-  blurMenu(ev);
+  blur(ev);
 
   let root = customInstance;
   let callbackMap = [];
@@ -104,7 +104,7 @@ export function createMenu(items, ev, customInstance) {
         if ( callbackMap[index] ) {
           callbackMap[index](ev, pos);
 
-          blurMenu(ev); // !last!
+          blur(ev); // !last!
         }
       });
     }, true);
