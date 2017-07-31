@@ -113,7 +113,8 @@ class Modules {
     const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
     this.metadata = fs.readJsonSync(metaPath);
 
-    chokidar.watch(metaPath).on('change', () => {
+    const watcher = chokidar.watch(metaPath);
+    watcher.on('change', () => {
       console.log('Reloading manifest');
       this.metadata = fs.readJsonSync(metaPath);
 
@@ -121,6 +122,7 @@ class Modules {
         console.log('Loaded new packages');
       });
     });
+    this.watchers.push(watcher);
 
     return Promise.each([
       this.loadConnection,
