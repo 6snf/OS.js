@@ -27,9 +27,50 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const Promise = require('bluebird');
 const fs = require('fs-extra');
 const path = require('path');
 const settings = require('./settings.js');
+const vfs = require('./vfs.js');
+
+const readManifestFile = (filename, scope) => {
+  return new Promise((resolve, reject) => {
+    fs.readJson(filename).then((json) => {
+      Object.keys(json).forEach((k) => {
+        json[k].scope = scope;
+      });
+      return resolve(json);
+    }).catch(reject);
+  });
+};
+
+const getSystemMetadata = () => {
+  const filename = path.resolve(settings.option('SERVERDIR'), 'packages.json');
+  return readManifestFile(filename, 'system');
+};
+
+const getUserMetadata = (username, paths) => {
+  return new Promise((resolve, reject) => {
+    let result = {};
+
+    Promise.each(paths, (p) => {
+      const filename = [p, 'packages.json'].join('/'); // path.join does not work
+      try {
+        const parsed = vfs.parseVirtualPath(filename, {username: username});
+        return new Promise((yes, no) => {
+          readManifestFile(parsed.real, 'user').then((json) => {
+            result = Object.assign(result, json);
+            return yes(json);
+          }).catch(no);
+        });
+      } catch ( e ) {
+        return Promise.reject('Failed to parse user manifest');
+      }
+    }).then(() => {
+      return resolve(result);
+    }).catch(reject);
+  });
+};
 
 module.exports.install = function() {
   return Promise.reject('Not yet implemented');
@@ -47,11 +88,15 @@ module.exports.cache = function() {
   return Promise.reject('Not yet implemented');
 };
 
-module.exports.list = function() {
+module.exports.list = function(http, args) {
   return new Promise((resolve, reject) => {
-    const filename = path.resolve(settings.option('SERVERDIR'), 'packages.json');
-    fs.readJson(filename).then((json) => {
-      return resolve(json);
+    const username = http.session.get('username');
+    const paths = args.paths;
+
+    getSystemMetadata().then((systemMeta) => {
+      return getUserMetadata(username, paths).then((userMeta) => {
+        return resolve(Object.assign({}, userMeta, systemMeta));
+      }).catch(reject);
     }).catch(reject);
   });
 };

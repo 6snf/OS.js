@@ -92,7 +92,7 @@ module.exports = function(app, wrapper) {
 
     authenticator().checkPermission(http, 'packages').then(() => {
       if ( packagemanager[command] ) {
-        packagemanager[command](args)
+        packagemanager[command](http, args)
           .then((result) => http.response.json({result}))
           .catch((error) => http.response.json({error}));
       } else {
