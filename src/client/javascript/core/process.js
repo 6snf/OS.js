@@ -868,7 +868,7 @@ export default class Process {
         this.create(pack[0], args).then(resolve).catch(reject);
       } else {
         const DialogWindow = require('core/dialog');
-        DialogWindow.create('ApplicationChooser', {
+        DialogWindow.default.create('ApplicationChooser', {
           file: file,
           list: pack
         }, (ev, btn, result) => {
