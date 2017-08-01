@@ -225,8 +225,8 @@ export default class Window {
    * @param   {String}        opts.icon                Window Icon
    * @param   {Number}        [opts.x]                 X Position
    * @param   {Number}        [opts.y]                 Y Position
-   * @param   {Number}        [opts.w]                 Width
-   * @param   {Number}        [opts.h]                 Height
+   * @param   {Number}        [opts.width]             Width
+   * @param   {Number}        [opts.height]            Height
    * @param   {String}        [opts.tag]               Window Tag
    * @param   {String}        [opts.gravity]           Window Gravity
    * @param   {boolean}       [opts.allow_move]        Allow movment
@@ -1453,7 +1453,7 @@ export default class Window {
     }
 
     if ( !this._state.focused || force) {
-      console.debug(this._name, '>', 'Window::_focus()');
+      //console.debug(this._name, '>', 'Window::_focus()');
       this._onChange('focus');
       this._emit('focus');
     }
@@ -1477,7 +1477,7 @@ export default class Window {
       return false;
     }
 
-    console.debug(this._name, '>', 'Window::_blur()');
+    //console.debug(this._name, '>', 'Window::_blur()');
 
     this._$element.setAttribute('data-focused', 'false');
     this._state.focused = false;
@@ -1708,7 +1708,7 @@ export default class Window {
    * @param     {Boolean}     t       Toggle
    */
   _toggleDisabled(t) {
-    console.debug(this._name, '>', 'Window::_toggleDisabled()', t);
+    //console.debug(this._name, '>', 'Window::_toggleDisabled()', t);
     if ( this._$disabled ) {
       this._$disabled.style.display = t ? 'block' : 'none';
     }
@@ -1724,7 +1724,7 @@ export default class Window {
    * @param     {Boolean}     t       Toggle
    */
   _toggleLoading(t) {
-    console.debug(this._name, '>', 'Window::_toggleLoading()', t);
+    //console.debug(this._name, '>', 'Window::_toggleLoading()', t);
     if ( this._$loading ) {
       this._$loading.style.display = t ? 'block' : 'none';
     }
@@ -1987,7 +1987,7 @@ export default class Window {
    * @param   {String}  btn       Button name
    */
   _onWindowButtonClick(ev, el, btn) {
-    console.debug(this._name, '>', 'Window::_onWindowButtonClick()', btn);
+    //console.debug(this._name, '>', 'Window::_onWindowButtonClick()', btn);
 
     this._blurGUI();
 
@@ -2009,7 +2009,7 @@ export default class Window {
   _onChange(ev, byUser) {
     ev = ev || '';
     if ( ev ) {
-      console.debug(this._name, '>', 'Window::_onChange()', ev);
+      //console.debug(this._name, '>', 'Window::_onChange()', ev);
       const wm = WindowManager.instance;
       if ( wm ) {
         wm.eventWindow(ev, this);
