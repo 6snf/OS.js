@@ -131,7 +131,10 @@ const getUserMetadata = (username, paths) => {
       }
     }).then(() => {
       return resolve(result);
-    }).catch(reject);
+    }).catch((e) => {
+      console.warn(e);
+      resolve(result);
+    });
   });
 };
 
