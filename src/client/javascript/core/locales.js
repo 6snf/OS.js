@@ -46,10 +46,16 @@ let CurrentRTL = [];
  * @return {String}
  */
 export function _() {
-  const userLocale = require('locales/' + CurrentLocale + '.js');
-  const systemLocale = require('locales/' + DefaultLocale + '.js');
-  const s = arguments[0];
+  let userLocale = {};
+  let systemLocale = {};
+  try {
+    userLocale = require('locales/' + CurrentLocale + '.js');
+    systemLocale = require('locales/' + DefaultLocale + '.js');
+  } catch ( e ) {
+    console.warn('Locale error', e);
+  }
 
+  const s = arguments[0];
   let a = arguments;
   try {
     if ( userLocale && userLocale[s] ) {
@@ -104,7 +110,15 @@ export function getLocale() {
  * @param  {String}   l     Locale name
  */
 export function setLocale(l) {
-  const locale = require('locales/' + l + '.js');
+  let locale;
+
+  try {
+    locale = require('locales/' + l + '.js');
+  } catch ( e ) {
+    console.warn('Failed to set locale', e);
+    return;
+  }
+
   if ( locale ) {
     CurrentLocale = l;
   } else {
