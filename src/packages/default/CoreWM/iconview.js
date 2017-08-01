@@ -226,7 +226,7 @@ export default class DesktopIconView {
 
     this.refreshTimeout = clearTimeout(this.refreshTimeout);
     this.refreshTimeout = setTimeout(() => {
-      VFS.scandir(desktopPath).then((result) => {
+      VFS.scandir(desktopPath, {backlink: false}).then((result) => {
         if ( this.$iconview ) {
           this.$iconview.clear().add(result.map((iter) => {
             if ( iter.type === 'application' || iter.shortcut === true ) {
