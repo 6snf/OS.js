@@ -369,6 +369,7 @@ class PackageManager {
    */
   setPackages(res) {
     const packages = {};
+    const locale = getLocale();
 
     const checkEntry = (key, iter, scope) => {
       iter = Object.assign({}, iter);
@@ -376,6 +377,13 @@ class PackageManager {
 
       if ( scope ) {
         iter.scope = scope;
+      }
+
+      if ( iter.names && iter.names[locale] ) {
+        iter.name = iter.names[locale];
+      }
+      if ( iter.descriptions && iter.descriptions[locale] ) {
+        iter.description = iter.descriptions[locale];
       }
 
       iter.preload = resolvePreloads(iter, this);
