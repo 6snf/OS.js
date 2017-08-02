@@ -60,8 +60,11 @@ class Theme {
     });
   }
 
-  update(settings) {
+  update(settings, settheme) {
     this.settings.set(null, settings);
+    if ( settheme ) {
+      this.setTheme(settings);
+    }
   }
 
   destroy() {
@@ -471,6 +474,7 @@ class Theme {
    */
   getSoundFilename(k) {
     const compability = Compability.getCompability();
+    console.error(this.settings.get('enableSounds'));
     if ( !compability.audio || !this.settings.get('enableSounds') || !k ) {
       return false;
     }

@@ -171,6 +171,8 @@ class CoreWM extends WindowManager {
       SAVEAS: _winGenericHotkey,
       OPEN: _winGenericHotkey
     };
+
+    Theme.update(this.importedSettings);
   }
 
   setup() {
@@ -273,8 +275,6 @@ class CoreWM extends WindowManager {
     } catch ( e ) {
       console.warn('Failed to apply CoreWM VFS watch', e, e.stack);
     }
-
-    Theme.update(this.importedSettings);
 
     this.initSwitcher();
     this.initDesktop();
@@ -747,7 +747,7 @@ class CoreWM extends WindowManager {
 
     console.log(settings);
 
-    Theme.setTheme(settings);
+    Theme.update(settings, true);
 
     this.setIconView(settings);
     this.setStyles(settings);
