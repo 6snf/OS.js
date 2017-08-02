@@ -30,7 +30,7 @@
 import * as DOM from 'utils/dom';
 import * as Events from 'utils/events';
 import * as Compability from 'utils/compability';
-import * as Assets from 'core/assets';
+import PackageManager from 'core/package-manager';
 import Theme from 'core/theme';
 import GUIElement from 'gui/element';
 
@@ -117,7 +117,7 @@ export function getViewNodeValue(el) {
 export function getIcon(el, win) {
   let image = el.getAttribute('data-icon');
   if ( image ) {
-    return win ? Assets.getPackageResource(win._app, image) : image;
+    return win ? PackageManager.getPackageResource(win._app, image) : image;
   }
 
   image = el.getAttribute('data-stock-icon');

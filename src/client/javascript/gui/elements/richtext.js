@@ -29,7 +29,7 @@
  */
 import * as DOM from 'utils/dom';
 import * as Events from 'utils/events';
-import * as Assets from 'core/assets';
+import Theme from 'core/theme';
 import GUIElement from 'gui/element';
 
 /////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ function setDocumentData(el, text) {
   text = text || '';
 
   const theme = document.body.getAttribute('data-theme') || 'default';
-  const themeSrc = Assets.getThemeCSS(theme);
+  const themeSrc = Theme.getThemeCSS(theme);
 
   let editable = el.getAttribute('data-editable');
   editable = editable === null || editable === 'true';

@@ -32,7 +32,6 @@ import Promise from 'bluebird';
 import Connection from 'core/connection';
 import EventHandler from 'helpers/event-handler';
 import Theme from 'core/theme';
-import * as Assets from 'core/assets';
 import * as FS from 'utils/fs';
 import * as Config from 'core/config';
 import * as Compability from 'utils/compability';
@@ -364,7 +363,7 @@ export default class Process {
    * @return  {String}
    */
   _getResource(src, vfspath) {
-    return Assets.getPackageResource(this, src, vfspath);
+    return PackageManager.getPackageResource(this, src, vfspath);
   }
 
   /**

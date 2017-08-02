@@ -34,7 +34,6 @@ module.exports = function() {
   const Authenticator = require('core/authenticator.js');
   const Connection = require('core/connection.js');
   const Storage = require('core/storage.js');
-  const Assets = require('core/assets.js');
 
   const ExtendedDate = require('helpers/date.js');
   const DefaultApplicationWindow = require('helpers/default-application-window.js');
@@ -138,7 +137,6 @@ module.exports = function() {
   layer.API.blurMenu = Menu.blur;
   layer.API.signOut = Init.logout;
   layer.API.createNotification = (opts) => Notification.default.create(opts);
-  assignInto(Assets, layer.API);
   assignInto(Clipboard, layer.API);
 
   layer.VFS.find = function(item, args, callback, options) {
@@ -251,7 +249,7 @@ module.exports = function() {
   };
 
   layer.API.getApplicationResource = function(app, name, vfspath) {
-    return Assets.getPackageResource(app, name, vfspath);
+    return PackageManager.default.getPackageResource(app, name, vfspath);
   };
 
   layer.API.curl = function(args, callback) {

@@ -364,6 +364,61 @@ class PackageManager {
   }
 
   /**
+   * Get package resource
+   *
+   * @param {Process|String}    app       The application (or package name)
+   * @param {String}            name      Resource name
+   * @param {String}            vfspath   Return a VFS path
+   * @return {String}
+   */
+  getPackageResource(app, name, vfspath) {
+    if ( name.match(/^((https?:)|\.)?\//) ) {
+      return name;
+    }
+    name = name.replace(/^\.\//, '');
+
+    function getName() {
+      let appname = null;
+
+      if ( typeof app === 'string' ) {
+        appname = app;
+      } else {
+        appname = app.__pname;
+      }
+
+      return appname;
+    }
+
+    function getResultPath(path, userpkg) {
+      if ( vfspath ) {
+        if ( userpkg ) {
+          path = path.substr(getConfig('Connection.FSURI').length);
+        } else {
+          path = 'osjs:///' + path;
+        }
+      }
+
+      return path;
+    }
+
+    return (() => {
+      const appname = getName();
+      const pkg = this.getPackage(appname);
+
+      let path = '';
+      if ( pkg ) {
+        if ( pkg.scope === 'user' ) {
+          path = '/user-package/' + FS.filename(pkg.path) + '/' + name.replace(/^\//, '');
+        } else {
+          path = 'packages/' + pkg.path + '/' + name;
+        }
+      }
+
+      return getResultPath(path, pkg.scope === 'user');
+    })();
+  }
+
+  /**
    * Sets the current list of packages
    * @param {Object} res Package map
    */

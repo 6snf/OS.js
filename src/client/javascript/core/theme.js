@@ -33,7 +33,6 @@ import FileMetadata from 'vfs/file';
 import PackageManager from 'core/package-manager';
 import * as FS from 'utils/fs';
 import * as Compability from 'utils/compability';
-import * as Assets from 'core/assets';
 import * as DOM from 'utils/dom';
 import * as VFS from 'vfs/fs';
 
@@ -139,6 +138,16 @@ class Theme {
     document.body.setAttribute('data-background-style', className);
   }
 
+  getThemeCSS(name) {
+    let root = getConfig('Connection.RootURI', '/');
+    if ( name === null ) {
+      return root + 'blank.css';
+    }
+
+    root = getConfig('Connection.ThemeURI');
+    return root + '/' + name + '.min.css';
+  }
+
   /**
    * Set theme
    * @param {Object} settings Settings
@@ -150,10 +159,10 @@ class Theme {
 
     if ( this.$animationLink ) {
       if ( settings.animations ) {
-        const src = Assets.getPackageResource('CoreWM', 'animations.css');
+        const src = PackageManager.getPackageResource('CoreWM', 'animations.css');
         this.setAnimationLink(src);
       } else {
-        this.setAnimationLink(Assets.getThemeCSS(null));
+        this.setAnimationLink(this.getThemeCSS(null));
       }
     }
 
@@ -412,7 +421,7 @@ class Theme {
         if ( !meta.icon.match(/^((https?:)|\.)?\//) ) {
           return this.getIcon(meta.icon, size);
         }
-        return getPackageResource(appname, meta.icon);
+        return PackageManager.getPackageResource(appname, meta.icon);
       }
     } else {
       const mime = file.mime || 'application/octet-stream';

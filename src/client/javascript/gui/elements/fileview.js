@@ -36,13 +36,13 @@ import * as Events from 'utils/events';
 import * as Menu from 'gui/menu';
 import GUIElement from 'gui/element';
 import GUIDataView from 'gui/dataview';
+import PackageManager from 'core/package-manager';
 import SettingsManager from 'core/settings-manager';
 import FileMetadata from 'vfs/file';
 import DateExtended from 'helpers/date';
 import Theme from 'core/theme';
 import {_} from 'core/locales';
 import {getConfig, getDefaultPath} from 'core/config';
-import * as Assets from 'core/assets';
 
 /////////////////////////////////////////////////////////////////////////////
 // ABSTRACTION HELPERS
@@ -59,7 +59,7 @@ let _iconSizes = { // Defaults to 16x16
 function getFileIcon(iter, size) {
   if ( iter.icon && typeof iter.icon === 'object' ) {
     if ( iter.icon.application ) {
-      return Assets.getPackageResource(iter.icon.filename, iter.icon.application);
+      return PackageManager.getPackageResource(iter.icon.filename, iter.icon.application);
     }
     return Theme.getIcon(iter.icon.filename, size, iter.icon.application);
   }

@@ -29,8 +29,8 @@
  */
 import * as DOM from 'utils/dom';
 import * as GUI from 'utils/gui';
-import * as Assets from 'core/assets';
 import {_} from 'core/locales';
+import PackageManager from 'core/package-manager';
 
 let REGISTRY = {};
 
@@ -91,7 +91,7 @@ function parseDynamic(node, win, args) {
       : el.getAttribute('data-src') || '';
 
     if ( win._app && !src.match(/^(https?:)?\//) ) {
-      const source = Assets.getPackageResource(win._app, src);
+      const source = PackageManager.getPackageResource(win._app, src);
       el.setAttribute(isNative ? 'src' : 'data-src', source);
     }
   });
