@@ -35,7 +35,7 @@ const GUI = OSjs.require('utils/gui');
 const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const Init = OSjs.require('core/init');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
 const Process = OSjs.require('core/process');
@@ -236,7 +236,7 @@ export default class PanelItemButtons extends PanelItem {
   addButton(title, icon, menu, callback, idx) {
     const img = document.createElement('img');
     img.alt = '';
-    img.src = Assets.getIcon(icon);
+    img.src = Theme.getIcon(icon);
 
     const sel = document.createElement('li');
     sel.title = title;

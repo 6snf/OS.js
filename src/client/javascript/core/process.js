@@ -31,6 +31,7 @@
 import Promise from 'bluebird';
 import Connection from 'core/connection';
 import EventHandler from 'helpers/event-handler';
+import Theme from 'core/theme';
 import * as Assets from 'core/assets';
 import * as FS from 'utils/fs';
 import * as Config from 'core/config';
@@ -604,7 +605,7 @@ export default class Process {
       // Create loading ui
       Loader.create('Main.launch.' + name, {
         title: _('LBL_STARTING') + ' ' + metadata.name,
-        icon: Assets.getIcon(metadata.icon, '16x16', name)
+        icon: Theme.getIcon(metadata.icon, '16x16', name)
       });
 
       // Preload

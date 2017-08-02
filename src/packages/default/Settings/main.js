@@ -48,7 +48,7 @@ const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const Window = OSjs.require('core/window');
 const Events = OSjs.require('utils/events');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Utils = OSjs.require('utils/misc');
 const Menu = OSjs.require('gui/menu');
 const SettingsManager = OSjs.require('core/settings-manager');
@@ -189,7 +189,7 @@ class ApplicationSettingsWindow extends Window {
 
       if ( containers[m.group] ) {
         const i = document.createElement('img');
-        i.setAttribute('src', Assets.getIcon(m.icon, '32x32'));
+        i.setAttribute('src', Theme.getIcon(m.icon, '32x32'));
         i.setAttribute('title', m.name);
 
         const s = document.createElement('span');

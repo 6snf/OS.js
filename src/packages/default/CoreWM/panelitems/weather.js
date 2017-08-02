@@ -33,7 +33,7 @@ import PanelItem from '../panelitem';
 
 const DOM = OSjs.require('utils/dom');
 const Utils = OSjs.require('utils/misc');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Events = OSjs.require('utils/events');
 const Connection = OSjs.require('core/connection');
 
@@ -146,7 +146,7 @@ export default class PanelItemWeather extends PanelItem {
           break;
       }
 
-      var src = Assets.getIcon('status/' + icon);
+      var src = Theme.getIcon('status/' + icon);
       this.$image.title = Utils.format('{0} - {1} - {2}', name, desc, temp);
       setImage(src);
     };
@@ -183,7 +183,7 @@ export default class PanelItemWeather extends PanelItem {
       });
     };
 
-    setImage(Assets.getIcon('status/weather-severe-alert.png'));
+    setImage(Theme.getIcon('status/weather-severe-alert.png'));
 
     this.interval = setInterval(function() {
       updateWeather();

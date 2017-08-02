@@ -29,8 +29,8 @@
  */
 
 import Notification from 'core/notification';
+import Theme from 'core/theme';
 import * as Menu from 'gui/menu';
-import * as Assets from 'core/assets';
 import {_} from 'core/locales';
 
 /*
@@ -51,7 +51,7 @@ class ServiceNotificationIcon {
     };
 
     this.notif = Notification.createIcon('ServiceNotificationIcon', {
-      image: Assets.getIcon('status/dialog-password.png'),
+      image: Theme.getIcon('status/dialog-password.png'),
       onContextMenu: show,
       onClick: show,
       onInited: (el, img) => {

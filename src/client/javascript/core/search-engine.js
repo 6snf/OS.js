@@ -32,7 +32,7 @@ import Promise from 'bluebird';
 import PackageManager from 'core/package-manager';
 import SettingsManager from 'core/settings-manager';
 import FileMetadata from 'vfs/file';
-import * as Assets from 'core/assets';
+import Theme from 'core/theme';
 import * as VFS from 'vfs/fs';
 
 /////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ const ApplicationModule = (function() {
         value: {
           title: p.name,
           description: p.description,
-          icon: Assets.getFileIcon(new FileMetadata('applications:///' + p.className, 'application'), '16x16'),
+          icon: Theme.getFileIcon(new FileMetadata('applications:///' + p.className, 'application'), '16x16'),
           launch: {application: pn, args: {}}
         },
         fields: [
@@ -142,7 +142,7 @@ const FilesystemModule = {
           return {
             title: iter.filename,
             description: iter.path,
-            icon: Assets.getFileIcon(new FileMetadata(iter)),
+            icon: Theme.getFileIcon(new FileMetadata(iter)),
             launch: {application: '', args: '', file: iter}
           };
         }));

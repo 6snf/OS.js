@@ -32,7 +32,6 @@ import * as DOM from 'utils/dom';
 import * as Menu from 'gui/menu';
 import * as Events from 'utils/events';
 import * as Utils from 'utils/misc';
-import * as Assets from 'core/assets';
 import Keycodes from 'utils/keycodes';
 
 import Theme from 'core/theme';
@@ -644,10 +643,10 @@ export default class WindowManager extends Process {
       if ( notif ) {
         if ( !document.fullScreen && !document.mozFullScreen && !document.webkitIsFullScreen && !document.msFullscreenElement ) {
           notif.opts._isFullscreen = false;
-          notif.setImage(Assets.getIcon('actions/view-fullscreen.png', '16x16'));
+          notif.setImage(Theme.getIcon('actions/view-fullscreen.png', '16x16'));
         } else {
           notif.opts._isFullscreen = true;
-          notif.setImage(Assets.getIcon('actions/view-restore.png', '16x16'));
+          notif.setImage(Theme.getIcon('actions/view-restore.png', '16x16'));
         }
       }
     } catch ( e ) {

@@ -47,7 +47,7 @@ const GUIElement = OSjs.require('gui/element');
 const Clipboard = OSjs.require('utils/clipboard');
 const Keycodes = OSjs.require('utils/keycodes');
 const Config = OSjs.require('core/config');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Notification = OSjs.require('core/notification');
 const doTranslate = Locales.createLocalizer(Translations);
 
@@ -459,12 +459,12 @@ class ApplicationFileManagerWindow extends Window {
         columns: [
           {
             label: m.option('title'),
-            icon: Assets.getIcon(m.option('icon'))
+            icon: Theme.getIcon(m.option('icon'))
           }
         ],
         onCreated: function(nel) {
           if ( m.isReadOnly() ) {
-            nel.style.backgroundImage = 'url(' + Assets.getIcon('emblems/emblem-readonly.png', '16x16') + ')';
+            nel.style.backgroundImage = 'url(' + Theme.getIcon('emblems/emblem-readonly.png', '16x16') + ')';
           }
         }
       });
@@ -997,7 +997,7 @@ class ApplicationFileManager extends Application {
     Notification.create({
       title: 'External Storage',
       message: 'Using external services requires authorization. A popup-window may appear.',
-      icon: Assets.getIcon('status/dialog-information.png', '32x32')
+      icon: Theme.getIcon('status/dialog-information.png', '32x32')
     });
   }
 

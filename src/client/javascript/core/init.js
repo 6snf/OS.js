@@ -43,7 +43,6 @@ import Theme from 'core/theme';
 import Connection from 'core/connection';
 import {triggerHook} from 'helpers/hooks';
 import {getConfig} from 'core/config';
-import {playSound} from 'core/assets';
 import * as Utils from 'utils/misc';
 import * as Menu from 'gui/menu';
 import Preloader from 'utils/preloader';
@@ -511,7 +510,7 @@ export function start() {
     SplashScreen.hide();
 
     if ( !testMode ) {
-      playSound('LOGIN');
+      Theme.playSound('LOGIN');
 
       var wm = WindowManager.instance;
       if ( wm ) {
@@ -598,7 +597,7 @@ export function logout() {
   const wm = WindowManager.instance;
 
   function signOut(save) {
-    playSound('LOGOUT');
+    Theme.playSound('LOGOUT');
 
     const lout = (cb) => Authenticator.instance.logout().then(cb).catch(cb);
 

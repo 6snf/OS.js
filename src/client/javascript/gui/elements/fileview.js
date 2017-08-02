@@ -39,6 +39,7 @@ import GUIDataView from 'gui/dataview';
 import SettingsManager from 'core/settings-manager';
 import FileMetadata from 'vfs/file';
 import DateExtended from 'helpers/date';
+import Theme from 'core/theme';
 import {_} from 'core/locales';
 import {getConfig, getDefaultPath} from 'core/config';
 import * as Assets from 'core/assets';
@@ -60,11 +61,11 @@ function getFileIcon(iter, size) {
     if ( iter.icon.application ) {
       return Assets.getPackageResource(iter.icon.filename, iter.icon.application);
     }
-    return Assets.getIcon(iter.icon.filename, size, iter.icon.application);
+    return Theme.getIcon(iter.icon.filename, size, iter.icon.application);
   }
 
   const icon = 'status/dialog-question.png';
-  return Assets.getFileIcon(iter, size, icon);
+  return Theme.getFileIcon(iter, size, icon);
 }
 
 function getFileSize(iter) {

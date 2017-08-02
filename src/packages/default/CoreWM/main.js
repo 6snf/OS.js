@@ -53,7 +53,6 @@ const PackageManager = OSjs.require('core/package-manager');
 const WindowManager = OSjs.require('core/windowmanager');
 const SettingsFragment = OSjs.require('helpers/settings-fragment');
 const SettingsManager = OSjs.require('core/settings-manager');
-const Assets = OSjs.require('core/assets');
 const Events = OSjs.require('utils/events');
 const Compability = OSjs.require('utils/compability');
 const FileMetadata = OSjs.require('vfs/file');
@@ -235,7 +234,7 @@ class CoreWM extends WindowManager {
 
       if ( Config.getConfig('Debug') ) {
         Notification.createIcon('_DeveloperNotification', {
-          icon: Assets.getIcon('categories/applications-development.png', '16x16'),
+          icon: Theme.getIcon('categories/applications-development.png', '16x16'),
           title: 'Developer Tools',
           onContextMenu: displayDevMenu,
           onClick: displayDevMenu
@@ -244,7 +243,7 @@ class CoreWM extends WindowManager {
 
       if ( this.getSetting('fullscreen') ) {
         Notification.createIcon('_FullscreenNotification', {
-          icon: Assets.getIcon('actions/view-fullscreen.png', '16x16'),
+          icon: Theme.getIcon('actions/view-fullscreen.png', '16x16'),
           title: 'Enter fullscreen',
           onClick: toggleFullscreen,
           _isFullscreen: false
@@ -252,7 +251,7 @@ class CoreWM extends WindowManager {
       }
 
       Notification.createIcon('_HandlerUserNotification', {
-        icon: Assets.getIcon('status/avatar-default.png', '16x16'),
+        icon: Theme.getIcon('status/avatar-default.png', '16x16'),
         title: Locales._('TITLE_SIGNED_IN_AS_FMT', user.username),
         onContextMenu: displayMenu,
         onClick: displayMenu
@@ -400,7 +399,7 @@ class CoreWM extends WindowManager {
             console.warn('stack', e.stack);
 
             Notification.create({
-              icon: Assets.getIcon('status/dialog-warning.png', '32x32'),
+              icon: Theme.getIcon('status/dialog-warning.png', '32x32'),
               title: 'CoreWM',
               message: translate('An error occured while creating PanelItem: {0}', e)
             });
@@ -414,7 +413,7 @@ class CoreWM extends WindowManager {
     if ( !added ) {
       Notification.create({
         timeout: 0,
-        icon: Assets.getIcon('status/dialog-warning.png', '32x32'),
+        icon: Theme.getIcon('status/dialog-warning.png', '32x32'),
         title: 'CoreWM',
         message: translate('Your panel has no items. Go to settings to reset default or modify manually\n(This error may occur after upgrades of OS.js)')
       });

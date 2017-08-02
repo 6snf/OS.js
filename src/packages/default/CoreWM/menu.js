@@ -37,7 +37,7 @@ const GUI = OSjs.require('utils/gui');
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
 const Process = OSjs.require('core/process');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const WindowManager = OSjs.require('core/windowmanager');
 const PackageManager = OSjs.require('core/package-manager');
 
@@ -86,7 +86,7 @@ class CategorizedApplicationMenu {
         var iter = cats[c][a];
         submenu.push({
           title: iter.data.name,
-          icon: Assets.getIcon(iter.data.icon, '16x16'),
+          icon: Theme.getIcon(iter.data.icon, '16x16'),
           tooltip: iter.data.description,
           onCreated: createEvent(iter),
           onClick: clickEvent(iter)
@@ -96,7 +96,7 @@ class CategorizedApplicationMenu {
       if ( submenu.length ) {
         list.push({
           title: _(cfgCategories[c].title),
-          icon: Assets.getIcon(cfgCategories[c].icon, '16x16'),
+          icon: Theme.getIcon(cfgCategories[c].icon, '16x16'),
           menu: submenu
         });
       }
@@ -126,7 +126,7 @@ class ApplicationMenu {
       var entry = document.createElement('gui-menu-entry');
 
       var img = document.createElement('img');
-      img.src = Assets.getIcon(iter.icon, '32x32');
+      img.src = Theme.getIcon(iter.icon, '32x32');
 
       var txt = document.createElement('div');
       txt.appendChild(document.createTextNode(iter.name)); //.replace(/([^\s-]{8})([^\s-]{8})/, '$1-$2')));

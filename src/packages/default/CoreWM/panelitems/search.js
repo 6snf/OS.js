@@ -32,7 +32,7 @@ import PanelItem from '../panelitem';
 
 const DOM = OSjs.require('utils/dom');
 const Hooks = OSjs.require('helpers/hooks');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
 const Keycodes = OSjs.require('utils/keycodes');
@@ -61,7 +61,7 @@ export default class PanelItemSearch extends PanelItem {
     const root = super.init(...arguments);
 
     const img = document.createElement('img');
-    img.src = Assets.getIcon('actions/system-search.png');
+    img.src = Theme.getIcon('actions/system-search.png');
 
     const input = document.createElement('input');
     input.setAttribute('type', 'text');

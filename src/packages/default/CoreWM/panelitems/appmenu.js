@@ -30,7 +30,7 @@
 import PanelItem from '../panelitem';
 import {showMenu} from '../menu';
 
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
 const WindowManager = OSjs.require('core/windowmanager');
@@ -48,7 +48,7 @@ export default class PanelItemAppMenu extends PanelItem {
 
     const img = document.createElement('img');
     img.alt = '';
-    img.src = Assets.getIcon(wm.getSetting('icon') || 'osjs-white.png');
+    img.src = Theme.getIcon(wm.getSetting('icon') || 'osjs-white.png');
 
     const sel = document.createElement('li');
     sel.title = Locales._('LBL_APPLICATIONS');

@@ -32,7 +32,7 @@
 const PackageManager = OSjs.require('core/package-manager');
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Utils = OSjs.require('utils/misc');
 
 let panelItems = [];
@@ -75,7 +75,7 @@ function renderItems(win, setSelected) {
       list.push({
         value: idx,
         columns: [{
-          icon: Assets.getIcon(items[name].Icon),
+          icon: Theme.getIcon(items[name].Icon),
           label: Utils.format('{0} ({1})', items[name].Name, items[name].Description)
         }]
       });
@@ -112,7 +112,7 @@ function createDialog(win, scheme, cb) {
         return {
           value: i,
           columns: [{
-            icon: Assets.getIcon(items[i].Icon),
+            icon: Theme.getIcon(items[i].Icon),
             label: Utils.format('{0} ({1})', items[i].Name, items[i].Description)
           }]
         };

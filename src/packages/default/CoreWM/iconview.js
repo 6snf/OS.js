@@ -38,7 +38,7 @@ const DOM = OSjs.require('utils/dom');
 const GUI = OSjs.require('utils/gui');
 const VFS = OSjs.require('vfs/fs');
 const Process = OSjs.require('core/process');
-const Assets = OSjs.require('core/assets');
+const Theme = OSjs.require('core/theme');
 const Dialog = OSjs.require('core/dialog');
 const FileMetadata = OSjs.require('vfs/file');
 const MountManager = OSjs.require('core/mount-manager');
@@ -240,7 +240,7 @@ export default class DesktopIconView {
 
               return {
                 _type: iter.type,
-                icon: Assets.getFileIcon(iter, '32x32'),
+                icon: Theme.getFileIcon(iter, '32x32'),
                 label: iter.filename,
                 value: file,
                 args: iter.args || {}
@@ -249,7 +249,7 @@ export default class DesktopIconView {
 
             return {
               _type: 'vfs',
-              icon: Assets.getFileIcon(iter, '32x32'),
+              icon: Theme.getFileIcon(iter, '32x32'),
               label: iter.filename,
               value: iter
             };

@@ -35,7 +35,6 @@ import Element from 'gui/element';
 import GUIScheme from 'gui/scheme';
 import EventHandler from 'helpers/event-handler';
 import Theme from 'core/theme';
-import * as Assets from 'core/assets';
 import * as DOM from 'utils/dom';
 import * as GUI from 'utils/gui';
 import * as Events from 'utils/events';
@@ -263,7 +262,7 @@ export default class Window {
     }
 
     opts = Object.assign({}, {
-      icon: Assets.getIcon('apps/preferences-system-windows.png'),
+      icon: Theme.getIcon('apps/preferences-system-windows.png'),
       width: _DEFAULT_WIDTH,
       height: _DEFAULT_HEIGHT,
       title: name,
@@ -807,11 +806,11 @@ export default class Window {
     this._onChange('create');
     this._toggleLoading(false);
     this._toggleDisabled(false);
-    this._setIcon(Assets.getIcon(this._icon));
+    this._setIcon(Theme.getIcon(this._icon));
     this._updateMarkup();
 
     if ( this._sound ) {
-      Assets.playSound(this._sound, this._soundVolume);
+      Theme.playSound(this._sound, this._soundVolume);
     }
 
     this._initialized = true;
@@ -1906,7 +1905,7 @@ export default class Window {
       [this._properties.allow_minimize, () => {
         return {
           title: _('WINDOW_MINIMIZE'),
-          icon: Assets.getIcon('actions/go-up.png'),
+          icon: Theme.getIcon('actions/go-up.png'),
           onClick: (name, iter) => {
             this._minimize();
           }
@@ -1915,7 +1914,7 @@ export default class Window {
       [this._properties.allow_maximize, () => {
         return {
           title: _('WINDOW_MAXIMIZE'),
-          icon: Assets.getIcon('actions/view-fullscreen.png'),
+          icon: Theme.getIcon('actions/view-fullscreen.png'),
           onClick: (name, iter) => {
             this._maximize();
             this._focus();
@@ -1925,7 +1924,7 @@ export default class Window {
       [this._state.maximized, () => {
         return {
           title: _('WINDOW_RESTORE'),
-          icon: Assets.getIcon('actions/view-restore.png'),
+          icon: Theme.getIcon('actions/view-restore.png'),
           onClick: (name, iter) => {
             this._restore();
             this._focus();
@@ -1936,7 +1935,7 @@ export default class Window {
         if ( this._state.ontop ) {
           return {
             title: _('WINDOW_ONTOP_OFF'),
-            icon: Assets.getIcon('actions/window-new.png'),
+            icon: Theme.getIcon('actions/window-new.png'),
             onClick: (name, iter) => {
               this._state.ontop = false;
               if ( this._$element ) {
@@ -1949,7 +1948,7 @@ export default class Window {
 
         return {
           title: _('WINDOW_ONTOP_ON'),
-          icon: Assets.getIcon('actions/window-new.png'),
+          icon: Theme.getIcon('actions/window-new.png'),
           onClick: (name, iter) => {
             this._state.ontop = true;
             if ( this._$element ) {
@@ -1962,7 +1961,7 @@ export default class Window {
       [this._properties.allow_close, () => {
         return {
           title: _('WINDOW_CLOSE'),
-          icon: Assets.getIcon('actions/window-close.png'),
+          icon: Theme.getIcon('actions/window-close.png'),
           onClick: (name, iter) => {
             this._close();
           }

@@ -31,6 +31,7 @@ import * as DOM from 'utils/dom';
 import * as Events from 'utils/events';
 import * as Compability from 'utils/compability';
 import * as Assets from 'core/assets';
+import Theme from 'core/theme';
 import GUIElement from 'gui/element';
 
 /////////////////////////////////////////////////////////////////////////////
@@ -132,7 +133,7 @@ export function getIcon(el, win) {
         image = spl.join('/');
       }
 
-      image = Assets.getIcon(image, size);
+      image = Theme.getIcon(image, size);
     } catch ( e ) {}
 
     return image;

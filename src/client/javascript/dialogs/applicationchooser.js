@@ -29,7 +29,7 @@
  */
 import DialogWindow from 'core/dialog';
 import PackageManager from 'core/package-manager';
-import * as Assets from 'core/assets';
+import Theme from 'core/theme';
 import * as Utils from 'utils/misc';
 import {_} from 'core/locales';
 
@@ -76,7 +76,7 @@ export default class ApplicationChooserDialog extends DialogWindow {
         rows.push({
           value: iter,
           columns: [
-            {label: label.join(' - '), icon: Assets.getIcon(iter.icon, null, name), value: JSON.stringify(iter)}
+            {label: label.join(' - '), icon: Theme.getIcon(iter.icon, null, name), value: JSON.stringify(iter)}
           ]
         });
       }
