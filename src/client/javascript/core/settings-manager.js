@@ -132,7 +132,14 @@ class SettingsManager {
       callback = function() {};
     }
 
-    Storage.instance.saveSettings(pool, this.storage).then((res) => {
+    const saveableStorage = {};
+    Object.keys(this.storage).filter((n) => {
+      return !n.match(/^__/);
+    }).forEach((n) => {
+      saveableStorage[n] = this.storage[n];
+    });
+
+    Storage.instance.saveSettings(pool, saveableStorage).then((res) => {
       return callback(false, res);
     }).catch(callback);
   }
