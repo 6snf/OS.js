@@ -33,7 +33,7 @@ import {showMenu} from '../menu';
 const Theme = OSjs.require('gui/theme');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 /*eslint valid-jsdoc: "off"*/
 export default class PanelItemAppMenu extends PanelItem {

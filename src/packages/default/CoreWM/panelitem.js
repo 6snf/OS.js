@@ -5,7 +5,7 @@ const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
 const SettingsFragment = OSjs.require('helpers/settings-fragment');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 export default class PanelItem {
   static metadata() {

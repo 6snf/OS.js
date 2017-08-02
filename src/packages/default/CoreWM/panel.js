@@ -34,7 +34,7 @@ const _ = OSjs.require('core/locales').createLocalizer(Translations);
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
 const Menu = OSjs.require('gui/menu');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 /*eslint valid-jsdoc: "off"*/
 

@@ -30,7 +30,7 @@
 
 import FileMetadata from 'vfs/file';
 import Application from 'core/application';
-import WindowManager from 'core/windowmanager';
+import WindowManager from 'core/window-manager';
 import Element from 'gui/element';
 import GUIScheme from 'gui/scheme';
 import EventHandler from 'helpers/event-handler';

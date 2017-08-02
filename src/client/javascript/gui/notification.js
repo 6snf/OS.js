@@ -29,7 +29,7 @@
  */
 
 import * as Events from 'utils/events';
-import WindowManager from 'core/windowmanager';
+import WindowManager from 'core/window-manager';
 
 /**
  * Class for creating notifications

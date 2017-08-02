@@ -34,7 +34,7 @@ import PanelItem from '../panelitem';
 const GUI = OSjs.require('utils/gui');
 const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 class WindowListEntry {
 

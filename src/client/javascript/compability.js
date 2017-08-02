@@ -26,7 +26,7 @@ module.exports = function() {
   });
 
   const Process = require('core/process.js');
-  const WindowManager = require('core/windowmanager.js');
+  const WindowManager = require('core/window-manager.js');
   const SettingsManager = require('core/settings-manager.js');
   const SearchEngine = require('core/search-engine.js');
   const PackageManager = require('core/package-manager.js');

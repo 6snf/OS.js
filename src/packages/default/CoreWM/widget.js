@@ -36,7 +36,7 @@ const Menu = OSjs.require('gui/menu');
 const DOM = OSjs.require('utils/dom');
 const Utils = OSjs.require('utils/misc');
 const Events = OSjs.require('utils/events');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 /////////////////////////////////////////////////////////////////////////////
 // DEFAULTS

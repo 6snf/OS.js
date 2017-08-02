@@ -31,7 +31,7 @@ import {$empty, $addClass, $escape} from 'utils/dom';
 import Keycodes from 'utils/keycodes';
 import Window from 'core/window';
 import Application from 'core/application';
-import WindowManager from 'core/windowmanager';
+import WindowManager from 'core/window-manager';
 import GUIScheme from 'gui/scheme';
 import {_} from 'core/locales';
 

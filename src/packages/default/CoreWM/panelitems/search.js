@@ -39,7 +39,7 @@ const Keycodes = OSjs.require('utils/keycodes');
 const Process = OSjs.require('core/process');
 const FileMetadata = OSjs.require('vfs/file');
 const SearchEngine = OSjs.require('core/search-engine');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 export default class PanelItemSearch extends PanelItem {
   constructor(settings) {

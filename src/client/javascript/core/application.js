@@ -30,7 +30,7 @@
 
 import Process from 'core/process';
 import SettingsManager from 'core/settings-manager';
-import WindowManager from 'core/windowmanager';
+import WindowManager from 'core/window-manager';
 import Window from 'core/window';
 
 /**

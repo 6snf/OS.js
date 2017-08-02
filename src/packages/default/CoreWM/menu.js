@@ -38,7 +38,7 @@ const DOM = OSjs.require('utils/dom');
 const Events = OSjs.require('utils/events');
 const Process = OSjs.require('core/process');
 const Theme = OSjs.require('gui/theme');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 const PackageManager = OSjs.require('core/package-manager');
 
 class CategorizedApplicationMenu {

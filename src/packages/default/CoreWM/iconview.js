@@ -44,7 +44,7 @@ const FileMetadata = OSjs.require('vfs/file');
 const MountManager = OSjs.require('core/mount-manager');
 const Window = OSjs.require('core/window');
 const GUIElement = OSjs.require('gui/element');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 function createCreateDialog(title, dir, cb) {
   Dialog.create('Input', {

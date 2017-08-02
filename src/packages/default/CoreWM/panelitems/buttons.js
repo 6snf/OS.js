@@ -40,7 +40,7 @@ const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
 const Process = OSjs.require('core/process');
 const PackageManager = OSjs.require('core/package-manager');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 
 /////////////////////////////////////////////////////////////////////////////
 // ITEM

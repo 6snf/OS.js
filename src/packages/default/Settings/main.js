@@ -52,7 +52,7 @@ const Theme = OSjs.require('gui/theme');
 const Utils = OSjs.require('utils/misc');
 const Menu = OSjs.require('gui/menu');
 const SettingsManager = OSjs.require('core/settings-manager');
-const WindowManager = OSjs.require('core/windowmanager');
+const WindowManager = OSjs.require('core/window-manager');
 const Application = OSjs.require('core/application');
 const _ = Locales.createLocalizer(Translations);
 

@@ -34,7 +34,7 @@ import SettingsManager from 'core/settings-manager';
 import PackageManager from 'core/package-manager';
 import SearchEngine from 'core/search-engine';
 import Authenticator from 'core/authenticator';
-import WindowManager from 'core/windowmanager';
+import WindowManager from 'core/window-manager';
 import DialogWindow from 'core/dialog';
 import Storage from 'core/storage';
 import Process from 'core/process';

@@ -31,7 +31,7 @@ import * as GUI from 'utils/gui';
 import * as DOM from 'utils/dom';
 import * as Events from 'utils/events';
 import GUIElement from 'gui/element';
-import WindowManager from 'core/windowmanager';
+import WindowManager from 'core/window-manager';
 import {triggerHook} from 'helpers/hooks';
 
 let lastMenu;
