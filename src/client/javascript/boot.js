@@ -44,6 +44,7 @@ window.OSjs = Object.assign({
   getManifest: () => {
     return {};
   },
+  Themes: {},
   Dialogs: {},
   Locales: {},
   Extensions: {},

@@ -1,27 +1,9 @@
-(function(API, Utils) {
-  'use strict';
-
-  OSjs.Applications         = OSjs.Applications || {};
-  OSjs.Applications.CoreWM  = OSjs.Applications.CoreWM || {};
-
-  /////////////////////////////////////////////////////////////////////////////
-  // API
-  /////////////////////////////////////////////////////////////////////////////
-
-  OSjs.Applications.CoreWM.CurrentTheme = {
-    init: function() {
-    },
-
-    destroy: function() {
-    },
-
-    event: function(ev) {
-    }
+(function() {
+  window.OSjs = window.OSjs || {};
+  OSjs.Themes = window.OSjs.Themes || {};
+  OSjs.Themes.glass = {
+    init: () => {},
+    destroy: () => {},
+    event: () => {}
   };
-
-  /////////////////////////////////////////////////////////////////////////////
-  // EXPORTS
-  /////////////////////////////////////////////////////////////////////////////
-
-
-})(OSjs.API, OSjs.Utils);
+})();

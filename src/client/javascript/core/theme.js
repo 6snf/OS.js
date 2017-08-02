@@ -79,14 +79,15 @@ class Theme {
    * @return {*}
    */
   themeAction(action, args) {
+    const theme = this.getStyleTheme();
     args = args || [];
-    if ( OSjs.Applications.CoreWM.CurrentTheme ) {
-      try {
-        return OSjs.Applications.CoreWM.CurrentTheme[action].apply(null, args);
-      } catch ( e ) {
-        console.warn(e);
-      }
+
+    try {
+      return OSjs.Themes[theme][action].apply(null, args);
+    } catch ( e ) {
+      console.warn(e);
     }
+
     return null;
   }
 
@@ -474,7 +475,6 @@ class Theme {
    */
   getSoundFilename(k) {
     const compability = Compability.getCompability();
-    console.error(this.settings.get('enableSounds'));
     if ( !compability.audio || !this.settings.get('enableSounds') || !k ) {
       return false;
     }

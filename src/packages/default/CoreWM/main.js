@@ -952,7 +952,6 @@ OSjs.Applications.CoreWM                   = OSjs.Applications.CoreWM || {};
 OSjs.Applications.CoreWM.Class             = Object.seal(CoreWM);
 OSjs.Applications.CoreWM.PanelItems        = OSjs.Applications.CoreWM.PanelItems || {};
 OSjs.Applications.CoreWM.Widgets           = OSjs.Applications.CoreWM.Widgets || {};
-OSjs.Applications.CoreWM.CurrentTheme      = OSjs.Applications.CoreWM.CurrentTheme || null;
 
 OSjs.Applications.CoreWM.Widgets.DigitalClock = WidgetDigitalClock;
 OSjs.Applications.CoreWM.Widgets.AnalogClock = WidgetAnalogClock;
