@@ -57,6 +57,7 @@ const Assets = OSjs.require('core/assets');
 const Events = OSjs.require('utils/events');
 const Compability = OSjs.require('utils/compability');
 const FileMetadata = OSjs.require('vfs/file');
+const Notification = OSjs.require('core/notification');
 const DOM = OSjs.require('utils/dom');
 const Utils = OSjs.require('utils/misc');
 const Init = OSjs.require('core/init');
@@ -107,7 +108,6 @@ class CoreWM extends WindowManager {
     this.$animationLink   = null;
     this.importedSettings = Utils.mergeObject(Config.getConfig('SettingsManager.CoreWM'), importSettings);
     this._scheme          = GUIScheme.fromString(require('osjs-scheme-loader!scheme.html'));
-    this._visibleNotifications = 0;
 
     this.generatedHotkeyMap = {};
 
@@ -173,11 +173,6 @@ class CoreWM extends WindowManager {
       SAVEAS: _winGenericHotkey,
       OPEN: _winGenericHotkey
     };
-
-    this._$notifications    = document.createElement('corewm-notifications');
-    this._$notifications.setAttribute('role', 'log');
-
-    document.body.appendChild(this._$notifications);
   }
 
   init() {
@@ -206,7 +201,7 @@ class CoreWM extends WindowManager {
 
       const toggleFullscreen = () => {
         const docElm = document.documentElement;
-        const notif = this.getNotificationIcon('_FullscreenNotification');
+        const notif = Notification.getIcon('_FullscreenNotification');
         if ( notif ) {
           this.toggleFullscreen(notif.opts._isFullscreen ? document : docElm, !notif.opts._isFullscreen);
         }
@@ -248,7 +243,7 @@ class CoreWM extends WindowManager {
       };
 
       if ( Config.getConfig('Debug') ) {
-        this.createNotificationIcon('_DeveloperNotification', {
+        Notification.createIcon('_DeveloperNotification', {
           icon: Assets.getIcon('categories/applications-development.png', '16x16'),
           title: 'Developer Tools',
           onContextMenu: displayDevMenu,
@@ -257,7 +252,7 @@ class CoreWM extends WindowManager {
       }
 
       if ( this.getSetting('fullscreen') ) {
-        this.createNotificationIcon('_FullscreenNotification', {
+        Notification.createIcon('_FullscreenNotification', {
           icon: Assets.getIcon('actions/view-fullscreen.png', '16x16'),
           title: 'Enter fullscreen',
           onClick: toggleFullscreen,
@@ -265,7 +260,7 @@ class CoreWM extends WindowManager {
         });
       }
 
-      this.createNotificationIcon('_HandlerUserNotification', {
+      Notification.createIcon('_HandlerUserNotification', {
         icon: Assets.getIcon('status/avatar-default.png', '16x16'),
         title: Locales._('TITLE_SIGNED_IN_AS_FMT', user.username),
         onContextMenu: displayMenu,
@@ -309,7 +304,7 @@ class CoreWM extends WindowManager {
 
     Events.$unbind(document.body, 'dragenter, dragleave, dragover, drop');
 
-    this.removeNotificationIcon('_HandlerUserNotification');
+    Notification.removeIcon('_HandlerUserNotification');
 
     if ( this.iconView ) {
       this.iconView.destroy();
@@ -330,7 +325,6 @@ class CoreWM extends WindowManager {
     this.applySettings(defaultSettings(settings), true);
 
     // Clear DOM
-    this._$notifications = DOM.$remove(this._$notifications);
     this.$themeScript = DOM.$remove(this.$themeScript);
     this.$animationLink = DOM.$remove(this.$animationLink);
     this.switcher = null;
@@ -411,7 +405,7 @@ class CoreWM extends WindowManager {
             console.warn('An error occured while creating PanelItem', e);
             console.warn('stack', e.stack);
 
-            this.notification({
+            Notification.create({
               icon: Assets.getIcon('status/dialog-warning.png', '32x32'),
               title: 'CoreWM',
               message: translate('An error occured while creating PanelItem: {0}', e)
@@ -424,7 +418,7 @@ class CoreWM extends WindowManager {
     }
 
     if ( !added ) {
-      this.notification({
+      Notification.create({
         timeout: 0,
         icon: Assets.getIcon('status/dialog-warning.png', '32x32'),
         title: 'CoreWM',
@@ -709,168 +703,13 @@ class CoreWM extends WindowManager {
     }
   }
 
-  notification(opts) {
-    opts          = opts          || {};
-    opts.icon     = opts.icon     || null;
-    opts.title    = opts.title    || null;
-    opts.message  = opts.message  || '';
-    opts.onClick  = opts.onClick  || function() {};
-
-    if ( typeof opts.timeout === 'undefined' ) {
-      opts.timeout  = 5000;
-    }
-
-    console.debug('CoreWM::notification()', opts);
-
-    const container  = document.createElement('corewm-notification');
-    let classNames = [''];
-    let timeout    = null;
-    let animationCallback = null;
-
-    const _remove = () => {
-      if ( timeout ) {
-        clearTimeout(timeout);
-        timeout = null;
-      }
-
-      container.onclick = null;
-      const _removeDOM = () => {
-        Events.$unbind(container);
-        if ( container.parentNode ) {
-          container.parentNode.removeChild(container);
-        }
-        this._visibleNotifications--;
-        if ( this._visibleNotifications <= 0 ) {
-          this._$notifications.style.display = 'none';
-        }
-      };
-
-      const anim = this.getSetting('animations');
-      if ( anim ) {
-        container.setAttribute('data-hint', 'closing');
-        animationCallback = () => _removeDOM();
-      } else {
-        container.style.display = 'none';
-        _removeDOM();
-      }
-    };
-
-    if ( opts.icon ) {
-      const icon = document.createElement('img');
-      icon.alt = '';
-      icon.src = opts.icon;
-      classNames.push('HasIcon');
-      container.appendChild(icon);
-    }
-
-    if ( opts.title ) {
-      const title = document.createElement('div');
-      title.className = 'Title';
-      title.appendChild(document.createTextNode(opts.title));
-      classNames.push('HasTitle');
-      container.appendChild(title);
-    }
-
-    if ( opts.message ) {
-      const message = document.createElement('div');
-      message.className = 'Message';
-      const lines = opts.message.split('\n');
-      lines.forEach(function(line, idx) {
-        message.appendChild(document.createTextNode(line));
-        if ( idx < (lines.length - 1) ) {
-          message.appendChild(document.createElement('br'));
-        }
-      });
-      classNames.push('HasMessage');
-      container.appendChild(message);
-    }
-
-    this._visibleNotifications++;
-    if ( this._visibleNotifications > 0 ) {
-      this._$notifications.style.display = 'block';
-    }
-
-    container.setAttribute('aria-label', String(opts.title));
-    container.setAttribute('role', 'alert');
-
-    container.className = classNames.join(' ');
-    container.onclick = function(ev) {
-      _remove();
-
-      opts.onClick(ev);
-    };
-
-    let preventTimeout;
-    function _onanimationend(ev) {
-      if ( typeof animationCallback === 'function') {
-        clearTimeout(preventTimeout);
-        preventTimeout = setTimeout(function() {
-          animationCallback(ev);
-          animationCallback = false;
-        }, 10);
-      }
-    }
-
-    Events.$bind(container, 'transitionend', _onanimationend);
-    Events.$bind(container, 'animationend', _onanimationend);
-
-    const space = this.getWindowSpace(true);
-    this._$notifications.style.marginTop = String(space.top) + 'px';
-    this._$notifications.appendChild(container);
-
-    if ( opts.timeout ) {
-      timeout = setTimeout(function() {
-        _remove();
-      }, opts.timeout);
-    }
-  }
-
-  _getNotificationArea(panelId) {
-    panelId = panelId || 0;
-    const panel  = this.panels[panelId];
+  getNotificationArea() {
+    const panelId = 0; // FIXME
+    const panel = this.panels[panelId];
     if ( panel ) {
-      return panel.getItem(OSjs.Applications.CoreWM.PanelItems.NotificationArea, false);
-    }
-
-    return false;
-  }
-
-  createNotificationIcon(name, opts, panelId) {
-    opts = opts || {};
-    if ( !name ) {
-      return false;
-    }
-
-    const pitem = this._getNotificationArea(panelId);
-    if ( pitem ) {
-      return pitem.createNotification(name, opts);
+      return panel.getItem(OSjs.Applications.CoreWM.PanelItems.NotificationArea);
     }
     return null;
-  }
-
-  removeNotificationIcon(name, panelId) {
-    if ( !name ) {
-      return false;
-    }
-
-    const pitem = this._getNotificationArea(panelId);
-    if ( pitem ) {
-      pitem.removeNotification(name);
-      return true;
-    }
-    return false;
-  }
-
-  getNotificationIcon(name, panelId) {
-    if ( !name ) {
-      return false;
-    }
-
-    const pitem = this._getNotificationArea(panelId);
-    if ( pitem ) {
-      return pitem.getNotification(name);
-    }
-    return false;
   }
 
   _getContextMenu(arg) {

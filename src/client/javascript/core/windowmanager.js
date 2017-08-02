@@ -40,6 +40,7 @@ import Window from 'core/window';
 import DialogWindow from 'core/dialog';
 import Connection from 'core/connection';
 import SettingsManager from 'core/settings-manager';
+import Notification from 'core/notification';
 
 import {_} from 'core/locales';
 import {getConfig} from 'core/config';
@@ -153,7 +154,6 @@ export default class WindowManager extends Process {
     /* eslint consistent-this: "off" */
     _instance = this;
 
-    this._$notifications = null;
     this._windows        = [];
     this._settings       = SettingsManager.instance(name, settings);
     this._currentWin     = null;
@@ -174,11 +174,11 @@ export default class WindowManager extends Process {
     this.__iter    = metadata.iter;
 
     Connection.instance.subscribe('online', () => {
-      this.notification({title: _('LBL_INFO'), message: _('CONNECTION_RESTORED')});
+      Notification.create({title: _('LBL_INFO'), message: _('CONNECTION_RESTORED')});
     });
 
     Connection.instance.subscribe('offline', (reconnecting) => {
-      this.notification({title: _('LBL_WARNING'), message: _(reconnecting ? 'CONNECTION_RESTORE_FAILED' : 'CONNECTION_LOST')});
+      Notification.create({title: _('LBL_WARNING'), message: _(reconnecting ? 'CONNECTION_RESTORE_FAILED' : 'CONNECTION_LOST')});
     });
 
     console.groupEnd();
@@ -450,55 +450,6 @@ export default class WindowManager extends Process {
   }
 
   /**
-   * Create a desktop notification.
-   *
-   * THIS IS IMPLEMENTED IN COREWM
-   *
-   * @param   {Object}    opts                   Notification options
-   * @param   {String}    opts.icon              What icon to display
-   * @param   {String}    opts.title             What title to display
-   * @param   {String}    opts.message           What message to display
-   * @param   {Number}    [opts.timeout=5000]    Timeout
-   * @param   {Function}  opts.onClick           Event callback on click => fn(ev)
-   */
-  notification() {
-    // Implement in your WM
-  }
-
-  /**
-   * Create a panel notification icon.
-   *
-   * THIS IS IMPLEMENTED IN COREWM
-   *
-   * FOR OPTIONS SEE NotificationAreaItem IN CoreWM !
-   *
-   * @param   {String}    name      Internal name (unique)
-   * @param   {Object}    opts      Notification options
-   * @param   {Number}    [panelId] Panel ID
-   *
-   * @return  OSjs.Applications.CoreWM.NotificationAreaItem
-   */
-  createNotificationIcon() {
-    // Implement in your WM
-    return null;
-  }
-
-  /**
-   * Remove a panel notification icon.
-   *
-   * THIS IS IMPLEMENTED IN COREWM
-   *
-   * @param   {String}    name      Internal name (unique)
-   * @param   {Number}    [panelId] Panel ID
-   *
-   * @return  {Boolean}
-   */
-  removeNotificationIcon() {
-    // Implement in your WM
-    return false;
-  }
-
-  /**
    * Whenever a window event occurs
    *
    * THIS IS IMPLEMENTED IN COREWM
@@ -690,7 +641,7 @@ export default class WindowManager extends Process {
 
   _onFullscreen(ev) {
     try {
-      const notif = this.getNotificationIcon('_FullscreenNotification');
+      const notif = Notification.getIcon('_FullscreenNotification');
       if ( notif ) {
         if ( !document.fullScreen && !document.mozFullScreen && !document.webkitIsFullScreen && !document.msFullscreenElement ) {
           notif.opts._isFullscreen = false;

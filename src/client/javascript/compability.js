@@ -63,6 +63,7 @@ module.exports = function() {
   const Dialog = require('core/dialog.js');
   const Clipboard = require('utils/clipboard.js');
   const Keycodes = require('utils/keycodes.js');
+  const Notification = require('core/notification.js');
 
   const Init = require('core/init.js');
 
@@ -136,7 +137,7 @@ module.exports = function() {
   layer.API.createMenu = Menu.create;
   layer.API.blurMenu = Menu.blur;
   layer.API.signOut = Init.logout;
-  layer.API.createNotification = (opts) => WindowManager.default.instance.notification(opts);
+  layer.API.createNotification = (opts) => Notification.default.create(opts);
   assignInto(Assets, layer.API);
   assignInto(Clipboard, layer.API);
 

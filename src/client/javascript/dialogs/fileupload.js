@@ -128,10 +128,6 @@ export default class FileUploadDialog extends DialogWindow {
         // Dialog closed
       }, this);
 
-      if ( this._wmref ) {
-        this._wmref.createNotificationIcon(this.notificationId, {className: 'BusyNotification', tooltip: desc, image: false});
-      }
-
       VFS.upload({files: [file], destination: this.args.dest}, {
         onprogress: (ev) => {
           if ( ev.lengthComputable ) {

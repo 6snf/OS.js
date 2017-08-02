@@ -31,6 +31,7 @@
 /*eslint valid-jsdoc: "off"*/
 import Translations from './locales';
 const SettingsManager = OSjs.require('core/settings-manager');
+const Notification = OSjs.require('core/notification');
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const Utils = OSjs.require('utils/misc');
@@ -124,7 +125,7 @@ export default {
     tmpPaths.forEach(function(tp) {
       const c = isChildOf(tp);
       if ( c ) {
-        wm.notification({
+        Notification.create({
           title: _('LBL_SEARCH'),
           message: _('Search path \'{0}\' is already handled by another entry', tp)
         });

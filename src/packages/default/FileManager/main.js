@@ -40,7 +40,6 @@ const Window = OSjs.require('core/window');
 const Dialog = OSjs.require('core/dialog');
 const Locales = OSjs.require('core/locales');
 const Events = OSjs.require('utils/events');
-const WindowManager = OSjs.require('core/windowmanager');
 const Utils = OSjs.require('utils/misc');
 const SettingsManager = OSjs.require('core/settings-manager');
 const MountManager = OSjs.require('core/mount-manager');
@@ -49,6 +48,7 @@ const Clipboard = OSjs.require('utils/clipboard');
 const Keycodes = OSjs.require('utils/keycodes');
 const Config = OSjs.require('core/config');
 const Assets = OSjs.require('core/assets');
+const Notification = OSjs.require('core/notification');
 const doTranslate = Locales.createLocalizer(Translations);
 
 function getSelected(view) {
@@ -994,14 +994,11 @@ class ApplicationFileManager extends Application {
     }
     notificationWasDisplayed[type] = true;
 
-    var wm = WindowManager.instance;
-    if ( wm ) {
-      wm.notification({
-        title: 'External Storage',
-        message: 'Using external services requires authorization. A popup-window may appear.',
-        icon: Assets.getIcon('status/dialog-information.png', '32x32')
-      });
-    }
+    Notification.create({
+      title: 'External Storage',
+      message: 'Using external services requires authorization. A popup-window may appear.',
+      icon: Assets.getIcon('status/dialog-information.png', '32x32')
+    });
   }
 
   _action(name, args, callback) {

@@ -28,7 +28,7 @@
  * @licence Simplified BSD License
  */
 
-import WindowManager from 'core/windowmanager';
+import Notification from 'core/notification';
 import * as Menu from 'gui/menu';
 import * as Assets from 'core/assets';
 import {_} from 'core/locales';
@@ -47,35 +47,28 @@ class ServiceNotificationIcon {
   }
 
   init() {
-    const wm = WindowManager.instance;
-
     const show = (ev) => {
       this.displayMenu(ev);
       return false;
     };
 
-    if ( wm ) {
-      this.notif = wm.createNotificationIcon('ServiceNotificationIcon', {
-        image: Assets.getIcon('status/dialog-password.png'),
-        onContextMenu: show,
-        onClick: show,
-        onInited: (el, img) => {
-          this._updateIcon();
-        }
-      });
+    this.notif = Notification.createIcon('ServiceNotificationIcon', {
+      image: Assets.getIcon('status/dialog-password.png'),
+      onContextMenu: show,
+      onClick: show,
+      onInited: (el, img) => {
+        this._updateIcon();
+      }
+    });
 
-      this._updateIcon();
-    }
+    this._updateIcon();
   }
 
   /*
    * Destroys the notification icon
    */
   destroy() {
-    const wm = WindowManager.instance;
-    if ( wm ) {
-      wm.removeNotificationIcon('ServiceNotificationIcon');
-    }
+    Notification.destroy('ServiceNotificationIcon');
 
     this.size = 0;
     this.entries = {};
