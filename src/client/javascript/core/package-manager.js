@@ -382,6 +382,7 @@ class PackageManager {
       if ( iter.names && iter.names[locale] ) {
         iter.name = iter.names[locale];
       }
+
       if ( iter.descriptions && iter.descriptions[locale] ) {
         iter.description = iter.descriptions[locale];
       }

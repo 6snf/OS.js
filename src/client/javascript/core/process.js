@@ -33,14 +33,12 @@ import Connection from 'core/connection';
 import EventHandler from 'helpers/event-handler';
 import * as Assets from 'core/assets';
 import * as FS from 'utils/fs';
-import * as DOM from 'utils/dom';
 import * as Config from 'core/config';
 import * as Compability from 'utils/compability';
 import {_} from 'core/locales';
 import {triggerHook} from 'helpers/hooks';
 import Loader from 'helpers/loader';
 import FileMetadata from 'vfs/file';
-import GUIElement from 'gui/element';
 import Preloader from 'utils/preloader';
 import SettingsManager from 'core/settings-manager';
 import PackageManager from 'core/package-manager';
@@ -85,63 +83,6 @@ function _kill(pid) {
     }
   }
   return false;
-}
-
-function createSplash(name, icon, label, parentEl) {
-  label = label || _('LBL_STARTING');
-  parentEl = parentEl || document.body;
-
-  let splash = document.createElement('application-splash');
-  splash.setAttribute('role', 'dialog');
-
-  let img;
-  if ( icon ) {
-    img = document.createElement('img');
-    img.alt = name;
-    img.src = Assets.getIcon(icon);
-  }
-
-  let titleText = document.createElement('b');
-  titleText.appendChild(document.createTextNode(name));
-
-  let title = document.createElement('span');
-  title.appendChild(document.createTextNode(label + ' '));
-  title.appendChild(titleText);
-  title.appendChild(document.createTextNode('...'));
-
-  let progressBar;
-
-  if ( img ) {
-    splash.appendChild(img);
-  }
-  splash.appendChild(title);
-
-  try {
-    progressBar = GUIElement.create('gui-progress-bar');
-    splash.appendChild(progressBar.$element);
-  } catch ( e ) {
-    console.warn(e, e.stack);
-  }
-
-  parentEl.appendChild(splash);
-
-  return {
-    destroy: () => {
-      splash = DOM.$remove(splash);
-
-      img = null;
-      title = null;
-      titleText = null;
-      progressBar = null;
-    },
-
-    update: (p, c) => {
-      if ( !splash || !progressBar ) {
-        return;
-      }
-
-    }
-  };
 }
 
 function getLaunchObject(s) {
@@ -622,8 +563,6 @@ export default class Process {
 
     console.info('launch()', name, args);
 
-    let removeSplash = () => {};
-
     const init = () => {
       if ( !name ) {
         throw new Error('Cannot API::launch() witout a application name');
@@ -662,40 +601,23 @@ export default class Process {
 
       triggerHook('onApplicationLaunch', [name, args]);
 
-      //
-      // Create splash
-      //
-      let splash = null;
-      removeSplash = () => {
-        Loader.destroy('Main.launch');
-        if ( splash ) {
-          splash.destroy();
-          splash = null;
-        }
-      };
-
-      Loader.create('Main.launch');
-
-      if ( !OSjs.Applications[name] ) {
-        if ( metadata.splash !== false ) {
-          splash = createSplash(metadata.name, metadata.icon);
-        }
-      }
+      // Create loading ui
+      Loader.create('Main.launch.' + name, {
+        title: _('LBL_STARTING') + ' ' + metadata.name,
+        icon: Assets.getIcon(metadata.icon, null, name)
+      });
 
       // Preload
       let pargs = {
         max: metadata.preloadParallel === true
           ? Config.getConfig('Connection.PreloadParallel')
-          : metadata.preloadParallel,
+          : metadata.preloadParallel/*,
 
         progress: (index, total) => {
-          if ( splash ) {
-            splash.update(index, total);
-          }
-        }
+        }*/
       };
 
-      if ( args.__preload__ ) { // This is for relaunch()
+      if ( args.__preload__ ) { // This is for Process.reload()
         pargs = Object.assign(pargs, args.__preload__);
         delete args.__preload__;
       }
@@ -764,20 +686,18 @@ export default class Process {
         if ( i >= 0 ) {
           alreadyLaunching.splice(i, 1);
         }
+        Loader.destroy('Main.launch.' + name);
       };
 
       const fail = (e) => {
+        Loader.destroy('Main.launch.' + name);
         remove();
         onerror(e);
-        removeSplash();
         return reject(e);
       };
 
       try {
-        init().then((r) => {
-          removeSplash();
-          return resolve(r);
-        }).catch(fail).finally(remove);
+        init().then(resolve).catch(fail).finally(remove);
       } catch ( e ) {
         fail(e);
       }

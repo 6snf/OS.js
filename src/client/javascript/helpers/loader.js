@@ -30,8 +30,9 @@
 class Loader {
 
   constructor() {
-    this.loaders = [];
-    this.loaderGraze = null;
+    this.loaders = {};
+    this.loaderGraze = {};
+    this.$container = document.createElement('osjs-loaders');
   }
 
   /**
@@ -41,21 +42,29 @@ class Loader {
    * @param   {Object}    opts          Options
    */
   create(name, opts) {
-    if ( this.loaders.indexOf(name) === -1 ) {
-      this.loaders.push(name);
+    opts = opts || {};
+    if ( !this.$container.parentNode ) {
+      document.body.appendChild(this.$container);
     }
 
-    if ( this.loaders.length ) {
-      let el = document.querySelector('osjs-loading');
-      if ( !el ) {
-        el = document.createElement('osjs-loading');
-        document.body.appendChild(el);
-      }
-
-      this.loaderGraze = setTimeout(() => {
-        el.style.display = 'block';
-      }, 100);
+    if ( this.loaders[name] ) {
+      return;
     }
+
+    const el = document.createElement('osjs-loading');
+    el.title = opts.title || '';
+    if ( opts.icon ) {
+      const img = document.createElement('img');
+      img.src = opts.icon;
+      el.appendChild(img);
+    }
+    this.$container.appendChild(el);
+
+    this.loaderGraze[name] = setTimeout(() => {
+      el.style.display = 'inline-block';
+    }, 100);
+
+    this.loaders[name] = el;
   }
 
   /**
@@ -64,19 +73,15 @@ class Loader {
    * @param   {String}    name          Name of notification (unique)
    */
   destroy(name) {
-    const index = this.loaders.indexOf(name);
-    if ( index  !== -1 ) {
-      this.loaders.splice(index, 1);
+    if ( !this.loaders[name] ) {
+      return;
     }
 
-    clearTimeout(this.loaderGraze);
+    clearTimeout(this.loaderGraze[name]);
 
-    if ( !this.loaders.length ) {
-      let el = document.querySelector('osjs-loading');
-      if ( el ) {
-        el.style.display = 'none';
-      }
-    }
+    this.loaders[name].remove();
+    delete this.loaders[name];
+    delete this.loaderGraze[name];
   }
 
 }

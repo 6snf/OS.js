@@ -458,17 +458,32 @@ application-window[data-focused="false"] iframe {
  * ===========================================================================
  */
 
-osjs-loading {
-  pointer-events : none;
-  width : 2em;
-  height : 2em;
+osjs-loaders {
   position : absolute;
   bottom : 1em;
   right : 1em;
-  z-index : 9999999999999;
+  z-index : 90000000;
 }
+
+osjs-loading {
+  width : 2em;
+  height : 2em;
+  margin : .5em;
+  position : relative;
+}
+
+osjs-loading > img {
+  position : absolute;
+  top : 0;
+  left : 0;
+  width : 100%;
+  height : 100%;
+  z-index : 90000001;
+}
+
 osjs-loading:before,
 osjs-loading:after {
+  pointer-events : none;
   content : '';
   width: 100%;
   height: 100%;
@@ -478,7 +493,11 @@ osjs-loading:after {
   position: absolute;
   top: 0;
   left: 0;
+}
 
+osjs-loading > img,
+osjs-loading:before,
+osjs-loading:after {
   -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
   animation: sk-bounce 2.0s infinite ease-in-out;
 }
