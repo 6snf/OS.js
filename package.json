@@ -61,7 +61,7 @@
     "chai": "^4.0.2",
     "chai-as-promised": "^7.1.1",
     "mocha": "^3.4.2",
-    "osjs-build": "^0.8.8",
+    "osjs-build": "^0.8.9",
     "promise-limit": "^2.4.0",
     "then-jsonp": "^1.0.3"
   }
