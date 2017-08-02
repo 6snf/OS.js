@@ -29,7 +29,6 @@
  */
 import Promise from 'bluebird';
 import * as Locales from 'core/locales';
-import SplashScreen from 'core/splash';
 import MountManager from 'core/mount-manager';
 import SettingsManager from 'core/settings-manager';
 import PackageManager from 'core/package-manager';
@@ -43,6 +42,7 @@ import Theme from 'core/theme';
 import Connection from 'core/connection';
 import {triggerHook} from 'helpers/hooks';
 import {getConfig} from 'core/config';
+import SplashScreen from 'gui/splash';
 import * as Utils from 'utils/misc';
 import * as Menu from 'gui/menu';
 import Preloader from 'utils/preloader';
