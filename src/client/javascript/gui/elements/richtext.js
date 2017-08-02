@@ -29,7 +29,7 @@
  */
 import * as DOM from 'utils/dom';
 import * as Events from 'utils/events';
-import Theme from 'core/theme';
+import Theme from 'gui/theme';
 import GUIElement from 'gui/element';
 
 /////////////////////////////////////////////////////////////////////////////

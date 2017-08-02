@@ -32,7 +32,7 @@
 import Translations from './locales';
 
 const Locales = OSjs.require('core/locales');
-const Theme = OSjs.require('core/theme');
+const Theme = OSjs.require('gui/theme');
 const Utils = OSjs.require('utils/misc');
 const PackageManager = OSjs.require('core/package-manager');
 const _ = Locales.createLocalizer(Translations);

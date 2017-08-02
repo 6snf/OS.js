@@ -31,7 +31,7 @@ import * as DOM from 'utils/dom';
 import * as Events from 'utils/events';
 import * as Compability from 'utils/compability';
 import PackageManager from 'core/package-manager';
-import Theme from 'core/theme';
+import Theme from 'gui/theme';
 import GUIElement from 'gui/element';
 
 /////////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@ import * as Events from 'utils/events';
 import * as Utils from 'utils/misc';
 import Keycodes from 'utils/keycodes';
 
-import Theme from 'core/theme';
+import Theme from 'gui/theme';
 import Process from 'core/process';
 import Window from 'core/window';
 import DialogWindow from 'core/dialog';

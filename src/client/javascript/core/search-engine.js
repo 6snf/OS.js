@@ -32,7 +32,7 @@ import Promise from 'bluebird';
 import PackageManager from 'core/package-manager';
 import SettingsManager from 'core/settings-manager';
 import FileMetadata from 'vfs/file';
-import Theme from 'core/theme';
+import Theme from 'gui/theme';
 import * as VFS from 'vfs/fs';
 
 /////////////////////////////////////////////////////////////////////////////

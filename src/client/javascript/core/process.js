@@ -31,7 +31,7 @@
 import Promise from 'bluebird';
 import Connection from 'core/connection';
 import EventHandler from 'helpers/event-handler';
-import Theme from 'core/theme';
+import Theme from 'gui/theme';
 import * as FS from 'utils/fs';
 import * as Config from 'core/config';
 import * as Compability from 'utils/compability';

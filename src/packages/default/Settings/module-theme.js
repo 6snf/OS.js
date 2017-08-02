@@ -33,7 +33,7 @@ import Translations from './locales';
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const FileMetadata = OSjs.require('vfs/file');
-const Theme = OSjs.require('core/theme');
+const Theme = OSjs.require('gui/theme');
 const _ = Locales.createLocalizer(Translations);
 
 export default {
