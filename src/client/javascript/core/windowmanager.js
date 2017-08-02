@@ -40,7 +40,7 @@ import Window from 'core/window';
 import DialogWindow from 'core/dialog';
 import Connection from 'core/connection';
 import SettingsManager from 'core/settings-manager';
-import Notification from 'core/notification';
+import Notification from 'gui/notification';
 
 import {_} from 'core/locales';
 import {getConfig} from 'core/config';

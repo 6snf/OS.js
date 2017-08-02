@@ -31,7 +31,7 @@
 /*eslint valid-jsdoc: "off"*/
 import Translations from './locales';
 const SettingsManager = OSjs.require('core/settings-manager');
-const Notification = OSjs.require('core/notification');
+const Notification = OSjs.require('gui/notification');
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const Utils = OSjs.require('utils/misc');

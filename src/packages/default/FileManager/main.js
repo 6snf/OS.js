@@ -48,7 +48,7 @@ const Clipboard = OSjs.require('utils/clipboard');
 const Keycodes = OSjs.require('utils/keycodes');
 const Config = OSjs.require('core/config');
 const Theme = OSjs.require('gui/theme');
-const Notification = OSjs.require('core/notification');
+const Notification = OSjs.require('gui/notification');
 const doTranslate = Locales.createLocalizer(Translations);
 
 function getSelected(view) {

@@ -62,7 +62,7 @@ module.exports = function() {
   const Dialog = require('core/dialog.js');
   const Clipboard = require('utils/clipboard.js');
   const Keycodes = require('utils/keycodes.js');
-  const Notification = require('core/notification.js');
+  const Notification = require('gui/notification.js');
 
   const Init = require('core/init.js');
 

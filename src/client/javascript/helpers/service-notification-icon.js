@@ -28,7 +28,7 @@
  * @licence Simplified BSD License
  */
 
-import Notification from 'core/notification';
+import Notification from 'gui/notification';
 import Theme from 'gui/theme';
 import * as Menu from 'gui/menu';
 import {_} from 'core/locales';
