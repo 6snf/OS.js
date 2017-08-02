@@ -186,13 +186,16 @@ export default class Application extends Process {
       return true;
     }
 
+    this.__destroying = true;
+
     console.group('Application::destroy()', this.__pname);
+
+    this.__windows.forEach((w) => (w && w.destroy()));
 
     if ( this.__scheme && typeof this.__scheme.destroy === 'function' ) {
       this.__scheme.destroy();
     }
 
-    this.__destroying = true;
     this.__mainwindow = null;
     this.__settings = {};
     this.__windows = [];
@@ -217,15 +220,17 @@ export default class Application extends Process {
     }
 
     if ( msg === 'destroyWindow' ) {
-      this._removeWindow(obj);
+      if ( !this.__destroying ) {
+        this._removeWindow(obj);
 
-      if ( this.__options.closeOnEmpty && !this.__windows.length ) {
-        console.info('All windows removed, destroying application');
-        this.destroy();
-      } else if ( obj._name === this.__mainwindow ) {
-        if ( this.__options.closeWithMain ) {
-          console.info('Main window was closed, destroying application');
+        if ( this.__options.closeOnEmpty && !this.__windows.length ) {
+          console.info('All windows removed, destroying application');
           this.destroy();
+        } else if ( obj._name === this.__mainwindow ) {
+          if ( this.__options.closeWithMain ) {
+            console.info('Main window was closed, destroying application');
+            this.destroy();
+          }
         }
       }
     } else if ( msg === 'attention' ) {
