@@ -287,33 +287,36 @@ class CoreWM extends WindowManager {
   }
 
   destroy(force) {
-    /*eslint new-cap: "warn"*/
-
     if ( !force && !window.confirm(translate('Killing this process will stop things from working!')) ) {
       return false;
     }
 
-    Events.$unbind(document.body, 'dragenter, dragleave, dragover, drop');
-
-    Notification.removeIcon('_HandlerUserNotification');
-
-    if ( this.iconView ) {
-      this.iconView.destroy();
-    }
-    if ( this.switcher ) {
-      this.switcher.destroy();
-    }
-
-    // Reset
-    this.destroyPanels();
-    this.destroyWidgets();
-
-    const settings = this.importedSettings;
     try {
-      settings.background = 'color';
-    } catch ( e ) {}
+      Events.$unbind(document.body, 'dragenter, dragleave, dragover, drop');
 
-    this.applySettings(defaultSettings(settings), true);
+      Notification.destroyIcon('_HandlerUserNotification');
+
+      if ( this.iconView ) {
+        this.iconView.destroy();
+      }
+      if ( this.switcher ) {
+        this.switcher.destroy();
+      }
+
+      // Reset
+      this.destroyPanels();
+      this.destroyWidgets();
+
+      const settings = this.importedSettings;
+      try {
+        settings.background = 'color';
+      } catch ( e ) {}
+
+      this.applySettings(defaultSettings(settings), true);
+    } catch ( e ) {
+      console.warn(e);
+      return false;
+    }
 
     // Clear DOM
     this.switcher = null;
