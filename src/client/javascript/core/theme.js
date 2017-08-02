@@ -46,7 +46,6 @@ class Theme {
   }
 
   init() {
-    // FIXME: Defaults from CoreWM ?
     const link = getConfig('Connection.RootURI', '/') + 'blank.css';
     this.setAnimationLink(link);
 
@@ -57,6 +56,10 @@ class Theme {
       iconTheme: 'default',
       sounds: {}
     });
+  }
+
+  update(settings) {
+    this.settings.set(null, settings);
   }
 
   destroy() {

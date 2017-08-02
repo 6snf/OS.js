@@ -275,6 +275,8 @@ class CoreWM extends WindowManager {
       console.warn('Failed to apply CoreWM VFS watch', e, e.stack);
     }
 
+    Theme.update(this.importedSettings);
+
     this.initSwitcher();
     this.initDesktop();
     this.initPanels();

@@ -318,6 +318,7 @@ const initGUI = (config) => new Promise((resolve, reject) => {
   OSjs.Dialogs.Input = InputDialog;
 
   Theme.init();
+
   ServiceNotificationIcon.init();
 
   resolve();
