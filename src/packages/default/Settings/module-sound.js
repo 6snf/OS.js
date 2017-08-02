@@ -30,6 +30,7 @@
 
 /*eslint valid-jsdoc: "off"*/
 import Translations from './locales';
+const Theme = OSjs.require('core/theme');
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const Utils = OSjs.require('utils/misc');
@@ -91,7 +92,7 @@ export default {
       return Object.keys(tmp).map(function(t) {
         return {label: tmp[t], value: t};
       });
-    })(wm.getSoundThemes());
+    })(Theme.getSoundThemes());
 
     win._find('SoundThemeName').add(soundThemes);
 

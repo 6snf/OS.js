@@ -35,6 +35,7 @@ import * as Utils from 'utils/misc';
 import * as Assets from 'core/assets';
 import Keycodes from 'utils/keycodes';
 
+import Theme from 'core/theme';
 import Process from 'core/process';
 import Window from 'core/window';
 import DialogWindow from 'core/dialog';
@@ -269,8 +270,6 @@ export default class WindowManager extends Process {
 
     this._onOrientationChange();
     this.resize();
-
-    Assets.playSound('LOGIN');
   }
 
   /**
@@ -682,9 +681,7 @@ export default class WindowManager extends Process {
       }
     }
 
-    if ( this.onGlobalClick ) {
-      this.onGlobalClick(ev);
-    }
+    Theme.themeAction('event', [ev]);
   }
 
   _onKeyUp(ev) {
@@ -791,74 +788,6 @@ export default class WindowManager extends Process {
   getPanels() {
     // Implement in your WM
     return [];
-  }
-
-  /**
-   * Gets current Style theme
-   *
-   * @param   {Boolean}    returnMetadata      Return theme metadata instead of name
-   * @param   {Boolean}    [convert=false]     Converts the measures into px
-   *
-   * @return  {String}                      Or JSON
-   */
-  getStyleTheme(returnMetadata) {
-    return returnMetadata ? {} : 'default';
-  }
-
-  /**
-   * Gets current Sound theme
-   *
-   * @return  {String}
-   */
-  getSoundTheme() {
-    return 'default';
-  }
-
-  /**
-   * Gets sound filename from key
-   *
-   * @param  {String}     k       Sound name key
-   *
-   * @return  {String}
-   */
-  getSoundFilename(k) {
-    return null;
-  }
-
-  /**
-   * Gets current Icon theme
-   *
-   * @return  {String}
-   */
-  getIconTheme() {
-    return 'default';
-  }
-
-  /**
-   * Gets a list of Style themes
-   *
-   * @return  {String[]}   The list of themes
-   */
-  getStyleThemes() {
-    return getConfig('Styles', []);
-  }
-
-  /**
-   * Gets a list of Sound themes
-   *
-   * @return  {String[]}   The list of themes
-   */
-  getSoundThemes() {
-    return getConfig('Sounds', []);
-  }
-
-  /**
-   * Gets a list of Icon themes
-   *
-   * @return  {String[]}   The list of themes
-   */
-  getIconThemes() {
-    return getConfig('Icons', []);
   }
 
   /**

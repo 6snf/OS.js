@@ -33,6 +33,7 @@ import Translations from './locales';
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const FileMetadata = OSjs.require('vfs/file');
+const Theme = OSjs.require('core/theme');
 const _ = Locales.createLocalizer(Translations);
 
 export default {
@@ -71,7 +72,7 @@ export default {
       }, win);
     }
 
-    win._find('StyleThemeName').add(wm.getStyleThemes().map(function(t) {
+    win._find('StyleThemeName').add(Theme.getStyleThemes().map(function(t) {
       return {label: t.title, value: t.name};
     }));
 
@@ -79,7 +80,7 @@ export default {
       return Object.keys(tmp).map(function(t) {
         return {label: tmp[t], value: t};
       });
-    })(wm.getIconThemes()));
+    })(Theme.getIconThemes()));
 
     win._find('BackgroundImage').on('open', function(ev) {
       _createDialog('File', {

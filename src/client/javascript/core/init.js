@@ -39,6 +39,7 @@ import WindowManager from 'core/windowmanager';
 import DialogWindow from 'core/dialog';
 import Storage from 'core/storage';
 import Process from 'core/process';
+import Theme from 'core/theme';
 import Connection from 'core/connection';
 import {triggerHook} from 'helpers/hooks';
 import {getConfig} from 'core/config';
@@ -316,6 +317,9 @@ const initGUI = (config) => new Promise((resolve, reject) => {
   OSjs.Dialogs.Font = FontDialog;
   OSjs.Dialogs.Input = InputDialog;
 
+  Theme.init();
+  ServiceNotificationIcon.init();
+
   resolve();
 });
 
@@ -506,6 +510,8 @@ export function start() {
     SplashScreen.hide();
 
     if ( !testMode ) {
+      playSound('LOGIN');
+
       var wm = WindowManager.instance;
       if ( wm ) {
         wm._fullyLoaded = true;

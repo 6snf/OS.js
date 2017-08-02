@@ -30,6 +30,7 @@
 import PackageManager from 'core/package-manager';
 import FileMetadata from 'vfs/file';
 import Process from 'core/process';
+import Theme from 'core/theme';
 import * as FS from 'utils/fs';
 import * as Compability from 'utils/compability';
 import {getConfig} from 'core/config';
@@ -63,13 +64,9 @@ export function getIcon(name, size) {
   name = name || '';
   size = size || '16x16';
 
-  if ( arguments.length > 2 ) {
-    console.warn('Called getIcon() with deprecated arguments', name);
-  }
-
   if ( !name.match(/^(https?)?:?\//) ) {
     const root = getConfig('Connection.IconURI');
-    const theme = document.body.getAttribute('data-icon-theme') || 'default';
+    const theme = Theme.getIconTheme();
 
     return root + '/' + theme + '/' + size + '/' + name;
   }
@@ -180,7 +177,7 @@ export function getThemeResource(name, type) {
   }
 
   if ( name ) {
-    const theme = document.body.getAttribute('data-theme') || 'default';
+    const theme = Theme.getStyleTheme();
     name = getName(name, theme);
   }
 
@@ -197,7 +194,7 @@ export function getThemeResource(name, type) {
 export function getSound(name) {
   name = name || null;
   if ( name ) {
-    const theme = document.body.getAttribute('data-icon-theme') || 'default';
+    const theme = Theme.getSoundTheme();
     const root = getConfig('Connection.SoundURI');
     const compability = Compability.getCompability();
 
@@ -221,13 +218,10 @@ export function getSound(name) {
  * @return {Audio}
  */
 export function playSound(name, volume) {
-  const compability = Compability.getCompability();
-  const wm = require('core/windowmanager.js').instance; // FIXME
-  const filename = wm ? wm.getSoundFilename(name) : null;
-
-  if ( !wm || !compability.audio || !wm.getSetting('enableSounds') || !filename ) {
-    console.debug('API::playSound()', 'Cannot play sound!');
-    return false;
+  const filename = Theme.getSoundFilename(name);
+  if ( !filename ) {
+    console.debug('playSound()', 'Cannot play sound, no compability or not enabled!');
+    return null;
   }
 
   if ( typeof volume === 'undefined' ) {
@@ -235,7 +229,7 @@ export function playSound(name, volume) {
   }
 
   const f = getSound(filename);
-  console.debug('API::playSound()', name, filename, f, volume);
+  console.debug('playSound()', name, filename, f, volume);
 
   const a = new Audio(f);
   a.volume = volume;

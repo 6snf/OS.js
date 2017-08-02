@@ -58,6 +58,7 @@ const Events = OSjs.require('utils/events');
 const Compability = OSjs.require('utils/compability');
 const FileMetadata = OSjs.require('vfs/file');
 const Notification = OSjs.require('core/notification');
+const Theme = OSjs.require('core/theme');
 const DOM = OSjs.require('utils/dom');
 const Utils = OSjs.require('utils/misc');
 const Init = OSjs.require('core/init');
@@ -104,8 +105,6 @@ class CoreWM extends WindowManager {
     this.widgets          = [];
     this.switcher         = null;
     this.iconView         = null;
-    this.$themeScript     = null;
-    this.$animationLink   = null;
     this.importedSettings = Utils.mergeObject(Config.getConfig('SettingsManager.CoreWM'), importSettings);
     this._scheme          = GUIScheme.fromString(require('osjs-scheme-loader!scheme.html'));
 
@@ -173,14 +172,6 @@ class CoreWM extends WindowManager {
       SAVEAS: _winGenericHotkey,
       OPEN: _winGenericHotkey
     };
-  }
-
-  init() {
-    const link = Config.getConfig('Connection.RootURI', '/') + 'blank.css';
-
-    this.setAnimationLink(link);
-
-    return super.init(...arguments);
   }
 
   setup() {
@@ -325,8 +316,6 @@ class CoreWM extends WindowManager {
     this.applySettings(defaultSettings(settings), true);
 
     // Clear DOM
-    this.$themeScript = DOM.$remove(this.$themeScript);
-    this.$animationLink = DOM.$remove(this.$animationLink);
     this.switcher = null;
     this.iconView = null;
 
@@ -631,11 +620,6 @@ class CoreWM extends WindowManager {
     });
   }
 
-  onGlobalClick(ev) {
-    this.themeAction('event', [ev]);
-    return true;
-  }
-
   onContextMenu(ev) {
     if ( ev.target === document.body ) {
       ev.preventDefault();
@@ -759,8 +743,8 @@ class CoreWM extends WindowManager {
 
     console.log(settings);
 
-    this.setBackground(settings);
-    this.setTheme(settings);
+    Theme.setTheme(settings);
+
     this.setIconView(settings);
     this.setStyles(settings);
 
@@ -792,89 +776,6 @@ class CoreWM extends WindowManager {
     console.groupEnd();
 
     return true;
-  }
-
-  themeAction(action, args) {
-    args = args || [];
-    if ( OSjs.Applications.CoreWM.CurrentTheme ) {
-      try {
-        OSjs.Applications.CoreWM.CurrentTheme[action].apply(null, args);
-      } catch ( e ) {
-        console.warn('CoreWM::themeAction()', 'exception', e);
-        console.warn(e.stack);
-      }
-    }
-  }
-
-  //
-  // Theme Setters
-  //
-
-  setBackground(settings) {
-    if ( settings.backgroundColor ) {
-      document.body.style.backgroundColor = settings.backgroundColor;
-    }
-    if ( settings.fontFamily ) {
-      document.body.style.fontFamily = settings.fontFamily;
-    }
-
-    const name = settings.wallpaper;
-    const type = settings.background;
-
-    let className = 'color';
-    let back      = 'none';
-
-    if ( name && type.match(/^image/) ) {
-      back = name;
-      switch ( type ) {
-        case 'image' :        className = 'normal';   break;
-        case 'image-center':  className = 'center';   break;
-        case 'image-fill' :   className = 'fill';     break;
-        case 'image-strech':  className = 'strech';   break;
-        default:                  className = 'default';  break;
-      }
-    }
-
-    document.body.setAttribute('data-background-style', className);
-
-    const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-    if ( isFirefox ) {
-      document.body.style.backgroundAttachment = 'fixed';
-    } else {
-      document.body.style.backgroundAttachment = 'scroll';
-    }
-
-    if ( back !== 'none' ) {
-      try {
-        VFS.url(back).then((result) => {
-          back = 'url(\'' + result + '\')';
-          document.body.style.backgroundImage = back;
-          return true;
-        });
-      } catch ( e ) {
-        console.warn('CoreWM::setBackground()', e, e.stack);
-      }
-    } else {
-      document.body.style.backgroundImage = back;
-    }
-  }
-
-  setTheme(settings) {
-    this.themeAction('destroy');
-
-    this.setThemeScript(Assets.getThemeResource('theme.js'));
-
-    if ( this.$animationLink ) {
-      if ( settings.animations ) {
-        this.setAnimationLink(this._getResource('animations.css'));
-      } else {
-        this.setAnimationLink(Assets.getThemeCSS(null));
-      }
-    }
-
-    document.body.setAttribute('data-theme', settings.styleTheme);
-    document.body.setAttribute('data-icon-theme', settings.iconTheme);
-    document.body.setAttribute('data-sound-theme', settings.soundTheme);
   }
 
   setIconView(settings) {
@@ -929,7 +830,7 @@ class CoreWM extends WindowManager {
 
     let borderSize = 0;
     const space = this.getWindowSpace(true);
-    const theme = this.getStyleTheme(true);
+    const theme = Theme.getStyleTheme(true);
     if ( theme && theme.style && theme.style.window ) {
       borderSize = theme.style.window.border;
     }
@@ -948,25 +849,6 @@ class CoreWM extends WindowManager {
 
     if ( Object.keys(styles).length ) {
       this.createStylesheet(styles, raw);
-    }
-  }
-
-  setAnimationLink(src) {
-    if ( this.$animationLink ) {
-      this.$animationLink = DOM.$remove(this.$animationLink);
-    }
-    this.$animationLink = DOM.$createCSS(src);
-  }
-
-  setThemeScript(src) {
-    if ( this.$themeScript ) {
-      this.$themeScript = DOM.$remove(this.$themeScript);
-    }
-
-    if ( src ) {
-      this.$themeScript = DOM.$createJS(src, null, () => {
-        this.themeAction('init');
-      });
     }
   }
 
@@ -1054,62 +936,6 @@ class CoreWM extends WindowManager {
 
   getPanel(idx) {
     return this.panels[(idx || 0)];
-  }
-
-  getStyleTheme(returnMetadata, convert) {
-    const name = this.getSetting('styleTheme') || null;
-    if ( returnMetadata ) {
-      let found = null;
-      if ( name ) {
-        this.getStyleThemes().forEach(function(t) {
-          if ( t && t.name === name ) {
-            found = t;
-          }
-        });
-      }
-
-      // FIXME: Optimize
-      if ( found && convert === true ) {
-        const tmpEl = document.createElement('div');
-        tmpEl.style.visibility = 'hidden';
-        tmpEl.style.position = 'fixed';
-        tmpEl.style.top = '-10000px';
-        tmpEl.style.left = '-10000px';
-        tmpEl.style.width = '1em';
-        tmpEl.style.height = '1em';
-
-        document.body.appendChild(tmpEl);
-        const wd = tmpEl.offsetWidth;
-        tmpEl.parentNode.removeChild(tmpEl);
-
-        if ( typeof found.style.window.margin === 'string' && found.style.window.margin.match(/em$/) ) {
-          const marginf = parseFloat(found.style.window.margin);
-          found.style.window.margin = marginf * wd;
-        }
-
-        if ( typeof found.style.window.border === 'string' && found.style.window.border.match(/em$/) ) {
-          const borderf = parseFloat(found.style.window.border);
-          found.style.window.border = borderf * wd;
-        }
-      }
-
-      return found;
-    }
-
-    return name;
-  }
-
-  getSoundTheme() {
-    return this.getSetting('soundTheme') || 'default';
-  }
-
-  getIconTheme() {
-    return this.getSetting('iconTheme') || 'default';
-  }
-
-  getSoundFilename(k) {
-    const sounds = this.getSetting('sounds') || {};
-    return sounds[k] || null;
   }
 
 }

@@ -34,6 +34,7 @@ import WindowManager from 'core/windowmanager';
 import Element from 'gui/element';
 import GUIScheme from 'gui/scheme';
 import EventHandler from 'helpers/event-handler';
+import Theme from 'core/theme';
 import * as Assets from 'core/assets';
 import * as DOM from 'utils/dom';
 import * as GUI from 'utils/gui';
@@ -2035,13 +2036,10 @@ export default class Window {
     let topMargin = 23;
     let borderSize = 0;
 
-    const wm = WindowManager.instance;
-    if ( wm ) {
-      const theme = wm.getStyleTheme(true, true);
-      if ( theme && theme.style && theme.style.window ) {
-        topMargin = theme.style.window.margin;
-        borderSize = theme.style.window.border;
-      }
+    const theme = Theme.getStyleTheme(true, true);
+    if ( theme && theme.style && theme.style.window ) {
+      topMargin = theme.style.window.margin;
+      borderSize = theme.style.window.border;
     }
 
     s.left += borderSize;

@@ -42,8 +42,6 @@ class ServiceNotificationIcon {
     this.entries = {};
     this.size = 0;
     this.notif = null;
-
-    this.init();
   }
 
   init() {
