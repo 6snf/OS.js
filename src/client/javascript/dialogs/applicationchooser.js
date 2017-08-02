@@ -29,7 +29,7 @@
  */
 import DialogWindow from 'core/dialog';
 import PackageManager from 'core/package-manager';
-import Theme from 'gui/theme';
+import Theme from 'core/theme';
 import * as Utils from 'utils/misc';
 import {_} from 'core/locales';
 

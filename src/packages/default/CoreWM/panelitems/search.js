@@ -32,7 +32,7 @@ import PanelItem from '../panelitem';
 
 const DOM = OSjs.require('utils/dom');
 const Hooks = OSjs.require('helpers/hooks');
-const Theme = OSjs.require('gui/theme');
+const Theme = OSjs.require('core/theme');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
 const Keycodes = OSjs.require('utils/keycodes');

@@ -38,7 +38,7 @@ import WindowManager from 'core/window-manager';
 import DialogWindow from 'core/dialog';
 import Storage from 'core/storage';
 import Process from 'core/process';
-import Theme from 'gui/theme';
+import Theme from 'core/theme';
 import Connection from 'core/connection';
 import {triggerHook} from 'helpers/hooks';
 import {getConfig} from 'core/config';

@@ -29,7 +29,7 @@
  */
 
 import Notification from 'gui/notification';
-import Theme from 'gui/theme';
+import Theme from 'core/theme';
 import * as Menu from 'gui/menu';
 import {_} from 'core/locales';
 

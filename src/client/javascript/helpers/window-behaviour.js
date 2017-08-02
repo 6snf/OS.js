@@ -30,7 +30,7 @@
 import * as Menu from 'gui/menu';
 import * as DOM from 'utils/dom';
 import * as Events from 'utils/events';
-import Theme from 'gui/theme';
+import Theme from 'core/theme';
 
 /*
  * Holds information about current behaviour

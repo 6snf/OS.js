@@ -33,7 +33,7 @@ import PanelItem from '../panelitem';
 
 const DOM = OSjs.require('utils/dom');
 const Utils = OSjs.require('utils/misc');
-const Theme = OSjs.require('gui/theme');
+const Theme = OSjs.require('core/theme');
 const Events = OSjs.require('utils/events');
 const Connection = OSjs.require('core/connection');
 

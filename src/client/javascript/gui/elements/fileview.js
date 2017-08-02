@@ -40,7 +40,7 @@ import PackageManager from 'core/package-manager';
 import SettingsManager from 'core/settings-manager';
 import FileMetadata from 'vfs/file';
 import DateExtended from 'helpers/date';
-import Theme from 'gui/theme';
+import Theme from 'core/theme';
 import {_} from 'core/locales';
 import {getConfig, getDefaultPath} from 'core/config';
 

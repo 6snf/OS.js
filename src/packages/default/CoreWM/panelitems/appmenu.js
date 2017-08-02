@@ -30,7 +30,7 @@
 import PanelItem from '../panelitem';
 import {showMenu} from '../menu';
 
-const Theme = OSjs.require('gui/theme');
+const Theme = OSjs.require('core/theme');
 const Events = OSjs.require('utils/events');
 const Locales = OSjs.require('core/locales');
 const WindowManager = OSjs.require('core/window-manager');

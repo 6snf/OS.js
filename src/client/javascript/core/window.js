@@ -34,7 +34,7 @@ import WindowManager from 'core/window-manager';
 import Element from 'gui/element';
 import GUIScheme from 'gui/scheme';
 import EventHandler from 'helpers/event-handler';
-import Theme from 'gui/theme';
+import Theme from 'core/theme';
 import * as DOM from 'utils/dom';
 import * as GUI from 'utils/gui';
 import * as Events from 'utils/events';

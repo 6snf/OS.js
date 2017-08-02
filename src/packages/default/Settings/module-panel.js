@@ -32,7 +32,7 @@
 const PackageManager = OSjs.require('core/package-manager');
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
-const Theme = OSjs.require('gui/theme');
+const Theme = OSjs.require('core/theme');
 const Utils = OSjs.require('utils/misc');
 
 let panelItems = [];
