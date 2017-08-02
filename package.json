@@ -43,7 +43,7 @@
     "express-session": "^1.15.4",
     "findit": ">=2.0.0",
     "formidable": ">=1.0.17",
-    "fs-extra": "^4.0.0",
+    "fs-extra": "^4.0.1",
     "glob": "^7.1.2",
     "glob-promise": "^3.1.0",
     "http-proxy": "^1.16.2",
@@ -60,7 +60,7 @@
     "axios": "^0.16.2",
     "chai": "^4.0.2",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^3.4.2",
+    "mocha": "^3.5.0",
     "osjs-build": "^0.8.9",
     "promise-limit": "^2.4.0",
     "then-jsonp": "^1.0.3"
