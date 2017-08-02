@@ -115,17 +115,17 @@ class PackageManager {
   init(metadata) {
     console.debug('PackageManager::load()', metadata);
 
-    if ( metadata ) {
-      this.setPackages(metadata);
-    }
-
     return new Promise((resolve, reject) => {
-      this._loadMetadata().then(() => {
-        const len = Object.keys(this.packages).length;
-        if ( len ) {
-          return resolve(true);
-        }
-        return reject(new Error(_('ERR_PACKAGE_ENUM_FAILED')));
+      const setPackages = metadata ? this.setPackages(metadata) : Promise.resolve();
+
+      setPackages.then(() => {
+        return this._loadMetadata().then(() => {
+          const len = Object.keys(this.packages).length;
+          if ( len ) {
+            return resolve(true);
+          }
+          return reject(new Error(_('ERR_PACKAGE_ENUM_FAILED')));
+        }).catch(reject);
       }).catch(reject);
     });
   }
@@ -142,7 +142,7 @@ class PackageManager {
     const paths = SettingsManager.instance('PackageManager').get('PackagePaths', []);
     return new Promise((resolve, reject) => {
       Connection.request('packages', {command: 'list', args: {paths: paths}}).then((res) => {
-        return resolve(this.setPackages(res));
+        return this.setPackages(res).then(resolve).catch(reject);
       }).catch(reject);
     });
   }
@@ -387,18 +387,52 @@ class PackageManager {
         iter.description = iter.descriptions[locale];
       }
 
+      let resolveIcon = () => {
+        if ( iter.icon && iter.path ) {
+          let packagePath = iter.path.replace(/^\//, '');
+
+          if ( iter.scope === 'user' ) {
+            return VFS.url(FS.pathJoin(packagePath, iter.icon));
+          } else {
+            if ( iter.icon.match(/^\.\//) ) {
+              const packageURI = getConfig('Connection.PackageURI').replace(/\/?$/, '/');
+              return Promise.resolve(packageURI + packagePath + iter.icon.replace(/^\./, ''));
+            }
+          }
+        }
+
+        return Promise.resolve(iter.icon);
+      };
+
       iter.preload = resolvePreloads(iter, this);
-      return iter;
+      return new Promise((resolve, reject) => {
+        resolveIcon().then((icon) => {
+          if ( icon ) {
+            iter.icon = icon;
+          }
+
+          return resolve(iter);
+        }).catch(reject);
+      });
     };
 
-    Object.keys(res || {}).forEach((key) => {
-      const iter = res[key];
-      if ( iter && !packages[iter.className] ) {
-        packages[iter.className] = checkEntry(key, iter);
-      }
+    return new Promise((resolve, reject) => {
+      const entries = Object.keys(res || {});
+      Promise.each(entries, (key) => {
+        return new Promise((yes, no) => {
+          const iter = res[key];
+          if ( iter && !packages[iter.className] ) {
+            checkEntry(key, iter).then((pkg) => {
+              packages[iter.className] = pkg;
+              return yes();
+            }).catch(no);
+          }
+        });
+      }).catch(reject).then(() => {
+        this.packages = packages;
+        return resolve();
+      });
     });
-
-    this.packages = packages;
   }
 
 }

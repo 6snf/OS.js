@@ -806,7 +806,7 @@ export default class Window {
     this._onChange('create');
     this._toggleLoading(false);
     this._toggleDisabled(false);
-    this._setIcon(Assets.getIcon(this._icon, null, this._app));
+    this._setIcon(Assets.getIcon(this._icon));
     this._updateMarkup();
 
     if ( this._sound ) {

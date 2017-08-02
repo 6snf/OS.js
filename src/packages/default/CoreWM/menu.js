@@ -86,7 +86,7 @@ class CategorizedApplicationMenu {
         var iter = cats[c][a];
         submenu.push({
           title: iter.data.name,
-          icon: Assets.getIcon(iter.data.icon, '16x16', iter.data.className),
+          icon: Assets.getIcon(iter.data.icon, '16x16'),
           tooltip: iter.data.description,
           onCreated: createEvent(iter),
           onClick: clickEvent(iter)
@@ -126,7 +126,7 @@ class ApplicationMenu {
       var entry = document.createElement('gui-menu-entry');
 
       var img = document.createElement('img');
-      img.src = Assets.getIcon(iter.icon, '32x32', iter.className);
+      img.src = Assets.getIcon(iter.icon, '32x32');
 
       var txt = document.createElement('div');
       txt.appendChild(document.createTextNode(iter.name)); //.replace(/([^\s-]{8})([^\s-]{8})/, '$1-$2')));

@@ -604,7 +604,7 @@ export default class Process {
       // Create loading ui
       Loader.create('Main.launch.' + name, {
         title: _('LBL_STARTING') + ' ' + metadata.name,
-        icon: Assets.getIcon(metadata.icon, null, name)
+        icon: Assets.getIcon(metadata.icon, '16x16', name)
       });
 
       // Preload

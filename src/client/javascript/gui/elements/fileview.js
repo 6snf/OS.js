@@ -57,6 +57,9 @@ let _iconSizes = { // Defaults to 16x16
 
 function getFileIcon(iter, size) {
   if ( iter.icon && typeof iter.icon === 'object' ) {
+    if ( iter.icon.application ) {
+      return Assets.getPackageResource(iter.icon.filename, iter.icon.application);
+    }
     return Assets.getIcon(iter.icon.filename, size, iter.icon.application);
   }
 

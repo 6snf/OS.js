@@ -56,43 +56,22 @@ export function getThemeCSS(name) {
  *
  * @param   {String}    name          Resource filename
  * @param   {String}    [size=16x16]  Icon size
- * @param   {Process}   [app]         Application instance reference. Can also be String. For `name` starting with './'
  *
  * @return  {String}            The absolute URL to the resource
  */
-export function getIcon(name, size, app) {
-  name = name || null;
+export function getIcon(name, size) {
+  name = name || '';
   size = size || '16x16';
-  app  = app  || null;
 
-  const root = getConfig('Connection.IconURI');
-  const theme = document.body.getAttribute('data-icon-theme') || 'default';
-
-  function checkIcon() {
-    if ( name.match(/^\.\//) ) {
-      name = name.replace(/^\.\//, '');
-      if ( (app instanceof Process) || (typeof app === 'string') ) {
-        return getPackageResource(app, name);
-      } else {
-        if ( app !== null && typeof app === 'object' ) {
-          return getPackageResource(app.className, name);
-        } else if ( typeof app === 'string' ) {
-          return getPackageResource(app, name);
-        }
-      }
-    } else {
-      if ( !name.match(/^\//) ) {
-        name = root + '/' + theme + '/' + size + '/' + name;
-      }
-    }
-    return null;
+  if ( arguments.length > 2 ) {
+    console.warn('Called getIcon() with deprecated arguments', name);
   }
 
-  if ( name && !name.match(/^(http|\/\/)/) ) {
-    const chk = checkIcon();
-    if ( chk !== null ) {
-      return chk;
-    }
+  if ( !name.match(/^(https?)?:?\//) ) {
+    const root = getConfig('Connection.IconURI');
+    const theme = document.body.getAttribute('data-icon-theme') || 'default';
+
+    return root + '/' + theme + '/' + size + '/' + name;
   }
 
   return name;
@@ -147,7 +126,10 @@ export function getFileIcon(file, size, icon) {
     const meta = PackageManager.getPackage(appname);
 
     if ( meta ) {
-      return getIcon(meta.icon, size, appname);
+      if ( !meta.icon.match(/^((https?:)|\.)?\//) ) {
+        return getIcon(meta.icon, size);
+      }
+      return getPackageResource(appname, meta.icon);
     }
   } else {
     const mime = file.mime || 'application/octet-stream';
