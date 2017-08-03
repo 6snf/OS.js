@@ -28,6 +28,8 @@
  * @licence Simplified BSD License
  */
 
+// TODO: Could use a cleanup after 2.1
+
 import Promise from 'bluebird';
 import Authenticator from 'core/authenticator';
 import SettingsManager from 'core/settings-manager';

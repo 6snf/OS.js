@@ -89,7 +89,7 @@ function onError(title, message, error, exception, bugreport) {
 
         return true;
       } catch ( e ) {
-        console.warn('An error occured while creating Dialogs.Error', e);
+        console.warn('An error occured while creating Error Dialog', e);
         console.warn('stack', e.stack);
       }
     }
@@ -373,7 +373,6 @@ const initMocha = (config) => new Promise((resolve, reject) => {
  * Initializes the user session
  */
 function initSession(config) {
-  // FIXME
   console.debug('initSession()');
 
   var list = [];

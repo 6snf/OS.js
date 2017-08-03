@@ -32,7 +32,6 @@ import Promise from 'bluebird';
 import Connection from 'core/connection';
 import Process from 'core/process';
 import SettingsManager from 'core/settings-manager';
-import * as Utils from 'utils/misc';
 
 let _instance;
 
@@ -81,7 +80,7 @@ export default class Storage {
 
     return new Promise((resolve, reject) => {
       this.saveTimeout = setTimeout(() => {
-        Connection.request('settings', {pool: pool, settings: Utils.cloneObject(storage)})
+        Connection.request('settings', {pool: pool, settings: Object.assign({}, storage)})
           .then(resolve).catch(reject);
         clearTimeout(this.saveTimeout);
       }, 250);
@@ -94,12 +93,9 @@ export default class Storage {
    */
   saveSession() {
     return new Promise((resolve, reject) => {
-      const data = [];
-      Process.getProcesses().forEach((proc, i) => {
-        if ( proc && (typeof proc._getSessionData === 'function') ) {
-          data.push(proc._getSessionData());
-        }
-      });
+      const data = Process.getProcesses()
+        .filter((proc) => typeof proc._getSessionData === 'function')
+        .map((proc) => proc._getSessionData());
 
       SettingsManager.set('UserSession', null, data, (err, res) => {
         return err ? reject(err) : resolve(res);
@@ -113,13 +109,11 @@ export default class Storage {
    */
   getLastSession() {
     const res = SettingsManager.get('UserSession');
-    const list = [];
-    (res || []).forEach((iter, i) => {
+    const list = (res || []).map((iter) => {
       const args = iter.args;
       args.__resume__ = true;
       args.__windows__ = iter.windows || [];
-
-      list.push({name: iter.name, args: args});
+      return {name: iter.name, args};
     });
 
     return Promise.resolve(list);
