@@ -762,7 +762,7 @@ export default class Process {
     console.info('openFile()', file, args);
 
     if ( file.mime === 'osjs/application' ) {
-      return this.create(FS.filename(file.path), args);
+      return this.create(FS.filename(file.path));
     } else if ( file.type === 'dir' ) {
       const fm = SettingsManager.instance('DefaultApplication').get('dir', 'ApplicationFileManager');
       return this.create(fm, {path: file.path});
