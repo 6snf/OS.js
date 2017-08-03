@@ -95,18 +95,18 @@ class SettingsItemDialog extends Dialog {
       width: 400,
       height: 300,
       translator: _
-    }, app);
+    });
 
-    this.scheme = scheme;
+    this.schemeRef = scheme;
     this.callback = callback;
     this.closed = false;
   }
 
-  init(wm, app, scheme) {
+  init(wm, app) {
     const root = super.init(...arguments);
 
     // Load and set up scheme (GUI) here
-    this._render('SettingsItemWindow', this.scheme);
+    this.schemeRef.render(this, 'SettingsItemWindow');
 
     this._find('ButtonItemOK').on('click', () => {
       this.closed = true;
@@ -153,7 +153,7 @@ class ApplicationSettingsWindow extends Window {
     const wm = WindowManager.instance;
 
     // Load and render `scheme.html` file
-    this._render('SettingsWindow', this.scheme);
+    this.scheme.render(this, 'SettingsWindow');
 
     this._find('ButtonOK').son('click', this, this.onButtonOK);
     this._find('ButtonCancel').son('click', this, this.onButtonCancel);

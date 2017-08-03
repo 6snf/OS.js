@@ -97,7 +97,7 @@ function createMountWindow(win, scheme, selected, ondone) {
       nwin._close();
     }
 
-    nwin._render(nwin._name, scheme);
+    scheme.render(nwin, nwin._name);
 
     if ( selected ) {
       nwin._find('MountType').set('value', selected.transport);
