@@ -231,9 +231,12 @@ class Modules {
    * Loads a file
    * @param {String} key Type of file
    * @param {String} filename Filename
+   * @param {Array} [args] Arguments for loader
    * @return {Promise<Boolean, Error>}
    */
-  loadFile(key, filename) {
+  loadFile(key, filename, args) {
+    args = args || [];
+
     return new Promise((resolve, reject) => {
       log(colors.bold('Loading'), colors.green(key), filename);
 
@@ -245,10 +248,10 @@ class Modules {
         return;
       }
 
-      instance.register().then((res) => {
+      instance.register(...args).then((res) => {
         this.instances[key] = instance;
 
-        return instance.register().then(() => resolve(instance)).catch(reject);
+        return resolve(instance);
       }).catch(reject);
     });
   }
@@ -454,8 +457,10 @@ class Modules {
 
     return new Promise((resolve, reject) => {
       const f = this.getModuleFile('auth', name);
+      const config = settings.get('modules.auth.' + name);
+
       if ( f ) {
-        this.loadFile('authenticator', f).then(resolve).catch(reject);
+        this.loadFile('authenticator', f, [config]).then(resolve).catch(reject);
       } else {
         reject('No such module');
       }
@@ -471,8 +476,10 @@ class Modules {
 
     return new Promise((resolve, reject) => {
       const f = this.getModuleFile('storage', name);
+      const config = settings.get('modules.storage.' + name);
+
       if ( f ) {
-        this.loadFile('storage', f).then(resolve).catch(reject);
+        this.loadFile('storage', f, [config]).then(resolve).catch(reject);
       } else {
         reject('No such module');
       }
