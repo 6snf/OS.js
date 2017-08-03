@@ -1186,21 +1186,11 @@ export default class Window {
   _getChild(value, key) {
     key = key || 'wid';
 
-    let result = key === 'tag' ? [] : null;
-    this._children.every((child, i) => {
-      if ( child ) {
-        if ( key === 'tag' ) {
-          result.push(child);
-        } else {
-          if ( child['_' + key] === value ) {
-            result = child;
-            return false;
-          }
-        }
-      }
-      return true;
+    const found = this._getChildren().filter((c) => {
+      return c['_' + key] === value;
     });
-    return result;
+
+    return key === 'tag' ? found : found[0];
   }
 
   /**
@@ -1243,20 +1233,18 @@ export default class Window {
    * @return {Window[]}
    */
   _getChildren() {
-    return this._children;
+    return this._children.filter((w) => !!w);
   }
 
   /**
    * Removes all children Windows
    */
   _removeChildren() {
-    if ( this._children && this._children.length ) {
-      this._children.forEach((child, i) => {
-        if ( child ) {
-          child.destroy();
-        }
-      });
-    }
+    this._children.forEach((child, i) => {
+      if ( child ) {
+        child.destroy();
+      }
+    });
     this._children = [];
   }
 
@@ -1600,47 +1588,29 @@ export default class Window {
     _resizeFinished();
   }
 
-  // TODO: Optimize
   _resize(w, h, force) {
-    if ( !this._$element || this._destroyed  ) {
+    const p = this._properties;
+    if ( !this._$element || this._destroyed || (!force && !p.allow_resize)  ) {
       return false;
     }
 
-    const p = this._properties;
-
-    if ( !force ) {
-      if ( !p.allow_resize ) {
-        return false;
-      }
-
-      if ( !isNaN(w) && w ) {
-        if ( w < p.min_width ) {
-          w = p.min_width;
-        }
-        if ( p.max_width !== null ) {
-          if ( w > p.max_width ) {
-            w = p.max_width;
-          }
+    const getNewSize = (n, min, max) => {
+      if ( !isNaN(n) && n ) {
+        n = Math.max(n, min);
+        if ( max !== null ) {
+          n = Math.min(n, max);
         }
       }
+      return n;
+    };
 
-      if ( !isNaN(h) && h ) {
-        if ( h < p.min_height ) {
-          h = p.min_height;
-        }
-        if ( p.max_height !== null ) {
-          if ( h > p.max_height ) {
-            h = p.max_height;
-          }
-        }
-      }
-    }
-
+    w = force ? w : getNewSize(w, p.min_width, p.max_width);
     if ( !isNaN(w) && w ) {
       this._$element.style.width = w + 'px';
       this._dimension.w = w;
     }
 
+    h = force ? h : getNewSize(h, p.min_height, p.max_height);
     if ( !isNaN(h) && h ) {
       this._$element.style.height = h + 'px';
       this._dimension.h = h;
