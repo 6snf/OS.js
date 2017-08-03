@@ -291,14 +291,9 @@ export default class WindowManager extends Process {
    * @return  {Window}
    */
   getWindow(name) {
-    let result = null;
-    this._windows.every((w) => {
-      if ( w && w._name === name ) {
-        result = w;
-      }
-      return result ? false : true;
+    return this.getWindows().find((w) => {
+      return  w.__name === name;
     });
-    return result;
   }
 
   /**
@@ -330,9 +325,7 @@ export default class WindowManager extends Process {
     w._inited();
 
     if ( focus === true || w instanceof DialogWindow ) {
-      setTimeout(() => {
-        w._focus();
-      }, 10);
+      setTimeout(() => w._focus(), 10);
     }
 
     return w;
@@ -354,16 +347,15 @@ export default class WindowManager extends Process {
     }
     console.debug('WindowManager::removeWindow()', w._wid);
 
-    let result = false;
-    this._windows.every((win, i) => {
-      if ( win && win._wid === w._wid ) {
-        this._windows[i] = null;
-        result = true;
-      }
-      return result ? false : true;
-    });
+    const foundIndex = this._windows
+      .filter((win) => !!win)
+      .findIndex((win) => win._wid === w._wid);
 
-    return result;
+    if ( foundIndex !== -1 ) {
+      this._windows[foundIndex] = null;
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -433,9 +425,7 @@ export default class WindowManager extends Process {
    */
   destroyStylesheet() {
     if ( this._stylesheet ) {
-      if ( this._stylesheet.parentNode ) {
-        this._stylesheet.parentNode.removeChild(this._stylesheet);
-      }
+      this._stylesheet.remove();
     }
     this._stylesheet = null;
   }
