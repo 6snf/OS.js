@@ -528,7 +528,7 @@ export default class Process {
 
     const init = () => {
       if ( !name ) {
-        throw new Error('Cannot API::launch() witout a application name');
+        throw new Error('Cannot Process::create() witout a application name');
       }
 
       const compability = Compability.getCompability();

@@ -122,7 +122,7 @@ export function setLocale(l) {
   if ( locale ) {
     CurrentLocale = l;
   } else {
-    console.warn('API::setLocale()', 'Invalid locale', l, '(Using default)');
+    console.warn('Locales::setLocale()', 'Invalid locale', l, '(Using default)');
     CurrentLocale = DefaultLocale;
   }
 
@@ -133,7 +133,7 @@ export function setLocale(l) {
     html.setAttribute('dir', CurrentRTL.indexOf(major) !== -1 ? 'rtl' : 'ltr');
   }
 
-  console.info('API::setLocale()', CurrentLocale);
+  console.info('Locales::setLocale()', CurrentLocale);
 }
 
 /**

@@ -83,7 +83,9 @@ class Theme {
     args = args || [];
 
     try {
-      return OSjs.Themes[theme][action].apply(null, args);
+      if ( OSjs.Themes[theme] ) {
+        return OSjs.Themes[theme][action].apply(null, args);
+      }
     } catch ( e ) {
       console.warn(e);
     }

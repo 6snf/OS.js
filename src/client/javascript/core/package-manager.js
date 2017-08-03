@@ -423,6 +423,7 @@ class PackageManager {
   /**
    * Sets the current list of packages
    * @param {Object} res Package map
+   * @return {Promise<Boolean, Error>}
    */
   setPackages(res) {
     const packages = {};
