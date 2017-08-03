@@ -340,7 +340,7 @@ export default class Connection {
     options = options || {};
 
     if ( options && typeof options !== 'object' ) {
-      return Promise.reject(new TypeError('call() expects an object as options'));
+      return Promise.reject(new TypeError('request() expects an object as options'));
     }
 
     Loader.create('Connection.request');
@@ -351,15 +351,15 @@ export default class Connection {
 
     return new Promise((resolve, reject) => {
       this.instance.createRequest(m, a, options).then((response) => {
-        Loader.destroy('Connection.request');
         if ( response.error ) {
           return reject(new Error(response.error));
         }
         return resolve(response.result);
       }).catch(((err) => {
-        Loader.destroy('Connection.request');
         reject(new Error(err));
-      }));
+      })).finally(() => {
+        Loader.destroy('Connection.request');
+      });
     });
   }
 }
