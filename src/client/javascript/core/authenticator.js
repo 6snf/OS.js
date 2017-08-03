@@ -154,16 +154,11 @@ export default class Authenticator {
       group = [group];
     }
 
-    let result = true;
-    if ( userGroups.indexOf('admin') < 0 ) {
-      group.every((g) => {
-        if ( userGroups.indexOf(g) < 0 ) {
-          result = false;
-        }
-        return result;
-      });
+    if ( userGroups.indexOf('admin') === -1 ) {
+      return !!group.every((g) => userGroups.indexOf(g) >= 0);
     }
-    return result;
+
+    return true;
   }
 
   /**
@@ -263,14 +258,12 @@ export default class Authenticator {
         this.onLoginRequest({
           username: u.value,
           password: p.value
-        }, (err) => {
-          if ( err ) {
-            alert(err);
-            _restore();
-          } else {
-            container.parentNode.removeChild(container);
-            resolve();
-          }
+        }).then(() => {
+          container.parentNode.removeChild(container);
+          return resolve();
+        }).catch((err) => {
+          alert(err);
+          _restore();
         });
       };
     });
