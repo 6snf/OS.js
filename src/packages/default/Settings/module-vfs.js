@@ -30,6 +30,7 @@
 const SettingsManager = OSjs.require('core/settings-manager');
 const MountManager = OSjs.require('core/mount-manager');
 const Authenticator = OSjs.require('core/authenticator');
+const Window = OSjs.require('core/window');
 const Utils = OSjs.require('utils/misc');
 
 /*eslint valid-jsdoc: "off"*/
