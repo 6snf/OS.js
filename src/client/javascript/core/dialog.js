@@ -80,8 +80,8 @@ export default class DialogWindow extends Window {
   constructor(className, opts, args, callback) {
     opts = opts || {};
     args = args || {};
-
     callback = callback || function() {};
+
     if ( typeof callback !== 'function' ) {
       throw new TypeError('DialogWindow expects a callback Function, gave: ' + typeof callback);
     }
@@ -160,15 +160,14 @@ export default class DialogWindow extends Window {
 
       const focusButtons = ['ButtonCancel', 'ButtonNo'];
 
-      Object.keys(buttonMap).forEach((id) => {
-        if ( this._findDOM(id) ) {
-          const btn = this._find(id);
-          btn.on('click', (ev) => {
-            this.onClose(ev, buttonMap[id]);
-          });
-          if ( focusButtons.indexOf(id) >= 0 ) {
-            btn.focus();
-          }
+      Object.keys(buttonMap).filter((id) => this._findDOM(id)).forEach((id) => {
+        const btn = this._find(id);
+        btn.on('click', (ev) => {
+          this.onClose(ev, buttonMap[id]);
+        });
+
+        if ( focusButtons.indexOf(id) >= 0 ) {
+          btn.focus();
         }
       });
     }
@@ -262,11 +261,11 @@ export default class DialogWindow extends Window {
     function cb() {
       if ( parentObj ) {
         if ( parentIsWindow && parentObj._destroyed ) {
-          console.warn('API::createDialog()', 'INGORED EVENT: Window was destroyed');
+          console.warn('DialogWindow::create()', 'INGORED EVENT: Window was destroyed');
           return;
         }
         if ( parentIsProcess && parentObj.__destroyed ) {
-          console.warn('API::createDialog()', 'INGORED EVENT: Process was destroyed');
+          console.warn('DialogWindow::create()', 'INGORED EVENT: Process was destroyed');
           return;
         }
       }
