@@ -256,11 +256,13 @@ class SearchEngine {
 
               next();
             }).catch((err) => {
-              errors.push(err);
+              console.warn(err);
+              errors.push(err instanceof Error ? err.toString() : err);
               next();
             });
           } else {
-            reject(new Error(errors.join(', ')));
+            next();
+            //reject(new Error(errors.join(', ')));
           }
         });
       }).then(() => resolve(result)).catch(reject);
