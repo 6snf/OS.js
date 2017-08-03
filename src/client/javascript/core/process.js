@@ -73,9 +73,9 @@ import PackageManager from 'core/package-manager';
 let alreadyLaunching = [];
 let runningProcesses = [];
 
-function _kill(pid) {
+function _kill(pid, force) {
   if ( pid >= 0 && runningProcesses[pid] ) {
-    const res = runningProcesses[pid].destroy();
+    const res = runningProcesses[pid].destroy(force);
     console.warn('Killing application', pid, res);
     if ( res !== false ) {
       runningProcesses[pid] = null;
@@ -393,34 +393,18 @@ export default class Process {
    * @param   {(String|RegExp)}     match     Kill all matching this
    */
   static killAll(match) {
-    if ( match ) {
-      let isMatching;
-      if ( match instanceof RegExp && runningProcesses ) {
-        isMatching = (p) => {
-          return p.__pname && p.__pname.match(match);
-        };
-      } else if ( typeof match === 'string' ) {
-        isMatching = (p) => {
-          return p.__pname === match;
-        };
-      }
+    let matcher = () => true;
 
-      if ( isMatching ) {
-        runningProcesses.forEach((p) => {
-          if ( p && isMatching(p) ) {
-            _kill(p.__pid);
-          }
-        });
-      }
-      return;
+    if ( match ) {
+      matcher = match instanceof RegExp
+        ? (p) => p.__pname.match(match)
+        : (p) => p.__pname === match;
     }
 
-    runningProcesses.forEach((proc, i) => {
-      if ( proc ) {
-        proc.destroy(true);
-      }
-      runningProcesses[i] = null;
-    });
+    this.getProcesses()
+      .filter((p) => matcher(p))
+      .forEach((p) => _kill(p.__pid, true));
+
     runningProcesses = [];
   }
 
@@ -440,12 +424,9 @@ export default class Process {
   static message(msg, obj, opts) {
     opts = opts || {};
 
-    console.debug('doProcessMessage', msg, obj, opts);
+    console.debug('Process::message()', msg, obj, opts);
 
-    let filter = opts.filter || function() {
-      return true;
-    };
-
+    let filter = opts.filter || (() => true);
     if ( typeof filter === 'string' ) {
       const s = filter;
       filter = (p) => {
@@ -453,13 +434,9 @@ export default class Process {
       };
     }
 
-    runningProcesses.forEach((p, i) => {
-      if ( p && (p instanceof Process) ) {
-        if ( filter(p) ) {
-          p._onMessage(msg, obj, opts);
-        }
-      }
-    });
+    this.getProcesses()
+      .filter(filter)
+      .forEach((p) => p._onMessage(msg, obj, opts));
   }
 
   /**
@@ -471,27 +448,15 @@ export default class Process {
    * @return  {(Process[]|Process)}  Array of Processes or a Process depending on arguments
    */
   static getProcess(name, first) {
-    let result = first ? null : [];
-
     if ( typeof name === 'number' ) {
       return runningProcesses[name];
     }
 
-    runningProcesses.every((p, i) => {
-      if ( p ) {
-        if ( p.__pname === name ) {
-          if ( first ) {
-            result = p;
-            return false;
-          }
-          result.push(p);
-        }
-      }
-
-      return true;
+    const found = this.getProcesses().filter((p) => {
+      return p.__pname === name;
     });
 
-    return result;
+    return first ? found[0] : found;
   }
 
   /**
@@ -500,7 +465,7 @@ export default class Process {
    * @return  {Process[]}
    */
   static getProcesses() {
-    return runningProcesses;
+    return runningProcesses.filter((p) => !!p);
   }
 
   /**
@@ -521,7 +486,7 @@ export default class Process {
         n = p.__pname;
         promise = p.destroy(); // kill
       } catch ( e ) {
-        console.warn('reloadProcess()', e.stack, e);
+        console.warn('Process::reload()', e.stack, e);
       }
 
       if ( data !== null ) {
@@ -561,8 +526,6 @@ export default class Process {
     }
     alreadyLaunching.push(hash);
 
-    console.info('launch()', name, args);
-
     const init = () => {
       if ( !name ) {
         throw new Error('Cannot API::launch() witout a application name');
@@ -592,7 +555,7 @@ export default class Process {
       }
 
       if ( metadata.singular === true && alreadyRunning ) {
-        console.warn('API::launch()', 'detected that this application is a singular and already running...');
+        console.warn('Process::create()', 'detected that this application is a singular and already running...');
         alreadyRunning._onMessage('attention', args);
 
         //throw new Error(_('ERR_APP_LAUNCH_ALREADY_RUNNING_FMT', name));
@@ -604,7 +567,7 @@ export default class Process {
       // Create loading ui
       Loader.create('Main.launch.' + name, {
         title: _('LBL_STARTING') + ' ' + metadata.name,
-        icon: Theme.getIcon(metadata.icon, '16x16', name)
+        icon: Theme.getIcon(metadata.icon, '16x16')
       });
 
       // Preload
@@ -681,7 +644,10 @@ export default class Process {
     };
 
     return new Promise((resolve, reject) => {
+      console.group('Process::create()', name, args);
+
       const remove = () => {
+        console.groupEnd();
         const i = alreadyLaunching.indexOf(hash);
         if ( i >= 0 ) {
           alreadyLaunching.splice(i, 1);
@@ -715,7 +681,7 @@ export default class Process {
     list = list || [];
     onconstruct = onconstruct || function() {};
 
-    console.info('launchList()', list);
+    console.info('Process::createFromArray()', list);
 
     return Promise.each(list, (s) => {
       return new Promise((resolve, reject) => {
@@ -759,7 +725,7 @@ export default class Process {
       throw new Error('Cannot open file without a path');
     }
 
-    console.info('openFile()', file, args);
+    console.info('Process::createFromFile()', file, args);
 
     if ( file.mime === 'osjs/application' ) {
       return this.create(FS.filename(file.path));
@@ -773,7 +739,7 @@ export default class Process {
       let pack = PackageManager.getPackagesByMime(file.mime);
       if ( !args.forceList && val ) {
         if ( PackageManager.getPackage(val) ) {
-          console.debug('getApplicationNameByFile()', 'default application', val);
+          console.debug('Process::createFromFile()', 'default application', val);
           pack = [val];
         }
       }
