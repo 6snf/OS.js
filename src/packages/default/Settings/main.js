@@ -97,7 +97,7 @@ class SettingsItemDialog extends Dialog {
       translator: _
     }, app);
 
-    this._scheme = scheme;
+    this.scheme = scheme;
     this.callback = callback;
     this.closed = false;
   }
@@ -106,7 +106,7 @@ class SettingsItemDialog extends Dialog {
     const root = super.init(...arguments);
 
     // Load and set up scheme (GUI) here
-    this._render('SettingsItemWindow', this._scheme);
+    this._render('SettingsItemWindow', this.scheme);
 
     this._find('ButtonItemOK').on('click', () => {
       this.closed = true;
@@ -144,7 +144,7 @@ class ApplicationSettingsWindow extends Window {
       translator: _
     }, app);
 
-    this._scheme = scheme;
+    this.scheme = scheme;
     this.initialCategory = initialCategory;
   }
 
@@ -153,7 +153,7 @@ class ApplicationSettingsWindow extends Window {
     const wm = WindowManager.instance;
 
     // Load and render `scheme.html` file
-    this._render('SettingsWindow', this._scheme);
+    this._render('SettingsWindow', this.scheme);
 
     this._find('ButtonOK').son('click', this, this.onButtonOK);
     this._find('ButtonCancel').son('click', this, this.onButtonCancel);
@@ -213,13 +213,13 @@ class ApplicationSettingsWindow extends Window {
         const settings = Utils.cloneObject(wm.getSettings());
 
         try {
-          m.render(this, this._scheme, tmpcontent, settings, wm);
+          m.render(this, this.scheme, tmpcontent, settings, wm);
         } catch ( e ) {
           console.warn(e, e.stack);
         }
 
         try {
-          m.update(this, this._scheme, settings, wm);
+          m.update(this, this.scheme, settings, wm);
         } catch ( e ) {
           console.warn(e, e.stack);
         }
@@ -301,7 +301,7 @@ class ApplicationSettingsWindow extends Window {
         settings = Utils.cloneObject(wm.getSettings());
 
         try {
-          found.update(this, this._scheme, settings, wm, true);
+          found.update(this, this.scheme, settings, wm, true);
         } catch ( e ) {
           console.warn(e, e.stack);
         }
@@ -321,7 +321,7 @@ class ApplicationSettingsWindow extends Window {
         this._app.modules.forEach((m) => {
           try {
             if ( m._inited ) {
-              m.update(this, this._scheme, settings, wm);
+              m.update(this, this.scheme, settings, wm);
             }
           } catch ( e ) {
             console.warn(e, e.stack);
@@ -339,7 +339,7 @@ class ApplicationSettingsWindow extends Window {
 
     this._app.modules.forEach((m) => {
       if ( m._inited ) {
-        const res = m.save(this, this._scheme, settings, wm);
+        const res = m.save(this, this.scheme, settings, wm);
         if ( typeof res === 'function' ) {
           res();
         }
