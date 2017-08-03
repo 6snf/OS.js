@@ -42,7 +42,6 @@ const Theme = OSjs.require('core/theme');
 const Dialog = OSjs.require('core/dialog');
 const FileMetadata = OSjs.require('vfs/file');
 const MountManager = OSjs.require('core/mount-manager');
-const Window = OSjs.require('core/window');
 const GUIElement = OSjs.require('gui/element');
 const WindowManager = OSjs.require('core/window-manager');
 
@@ -71,20 +70,22 @@ class IconViewShortcutDialog extends Dialog {
       allow_maximize: false,
       allow_resize: false,
       allow_minimize: false
-    }, null, scheme);
+    }, () => {});
 
+    this.scheme = scheme;
     this.values = {
       path: item.path,
       filename: item.filename,
       args: item.args || {}
     };
+
     this.cb = closeCallback || function() {};
   }
 
   init(wm, app) {
-    const root = Window.prototype.init.apply(this, arguments);
+    const root = super.init(...arguments);
 
-    this._render(this._name);
+    this._render(this._name, this.scheme);
 
     this._find('InputShortcutLaunch').set('value', this.values.path);
     this._find('InputShortcutLabel').set('value', this.values.filename);
@@ -267,7 +268,7 @@ export default class DesktopIconView {
     const path = FS.pathJoin(desktopPath, '.shortcuts.json');
     const cache = this.shortcutCache;
 
-    VFS.mkdir(FS.dirname(path)).then((err) => {
+    VFS.mkdir(FS.dirname(path)).finally(() => {
       VFS.write(path, JSON.stringify(cache, null, 4)).then(() => {
         if ( refresh ) { // Normally caught by VFS message in main.js
           this._refresh();
