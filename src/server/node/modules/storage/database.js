@@ -28,21 +28,33 @@
  * @licence Simplified BSD License
  */
 
-const _db = require('./../database.js');
-
+const path = require('path');
+const Database = require('./../database.js');
 const Storage = require('./../storage.js');
 
 class DatabaseStorage extends Storage {
 
+  _getUser(db, username) {
+    return db.query('SELECT users.*, settings.settings FROM `users` LEFT JOIN `settings` ON(settings.user_id = users.id) WHERE username = ?', [username]);
+  }
+
   setSettings(http, username, settings) {
     return new Promise((resolve, reject) => {
-      function done() {
-        resolve(true);
-      }
+      Database.instance('authstorage').then((db) => {
+        this._getUser(db, username).then((data) => {
+          const json = JSON.stringify(settings);
+          let promise;
+          if ( typeof data.settings === 'undefined' || data.settings === null ) {
+            promise = db.query('INSERT INTO `settings` (user_id, settings) VALUES(?, ?)', [data.id, json]);
+          } else {
+            promise = db.query('UPDATE `settings` SET `settings` = ? WHERE `user_id` = ?;', [json, data.id]);
+          }
 
-      _db.instance('authstorage').then((db) => {
-        db.query('UPDATE `users` SET `settings` = ? WHERE `username` = ?;', [JSON.stringify(settings), username])
-          .then(done).catch(reject);
+          return promise.then(() => resolve(true)).catch((err) => {
+            console.warn(err);
+            resolve(false);
+          });
+        }).catch(reject);
       }).catch(reject);
     });
   }
@@ -58,15 +70,27 @@ class DatabaseStorage extends Storage {
         resolve(json);
       }
 
-      _db.instance('authstorage').then((db) => {
-        db.query('SELECT `settings` FROM `users` WHERE `username` = ? LIMIT 1;', [username])
-          .then(done).catch(reject);
+      Database.instance('authstorage').then((db) => {
+        this._getUser(db, username).then(done).catch((err) => {
+          console.warn(err);
+          resolve({});
+        });
       }).catch(reject);
     });
   }
 
+  register(config) {
+    const type = config.driver;
+    const settings = config[type];
+
+    const str = type === 'sqlite' ? path.basename(settings.database) : settings.user + '@' + settings.host + ':/' + settings.database;
+    console.log('>', type, str);
+
+    return Database.instance('authstorage', type, settings);
+  }
+
   destroy() {
-    return _db.destroy('authstorage');
+    return Database.destroy('authstorage');
   }
 
 }

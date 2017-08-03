@@ -88,7 +88,7 @@ DatabaseInstance.prototype.init = function() {
   return Promise.resolve();
 };
 
-DatabaseInstance.prototype._query = function(q, a, all, cb) {
+DatabaseInstance.prototype._query = function(q, a, all) {
   a = a || [];
 
   const type = this.type;
@@ -147,12 +147,12 @@ DatabaseInstance.prototype._query = function(q, a, all, cb) {
   return Promise.reject('No SQL connection available');
 };
 
-DatabaseInstance.prototype.query = function(q, a, cb) {
-  return this._query(q, a, false, cb);
+DatabaseInstance.prototype.query = function(q, a) {
+  return this._query(q, a, false);
 };
 
-DatabaseInstance.prototype.queryAll = function(q, a, cb) {
-  return this._query(q, a, true, cb);
+DatabaseInstance.prototype.queryAll = function(q, a) {
+  return this._query(q, a, true);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -34,6 +34,7 @@ const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const Config = OSjs.require('core/config');
 const Connection = OSjs.require('core/connection');
+const Window = OSjs.require('core/window');
 const _ = Locales.createLocalizer(Translations);
 
 function renderUsers(win, scheme) {
@@ -43,6 +44,7 @@ function renderUsers(win, scheme) {
         return {
           value: iter,
           columns: [
+            {label: iter.id},
             {label: iter.username},
             {label: iter.name}
           ]
@@ -84,19 +86,19 @@ function showDialog(win, scheme, data, passwd) {
     title: win._app.__metadata.name,
     width: 400,
     height: 250
-  }, win._app, scheme);
+  }, win._app);
 
   nwin._on('destroy', function(root) {
     win._toggleDisabled(false);
   });
 
   nwin._on('init', function(root) {
-    nwin._render(nwin._name);
+    scheme.render(nwin, nwin._name);
 
     if ( Object.keys(data).length ) {
       nwin._find('UserUsername').set('value', data.username);
       nwin._find('UserName').set('value', data.name);
-      nwin._find('UserGroups').set('value', JSON.stringify(data.groups));
+      nwin._find('UserGroups').set('value', (data.groups || []).join(','));
     }
 
     nwin._find('ButtonClose').on('click', function() {
@@ -106,17 +108,7 @@ function showDialog(win, scheme, data, passwd) {
     nwin._find('ButtonOK').on('click', function() {
       data.username = nwin._find('UserUsername').get('value');
       data.name = nwin._find('UserName').get('value') || data.username;
-      data.groups = [];
-
-      const groupString = nwin._find('UserGroups').get('value');
-      if ( groupString.substr(0, 1) === '[' ) {
-        try {
-          data.groups = JSON.parse(groupString);
-        } catch ( e ) {
-        }
-      } else {
-        data.groups = groupString.replace(/\s/, '').split(',');
-      }
+      data.groups = nwin._find('UserGroups').get('value').replace(/\s/g, '').split(',');
 
       if ( !data.username || !data.groups ) {
         nwin._close();
