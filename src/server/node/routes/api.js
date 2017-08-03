@@ -47,11 +47,7 @@ module.exports = function(app, wrapper) {
 
         authenticator().getBlacklist(http, http.data.username).then((blacklist) => {
           return storage().getSettings(http, http.data.username).then((settings) => {
-            const getGroups = user.groups
-              ? Promise.resolve(user.groups)
-              : authenticator().getGroups(http, http.data.username);
-
-            return getGroups.then((groups) => {
+            return authenticator().getGroups(http, http.data.username).then((groups) => {
               http.session.set('username', http.data.username);
               http.setActiveUser(http.request, true);
 
