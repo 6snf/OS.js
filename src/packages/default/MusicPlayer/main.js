@@ -65,6 +65,7 @@ class ApplicationMusicPlayerWindow extends DefaultApplicationWindow {
     super('ApplicationMusicPlayerWindow', {
       icon: metadata.icon,
       title: metadata.name,
+      auto_size: true,
       allow_drop: true,
       allow_resize: false,
       allow_maximize: false,
