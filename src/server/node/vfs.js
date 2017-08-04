@@ -47,9 +47,12 @@ class VFS {
    */
   parseVirtualPath(query, options) {
     let realPath = '';
+    let virtual = false;
     if ( options instanceof User ) {
+      virtual = options.virtual;
       options = options.toJson();
     }
+
     options = Object.assign({}, options);
 
     const mountpoints = Settings.get('vfs.mounts') || {};
@@ -59,7 +62,7 @@ class VFS {
     const pathname = path.normalize(String(parts[2]).replace(/^\/+?/, '/').replace(/^\/?/, '/'));
 
     const mount = mountpoints[protocol];
-    if ( !options._virtual && protocol === '$' ) {
+    if ( !virtual === true && protocol === '$' ) {
       realPath = '/';
     } else {
       if ( typeof mount === 'object' ) {

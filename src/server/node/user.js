@@ -44,14 +44,38 @@ class User {
    * @param {String[]} [groups] Groups (will default to configuration)
    */
   constructor(uid, username, name, groups) {
+    /**
+     * User ID
+     * @type String
+     */
     this.id = uid;
+
+    /**
+     * Username
+     * @type String
+     */
     this.username = username;
+
+    /**
+     * User name
+     * @type String
+     */
     this.name = name;
+
+    /**
+     * Virtual user (if you set this, you can use the special $ vfs root)
+     * @type Boolean
+     */
+    this.virtual = false;
 
     if ( !(groups instanceof Array) || !groups.length ) {
       groups = Settings.get('api.defaultGroups') || [];
     }
 
+    /**
+     * Groups
+     * @type String[]
+     */
     this.groups = groups;
   }
 
