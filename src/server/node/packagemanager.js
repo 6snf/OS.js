@@ -30,10 +30,11 @@
 const Promise = require('bluebird');
 const fs = require('fs-extra');
 const path = require('path');
-const settings = require('./settings.js');
-const vfs = require('./vfs.js');
 const glob = require('glob-promise');
 const unzip = require('unzip-stream');
+
+const Settings = require('./settings.js');
+const VFS = require('./vfs.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -51,7 +52,7 @@ const readManifestFile = (filename, scope) => {
 };
 
 const getSystemMetadata = () => {
-  const filename = path.resolve(settings.option('SERVERDIR'), 'packages.json');
+  const filename = path.resolve(Settings.option('SERVERDIR'), 'packages.json');
   return readManifestFile(filename, 'system');
 };
 
@@ -93,7 +94,7 @@ const generateUserMetadata = (username, paths) => {
 
     Promise.each(paths, (p) => {
       try {
-        const parsed = vfs.parseVirtualPath(p, {username});
+        const parsed = VFS.parseVirtualPath(p, {username});
         return new Promise((yes, no) => {
           traversePackageDirectory(p, parsed.real).then((packages) => {
             result = Object.assign(result, packages);
@@ -105,7 +106,7 @@ const generateUserMetadata = (username, paths) => {
       }
     }).then(() => {
       const dest = 'home:///.packages/packages.json';
-      const parsed = vfs.parseVirtualPath(dest, {username});
+      const parsed = VFS.parseVirtualPath(dest, {username});
       fs.writeJson(parsed.real, result).then(resolve).catch(reject);
       return resolve(result);
     }).catch(reject);
@@ -119,7 +120,7 @@ const getUserMetadata = (username, paths) => {
     Promise.each(paths, (p) => {
       const filename = [p, 'packages.json'].join('/'); // path.join does not work
       try {
-        const parsed = vfs.parseVirtualPath(filename, {username: username});
+        const parsed = VFS.parseVirtualPath(filename, {username: username});
         return new Promise((yes, no) => {
           readManifestFile(parsed.real, 'user').then((json) => {
             result = Object.assign(result, json);
@@ -140,12 +141,12 @@ const getUserMetadata = (username, paths) => {
 
 const installFromZip = (username, args) => {
   return new Promise((resolve, reject) => {
-    vfs.createReadStream(args.zip, {username}).then((zipStream) => {
+    VFS.createReadStream(args.zip, {username}).then((zipStream) => {
       /*eslint new-cap: "off"*/
       zipStream.pipe(unzip.Parse()).on('entry', (entry) => {
         const target = [args.dest, entry.path].join('/');
         const targetParent = entry.type === 'Directory' ? target : path.dirname(target);
-        const targetRealParent = vfs.parseVirtualPath(targetParent, {username}).real;
+        const targetRealParent = VFS.parseVirtualPath(targetParent, {username}).real;
 
         try {
           if ( !fs.existsSync(targetRealParent) ) {
@@ -155,7 +156,7 @@ const installFromZip = (username, args) => {
           console.warn(e);
         }
 
-        vfs.createWriteStream(target, {username}).then((writeStream) => {
+        VFS.createWriteStream(target, {username}).then((writeStream) => {
           return entry.pipe(writeStream);
         }).catch((e) => {
           console.warn(e);
@@ -178,7 +179,7 @@ module.exports.install = function(user, args) {
     return new Promise((resolve, reject) => {
       try {
         const overwrite =  args.overwrite !== false;
-        const realDst = vfs.parseVirtualPath(args.dest, user).real;
+        const realDst = VFS.parseVirtualPath(args.dest, user).real;
 
         const onError = (err) => {
           if ( realDst ) {
@@ -218,7 +219,7 @@ module.exports.uninstall = function(user, args) {
   let result = Promise.reject('Uninstallation failed');
 
   try {
-    const parsed = vfs.parseVirtualPath(args.path, user);
+    const parsed = VFS.parseVirtualPath(args.path, user);
     result = fs.remove(parsed.real);
   } catch ( e ) {
     result = Promise.reject(e);

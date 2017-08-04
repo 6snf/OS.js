@@ -37,8 +37,8 @@ const morgan = require('morgan');
 const proxy = require('http-proxy');
 const jsonTransform = require('express-json-transform');
 
-const settings = require('./../settings.js');
-const modules = require('./../modules.js');
+const Settings = require('./../settings.js');
+const Modules = require('./../modules.js');
 
 const tmpdir = (() => {
   try {
@@ -67,8 +67,8 @@ class Connection {
    */
   register() {
     return new Promise((resolve, reject) => {
-      if ( settings.option('LOGLEVEL') ) {
-        this.app.use(morgan(settings.get('logger.format')));
+      if ( Settings.option('LOGLEVEL') ) {
+        this.app.use(morgan(Settings.get('logger.format')));
       }
 
       this.app.use(bodyParser.json());
@@ -83,17 +83,17 @@ class Connection {
       }));
 
       this.app.use(compression({
-        level: settings.get('http.compression.level'),
-        memLevel: settings.get('http.compression.memLevel')
+        level: Settings.get('http.compression.level'),
+        memLevel: Settings.get('http.compression.memLevel')
       }));
 
       this.session = session({
-        store: modules.loadSession(session),
+        store: Modules.loadSession(session),
         resave: false,
         saveUninitialized: true, // Important for WS
-        name: settings.get('http.session.name') || 'connect.sid',
-        secret: settings.get('http.session.secret'),
-        cookie: settings.get('http.session.cookie')
+        name: Settings.get('http.session.name') || 'connect.sid',
+        secret: Settings.get('http.session.secret'),
+        cookie: Settings.get('http.session.cookie')
       });
 
       this.app.use(this.session);
@@ -166,8 +166,8 @@ class Connection {
     }
 
     const cookies = cookie.parse(header);
-    const secret = settings.get('http.session.secret');
-    const key = settings.get('http.session.name') || 'connect.sid';
+    const secret = Settings.get('http.session.secret');
+    const key = Settings.get('http.session.name') || 'connect.sid';
     return parser.signedCookie(cookies[key], secret);
   }
 

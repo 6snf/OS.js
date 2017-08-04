@@ -28,7 +28,7 @@
  * @licence Simplified BSD License
  */
 
-const vfs = require('./../../vfs.js');
+const VFS = require('./../../vfs.js');
 
 /*
  * Unloads the VFS watching
@@ -46,7 +46,7 @@ module.exports.register = function(env, config, wrapper) {
       return;
     }
 
-    const list = vfs.watch((data) => {
+    const list = VFS.watch((data) => {
       const username = data.watch.args['%USERNAME'];
       wrapper.broadcastMessage(username, 'vfs:watch', {
         event: data.watch.event,

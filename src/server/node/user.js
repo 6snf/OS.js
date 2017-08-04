@@ -27,7 +27,7 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const settings = require('./settings.js');
+const Settings = require('./settings.js');
 
 /**
  * Contains user about a user
@@ -49,7 +49,7 @@ class User {
     this.name = name;
 
     if ( !(groups instanceof Array) || !groups.length ) {
-      groups = settings.get('api.defaultGroups') || [];
+      groups = Settings.get('api.defaultGroups') || [];
     }
 
     this.groups = groups;

@@ -27,13 +27,14 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const settings = require('./../settings.js');
-const modules = require('./../modules.js');
 const express = require('express');
 
+const Settings = require('./../settings.js');
+const Modules = require('./../modules.js');
+
 module.exports = function(app, wrapper) {
-  const authenticator = () => modules.getAuthenticator();
-  const connection = () => modules.getConnection();
+  const authenticator = () => Modules.getAuthenticator();
+  const connection = () => Modules.getConnection();
 
   /*
    * Package requests
@@ -58,7 +59,7 @@ module.exports = function(app, wrapper) {
    */
   const proxy = connection().getProxy();
   if ( proxy ) {
-    const proxies = settings.get('proxies', []);
+    const proxies = Settings.get('proxies', []);
     Object.keys(proxies).forEach((uri) => {
       let re = uri;
       if ( re.substr(0, 1) === '/' ) {

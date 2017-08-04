@@ -28,8 +28,8 @@
  * @licence Simplified BSD License
  */
 const path = require('path');
-const settings = require('./settings.js');
-const modules = require('./modules.js');
+const Settings = require('./settings.js');
+const Modules = require('./modules.js');
 const User = require('./user.js');
 
 /**
@@ -52,7 +52,7 @@ class VFS {
     }
     options = Object.assign({}, options);
 
-    const mountpoints = settings.get('vfs.mounts') || {};
+    const mountpoints = Settings.get('vfs.mounts') || {};
 
     const parts = query.split(/([A-z0-9\-_]+)\:\/\/(.*)/);
     const protocol = parts[1];
@@ -107,7 +107,7 @@ class VFS {
 
     if ( !mount ) {
       const protocol = query.split(':')[0];
-      const mountpoints = settings.get('vfs.mounts') || {};
+      const mountpoints = Settings.get('vfs.mounts') || {};
       mount = mountpoints[protocol];
     }
 
@@ -137,7 +137,7 @@ class VFS {
         return options.username;
       },
       '%DROOT%': function() {
-        return settings.option('ROOTDIR');
+        return Settings.option('ROOTDIR');
       },
       '%MOUNTPOINT%': function() {
         return options.protocol;
@@ -159,7 +159,7 @@ class VFS {
   getMime(filename) {
     const dotindex = filename.lastIndexOf('.');
     const ext = (dotindex === -1) ? null : filename.substr(dotindex);
-    return settings.get('mimes')[ext || 'default'];
+    return Settings.get('mimes')[ext || 'default'];
   }
 
   /**
@@ -219,7 +219,7 @@ class VFS {
    * @return {String[]}
    */
   watch(callback) {
-    const mountpoints = settings.get('vfs.mounts', {});
+    const mountpoints = Settings.get('vfs.mounts', {});
     const watching = [];
 
     function _onWatch(name, mount, watch) {
@@ -240,7 +240,7 @@ class VFS {
           };
         }
 
-        const found = modules.getVFS(mount.transport);
+        const found = Modules.getVFS(mount.transport);
         if ( found ) {
           if ( typeof found.createWatch === 'function' ) {
             found.createWatch(name, mount, _onWatch);
@@ -260,7 +260,7 @@ class VFS {
    */
   _createStream(method, vpath, options, streamOptions) {
     const transportName = this.getTransportName(vpath);
-    const transport = modules.getVFS(transportName);
+    const transport = Modules.getVFS(transportName);
     const resolved = this.parseVirtualPath(vpath, options);
 
     if ( !transport ) {
@@ -304,7 +304,7 @@ class VFS {
     args.options = args.options || {};
 
     const transportName = this.getTransportName(args);
-    const transport = modules.getVFS(transportName);
+    const transport = Modules.getVFS(transportName);
 
     if ( !transport ) {
       return Promise.reject('Could not find any supported VFS module');

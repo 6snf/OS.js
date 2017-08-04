@@ -27,8 +27,8 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const settings = require('./../settings.js');
-const vfs = require('./../vfs.js');
+const Settings = require('./../settings.js');
+const VFS = require('./../vfs.js');
 const User = require('./../user.js');
 
 /**
@@ -101,7 +101,7 @@ class Authenticator {
     return new Promise((resolve, reject) => {
       this.checkSession(http).then((user) => {
         // Only check types that are defined in the map
-        const maps = settings.get('api.groups');
+        const maps = Settings.get('api.groups');
         if ( typeof maps[type] !== 'undefined' ) {
           type = maps[type];
         } else {
@@ -144,11 +144,11 @@ class Authenticator {
    * @return {Promise<Boolean, Error>}
    */
   checkFilesystemPermission(user, src, dest, method) {
-    const mountpoints = settings.get('vfs.mounts') || {};
-    const groups = settings.get('vfs.groups') || {};
+    const mountpoints = Settings.get('vfs.mounts') || {};
+    const groups = Settings.get('vfs.groups') || {};
 
     const _checkMount = (p, d) => {
-      const parsed = vfs.parseVirtualPath(p, user);
+      const parsed = VFS.parseVirtualPath(p, user);
       const mount = mountpoints[parsed.protocol];
       const map = d ? ['upload', 'write', 'delete', 'copy', 'move', 'mkdir'] : ['upload', 'write', 'delete', 'mkdir'];
 

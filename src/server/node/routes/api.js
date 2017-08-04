@@ -27,14 +27,14 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const packagemanager = require('./../packagemanager.js');
-const modules = require('./../modules.js');
-const settings = require('./../settings.js');
+const PackageManager = require('./../packagemanager.js');
+const Modules = require('./../modules.js');
+const Settings = require('./../settings.js');
 const User = require('./../user.js');
 
 module.exports = function(app, wrapper) {
-  const authenticator = () => modules.getAuthenticator();
-  const storage = () => modules.getStorage();
+  const authenticator = () => Modules.getAuthenticator();
+  const storage = () => Modules.getStorage();
 
   /*
    * Login attempts
@@ -86,8 +86,8 @@ module.exports = function(app, wrapper) {
     const args = http.data.args || {};
 
     authenticator().checkPermission(http, 'packages').then((user) => {
-      if ( packagemanager[command] ) {
-        packagemanager[command](user, args)
+      if ( PackageManager[command] ) {
+        PackageManager[command](user, args)
           .then((result) => http.response.json({result}))
           .catch((error) => http.response.json({error}));
       } else {
@@ -107,14 +107,14 @@ module.exports = function(app, wrapper) {
     authenticator().checkPermission(http, 'application').then((user) => {
       let module;
       try {
-        module = require(modules.getPackageEntry(apath));
+        module = require(Modules.getPackageEntry(apath));
       } catch ( e ) {
         console.warn(e);
       }
 
       if ( module ) {
         if ( typeof module.api[ameth] === 'function' ) {
-          module.api[ameth](settings.option(), http, (result) => {
+          module.api[ameth](Settings.option(), http, (result) => {
             http.response.json({result});
           }, (error) => {
             http.response.json({error});

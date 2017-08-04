@@ -28,7 +28,8 @@
  * @licence Simplified BSD License
  */
 
-const vfs = require('./../../vfs.js');
+const VFS = require('./../../vfs.js');
+const Modules = require('./../authenticator.js');
 
 /*
  * Handles user-package application resources
@@ -46,8 +47,13 @@ module.exports = function(app, wrapper) {
       }
     };
 
-    vfs.request(http, 'read', args).then((result) => {
-      return vfs.respond(http, 'read', args, result);
+
+    Modules.getAuthenticator().getUserFromRequest(http).then((user) => {
+      VFS.request(user, 'read', args).then((result) => {
+        return VFS.respond(http, 'read', args, result);
+      }).catch((err) => {
+        http.response.status(404).send(err);
+      });
     }).catch((err) => {
       http.response.status(404).send(err);
     });

@@ -27,7 +27,7 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const modules = require('./../modules.js');
+const Modules = require('./../modules.js');
 
 /**
  * Do a HTTP request
@@ -43,8 +43,6 @@ const modules = require('./../modules.js');
  * @param   {Boolean}   [args.json]                Send request as JSON (autodetected)
  * @param   {String}    [args.contentType]         Specify the content-type (autodetected)
  *
- * @function curl
- * @memberof modules.api
  * @return {Promise}
  */
 function curl(args) {
@@ -138,7 +136,7 @@ function curl(args) {
 }
 
 module.exports = function(app, wrapper) {
-  const authenticator = () => modules.getAuthenticator();
+  const authenticator = () => Modules.getAuthenticator();
 
   /*
    * Curl

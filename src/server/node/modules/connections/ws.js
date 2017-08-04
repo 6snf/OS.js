@@ -30,8 +30,9 @@
 
 const ws = require('ws');
 const colors = require('colors');
-const settings = require('./../../settings.js');
-const modules = require('./../../modules.js');
+
+const Settings = require('./../../settings.js');
+const Modules = require('./../../modules.js');
 const HttpConnection = require('./http.js');
 
 /*
@@ -84,8 +85,8 @@ class WSConnection extends HttpConnection {
   register() {
     return new Promise((resolve, reject) => {
       super.register(...arguments).then(() => {
-        const hostname = settings.option('HOSTNAME') || settings.get('http.hostname');
-        const wsSettings = settings.get('http.ws');
+        const hostname = Settings.option('HOSTNAME') || Settings.get('http.hostname');
+        const wsSettings = Settings.get('http.ws');
         const wsOptions = {
           server: this.server,
           path: wsSettings.path
@@ -191,7 +192,7 @@ class WSConnection extends HttpConnection {
         data.error = data.error.toString();
       }
 
-      const module = modules.getSession() || {};
+      const module = Modules.getSession() || {};
       const sid = this.getSessionId(newRequest);
 
       if ( module.touch ) {

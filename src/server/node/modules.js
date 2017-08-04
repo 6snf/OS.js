@@ -32,13 +32,14 @@ const Promise = require('bluebird');
 const path = require('path');
 const fs = require('fs-extra');
 const glob = require('glob-promise');
-const settings = require('./settings.js');
 const colors = require('colors');
 const child_process = require('child_process');
 const chokidar = require('chokidar');
 
+const Settings = require('./settings.js');
+
 const log = function() {
-  if ( settings.option('LOGLEVEL') ) {
+  if ( Settings.option('LOGLEVEL') ) {
     console.log(...arguments);
   }
 };
@@ -110,7 +111,7 @@ class Modules {
    * @return {Promise<Boolean, Error>}
    */
   load(app) {
-    const metaPath = path.resolve(settings.option('SERVERDIR'), 'packages.json');
+    const metaPath = path.resolve(Settings.option('SERVERDIR'), 'packages.json');
     this.metadata = fs.readJsonSync(metaPath);
 
     const watcher = chokidar.watch(metaPath);
@@ -187,7 +188,7 @@ class Modules {
         }
       }
 
-      const root = settings.option('ROOTDIR');
+      const root = Settings.option('ROOTDIR');
       const main = path.join(root, manifest._src, filename);
       return fs.existsSync(main) ? main : null;
     }
@@ -216,8 +217,8 @@ class Modules {
   }
 
   getModulePaths(folder) {
-    const overlays = settings.get('overlays', []);
-    const root = settings.option('ROOTDIR');
+    const overlays = Settings.get('overlays', []);
+    const root = Settings.option('ROOTDIR');
     const base = [
       path.resolve(__dirname, 'modules', folder)
     ];
@@ -305,8 +306,8 @@ class Modules {
    */
   loadSession(session) {
     if ( !this.instances.session ) {
-      const name = settings.get('http.session.module');
-      const options = settings.get('http.session.options.' + name) || {};
+      const name = Settings.get('http.session.module');
+      const options = Settings.get('http.session.options.' + name) || {};
       log(colors.bold('Loading'), colors.green('session'), name);
 
       if ( name === 'memory' ) {
@@ -328,7 +329,7 @@ class Modules {
    */
   loadConnection(app) {
     let filename = 'http.js';
-    if ( settings.get('connection') === 'ws'  ) {
+    if ( Settings.get('connection') === 'ws'  ) {
       filename = 'ws.js';
     }
 
@@ -353,7 +354,7 @@ class Modules {
    * @return {Promise<Boolean, Error>}
    */
   loadMiddleware(app) {
-    if ( settings.option('MOCHA') ) {
+    if ( Settings.option('MOCHA') ) {
       return Promise.resolve(true);
     }
 
@@ -368,7 +369,7 @@ class Modules {
    * @return {Promise<Boolean, Error>}
    */
   loadServices(app) {
-    if ( settings.option('MOCHA') ) {
+    if ( Settings.option('MOCHA') ) {
       return Promise.resolve(true);
     }
 
@@ -377,7 +378,7 @@ class Modules {
         return Promise.each(files, (f) => {
           log(colors.bold('Loading'), colors.green('service'), f);
 
-          const m = require(f).register(settings.option(), settings.get(), wrapper);
+          const m = require(f).register(Settings.option(), Settings.get(), wrapper);
           this.instances.services.push(m);
         });
       });
@@ -390,7 +391,7 @@ class Modules {
    * @return {Promise<Boolean, Error>}
    */
   loadPackages(app) {
-    if ( settings.option('MOCHA') ) {
+    if ( Settings.option('MOCHA') ) {
       return Promise.resolve(true);
     }
 
@@ -402,7 +403,7 @@ class Modules {
         log(colors.bold('Spawning'), colors.green('node'), spawner);
 
         const proc = child_process.fork(spawner, args, {
-          silent: !settings.option('DEBUG'),
+          silent: !Settings.option('DEBUG'),
           cwd: cwd
         });
 
@@ -412,7 +413,7 @@ class Modules {
       }
     };
 
-    const options = settings.option();
+    const options = Settings.option();
     const connection = this.getConnection();
     const loadPackages = Object.keys(this.metadata).filter((key) => {
       return this.loadedPackages.indexOf(key) === -1;
@@ -454,11 +455,11 @@ class Modules {
    * @return {Promise<Boolean, Error>}
    */
   loadAuthenticator() {
-    const name = settings.get('authenticator');
+    const name = Settings.get('authenticator');
 
     return new Promise((resolve, reject) => {
       const f = this.getModuleFile('auth', name);
-      const config = settings.get('modules.auth.' + name);
+      const config = Settings.get('modules.auth.' + name);
 
       if ( f ) {
         this.loadFile('authenticator', f, [config]).then(resolve).catch(reject);
@@ -473,11 +474,11 @@ class Modules {
    * @return {Promise<Boolean, Error>}
    */
   loadStorage() {
-    const name = settings.get('storage');
+    const name = Settings.get('storage');
 
     return new Promise((resolve, reject) => {
       const f = this.getModuleFile('storage', name);
-      const config = settings.get('modules.storage.' + name);
+      const config = Settings.get('modules.storage.' + name);
 
       if ( f ) {
         this.loadFile('storage', f, [config]).then(resolve).catch(reject);

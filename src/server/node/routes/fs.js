@@ -27,19 +27,19 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const vfs = require('./../vfs.js');
-const modules = require('./../modules.js');
+const VFS = require('./../vfs.js');
+const Modules = require('./../modules.js');
 
 const request = (method, http, app, wrapper) => {
   const data = http.data;
 
-  modules.getAuthenticator().checkPermission(http, 'fs', {
+  Modules.getAuthenticator().checkPermission(http, 'fs', {
     src: data.src || data.root,
     dest: data.dest || data.path,
     method: method
   }).then((user) => {
-    vfs.request(user, method, data).then((result) => {
-      return vfs.respond(http, method, data, result);
+    VFS.request(user, method, data).then((result) => {
+      return VFS.respond(http, method, data, result);
     }).catch((error) => {
       if ( method === 'read' && data.options.raw !== false ) {
         http.response.status(404).send(error);

@@ -31,7 +31,8 @@
 const fs = require('fs');
 const path = require('path');
 const colors = require('colors');
-const settings = require('./../../settings.js');
+
+const Settings = require('./../../settings.js');
 const Connection = require('./../connection.js');
 
 class HttpConnection extends Connection {
@@ -54,16 +55,16 @@ class HttpConnection extends Connection {
   register() {
     return new Promise((resolve, reject) => {
       super.register(...arguments).then(() => {
-        const isHttp2 = settings.get('connection') === 'http2';
+        const isHttp2 = Settings.get('connection') === 'http2';
         const httpServer = require(isHttp2 ? 'spdy' : 'http');
-        const httpPort = settings.option('PORT') || settings.get('http.port');
-        const hostname = settings.option('HOSTNAME') || settings.get('http.hostname');
+        const httpPort = Settings.option('PORT') || Settings.get('http.port');
+        const hostname = Settings.option('HOSTNAME') || Settings.get('http.hostname');
 
         console.log(colors.bold('Creating'),  colors.green(isHttp2 ? 'spdy' : 'http'), 'server on', hostname + '@' + httpPort, 'with');
         if ( isHttp2 ) {
-          const rdir = settings.get('http.cert.path') || settings.option('SERVERDIR');
-          const cname = settings.get('http.cert.name') || 'localhost';
-          const copts = settings.get('http.cert.options') || {};
+          const rdir = Settings.get('http.cert.path') || Settings.option('SERVERDIR');
+          const cname = Settings.get('http.cert.name') || 'localhost';
+          const copts = Settings.get('http.cert.options') || {};
           copts.key = fs.readFileSync(path.join(rdir, cname + '.key'));
           copts.cert = fs.readFileSync(path.join(rdir, cname + '.crt'));
 

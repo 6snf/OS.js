@@ -33,13 +33,13 @@ const express = require('express');
 const path = require('path');
 const minimist = require('minimist');
 
-const modules = require('./modules.js');
-const settings = require('./settings.js');
+const Modules = require('./modules.js');
+const Settings = require('./settings.js');
 
 const shutdown = () => {
   console.log('\n');
 
-  modules.destroy()
+  Modules.destroy()
     .then(() => process.exit(0))
     .catch(() => process.exit(1));
 };
@@ -51,7 +51,7 @@ const start = (opts) => {
     const app = express();
 
     try {
-      settings.load(minimist(process.argv.slice(2)), {
+      Settings.load(minimist(process.argv.slice(2)), {
         HOSTNAME: null,
         DEBUG: false,
         PORT: null,
@@ -61,7 +61,7 @@ const start = (opts) => {
         SERVERDIR: path.resolve(__dirname + '/../')
       }, opts);
 
-      const runningOptions = settings.option();
+      const runningOptions = Settings.option();
       if ( runningOptions.DEBUG ) {
         Object.keys(runningOptions).forEach((k) => {
           console.log('-', k, '=', runningOptions[k]);
@@ -72,15 +72,15 @@ const start = (opts) => {
       return;
     }
 
-    modules.load(app).then(() => {
+    Modules.load(app).then(() => {
       console.info('Running...');
 
       return resolve({
-        settings: settings.get(),
-        options: settings.option(),
-        connection: modules.getConnection(),
-        authenticator: modules.getAuthenticator(),
-        storage: modules.getStorage()
+        settings: Settings.get(),
+        options: Settings.option(),
+        connection: Modules.getConnection(),
+        authenticator: Modules.getAuthenticator(),
+        storage: Modules.getStorage()
       });
     }).catch(reject);
   });
