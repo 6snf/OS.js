@@ -28,42 +28,33 @@
  * @licence Simplified BSD License
  */
 
-const _fs = require('fs-extra');
-const _vfs = require('./../../core/vfs.js');
-const _settings = require('./../../core/settings.js');
-const _utils = require('./../../lib/utils.js');
+const fs = require('fs-extra');
 
+const VFS = require('./../../vfs.js');
+const Settings = require('./../../settings.js');
 const Storage = require('./../storage.js');
 
 class SystemStorage extends Storage {
 
   setSettings(user, settings) {
-    const config = _settings.get();
-    const path = _vfs.resolvePathArguments(config.modules.storage.system.settings, user);
-
     return new Promise((resolve, reject) => {
-      _fs.ensureFile(path, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          _fs.writeFile(path, JSON.stringify(settings), (err, res) => {
-            if ( err ) {
-              reject(err);
-            } else {
-              resolve(true);
-            }
-          });
-        }
-      });
+      const config = Settings.get('modules.storage.system.settings');
+      const filename = VFS.resolvePathArguments(config, user);
+      fs.ensureFile(filename).then(() => {
+        return fs.writeJson(filename, settings).then(resolve).catch(reject);
+      }).catch(reject);
     });
   }
 
   getSettings(user) {
-    const config = _settings.get();
-    const path = _vfs.resolvePathArguments(config.modules.storage.system.settings, user);
+    return new Promise((resolve, reject) => {
+      const config = Settings.get('modules.storage.system.settings');
+      const filename = VFS.resolvePathArguments(config, user);
 
-    return new Promise((resolve) => {
-      _utils.readUserMap(null, path, resolve);
+      fs.readJson(filename).then(resolve).catch((err) => {
+        console.warn(err);
+        return resolve({});
+      });
     });
   }
 

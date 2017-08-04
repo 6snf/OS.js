@@ -27,37 +27,54 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const fs = require('fs-extra');
 
-const _pam = require('authenticate-pam');
-const _userid = require('userid');
-const _settings = require('./../../core/settings.js');
-const _utils = require('./../../lib/utils.js');
-
+const PAM = require('authenticate-pam');
+const UserID = require('userid');
+const Settings = require('./../../settings.js');
 const Authenticator = require('./../authenticator.js');
 
 class PAMAuthenticator extends Authenticator {
   login(data) {
     return new Promise((resolve, reject) => {
-      _pam.authenticate(data.username, data.password, (err) => {
+      PAM.authenticate(data.username, data.password, (err) => {
         if ( err ) {
           reject(err);
         } else {
-          resolve({
-            id: _userid.uid(data.username),
-            username: data.username,
-            name: data.username,
-            groups: [] // TODO
-          });
+          this.getGroups({username: data.username}).then((groups) => {
+            resolve({
+              id: UserID.uid(data.username),
+              username: data.username,
+              name: data.username,
+              groups: groups
+            });
+          }).catch(reject);
         }
       });
     });
   }
 
+  getGroups(user) {
+    const filename = Settings.get('modules.auth.pam.groups');
+    return new Promise((resolve, reject) => {
+      fs.readJson(filename).then((map) => {
+        return resolve(map[user.username] || []);
+      }).catch((err) => {
+        console.warn(err);
+        return resolve([]);
+      });
+    });
+  }
+
   getBlacklist(user) {
-    const config = _settings.get();
-    const path = config.modules.auth.pam.blacklist;
-    return new Promise((resolve) => {
-      _utils.readUserMap(user.username, path, resolve);
+    const filename = Settings.get('modules.auth.pam.blacklist');
+    return new Promise((resolve, reject) => {
+      fs.readJson(filename).then((map) => {
+        return resolve(map[user.username] || []);
+      }).catch((err) => {
+        console.warn(err);
+        return resolve([]);
+      });
     });
   }
 }

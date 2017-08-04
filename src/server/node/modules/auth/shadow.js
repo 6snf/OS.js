@@ -27,19 +27,18 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const fs = require('fs-extra');
 
-const _passwd = require('passwd-linux');
-const _userid = require('userid');
-const _settings = require('./../../core/settings.js');
-const _utils = require('./../../lib/utils.js');
-
+const Passwd = require('passwd-linux');
+const UserID = require('userid');
+const Settings = require('./../../settings.js');
 const Authenticator = require('./../authenticator.js');
 
 class ShadowAuthenticator extends Authenticator {
 
   login(data) {
     return new Promise((resolve, reject) => {
-      _passwd.checkPass(data.username, data.password, (err, res) => {
+      Passwd.checkPass(data.username, data.password, (err, res) => {
         if ( !err && res !== 'passwordCorrect' ) {
           err = 'Invalid credentials';
         }
@@ -47,22 +46,40 @@ class ShadowAuthenticator extends Authenticator {
         if ( err ) {
           reject(err);
         } else {
-          resolve({
-            id: _userid.uid(data.username),
-            username: data.username,
-            name: data.username,
-            groups: [] // TODO
-          });
+          this.getGroups(data).then((groups) => {
+            return resolve({
+              id: UserID.uid(data.username),
+              username: data.username,
+              name: data.username,
+              groups: groups
+            });
+          }).catch(reject);
         }
       });
     });
   }
 
+  getGroups(user) {
+    const filename = Settings.get('modules.auth.shadow.groups');
+    return new Promise((resolve, reject) => {
+      fs.readJson(filename).then((map) => {
+        return resolve(map[user.username] || []);
+      }).catch((err) => {
+        console.warn(err);
+        return resolve([]);
+      });
+    });
+  }
+
   getBlacklist(user) {
-    const config = _settings.get();
-    const path = config.modules.auth.shadow.blacklist;
-    return new Promise((resolve) => {
-      _utils.readUserMap(user.username, path, resolve);
+    const filename = Settings.get('modules.auth.shadow.blacklist');
+    return new Promise((resolve, reject) => {
+      fs.readJson(filename).then((map) => {
+        return resolve(map[user.username] || []);
+      }).catch((err) => {
+        console.warn(err);
+        return resolve([]);
+      });
     });
   }
 }
