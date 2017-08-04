@@ -32,7 +32,7 @@ const Promise = require('bluebird');
 const Bcrypt = require('bcrypt');
 const Database = require('./../database.js');
 const Authenticator = require('./../authenticator.js');
-const User = require('./../user.js');
+const User = require('./../../user.js');
 
 const getUserFrom = (db, key, value) => new Promise((resolve, reject) => {
   db.query('SELECT * FROM users WHERE ' + key + ' = ?', [value]).then((row) => {

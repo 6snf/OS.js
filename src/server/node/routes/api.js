@@ -30,7 +30,7 @@
 const packagemanager = require('./../packagemanager.js');
 const modules = require('./../modules.js');
 const settings = require('./../settings.js');
-const User = require('./../modules/user.js');
+const User = require('./../user.js');
 
 module.exports = function(app, wrapper) {
   const authenticator = () => modules.getAuthenticator();

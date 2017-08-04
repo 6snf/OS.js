@@ -27,7 +27,7 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const settings = require('./../settings.js');
+const settings = require('./settings.js');
 
 /**
  * Contains user about a user

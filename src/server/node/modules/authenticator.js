@@ -29,7 +29,7 @@
  */
 const settings = require('./../settings.js');
 const vfs = require('./../vfs.js');
-const User = require('./user.js');
+const User = require('./../user.js');
 
 /**
  * Base Authenticator Class

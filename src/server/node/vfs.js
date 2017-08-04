@@ -30,7 +30,7 @@
 const path = require('path');
 const settings = require('./settings.js');
 const modules = require('./modules.js');
-const User = require('./modules/user.js');
+const User = require('./user.js');
 
 /**
  * Base VFS Class

@@ -29,7 +29,7 @@
  */
 
 const Authenticator = require('./../authenticator.js');
-const User = require('./../user.js');
+const User = require('./../../user.js');
 
 const users = {
   1000: {
