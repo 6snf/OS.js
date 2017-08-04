@@ -229,6 +229,7 @@ export default class Window {
    * @param   {Number}        [opts.height]            Height
    * @param   {String}        [opts.tag]               Window Tag
    * @param   {String}        [opts.gravity]           Window Gravity
+   * @param   {boolean}       [opts.auto_size=false]   Window automatically fills to content on init
    * @param   {boolean}       [opts.allow_move]        Allow movment
    * @param   {boolean}       [opts.allow_resize]      Allow resize
    * @param   {boolean}       [opts.allow_minimize]    Allow minimize
@@ -266,7 +267,8 @@ export default class Window {
       width: _DEFAULT_WIDTH,
       height: _DEFAULT_HEIGHT,
       title: name,
-      tag: name
+      tag: name,
+      auto_size: false
     }, opts);
 
     console.group('Window::constructor()', _WID, arguments);
@@ -836,6 +838,25 @@ export default class Window {
         this._maximize(true);
       } else if ( this._state.minimized ) {
         this._minimize(true);
+      } else {
+        if ( this._opts.auto_size ) {
+          let maxWidth = 0;
+          let maxHeight = 0;
+
+          const traverseTree = (el) => {
+            el.children.forEach((sel) => {
+              maxWidth = Math.max(maxWidth, sel.offsetWidth);
+              maxHeight = Math.max(maxHeight, sel.offsetHeight);
+              if ( sel.children.length ) {
+                traverseTree(sel);
+              }
+            });
+          };
+
+          traverseTree(this._$root);
+
+          this._resize(maxWidth, maxHeight, true);
+        }
       }
     }
 
