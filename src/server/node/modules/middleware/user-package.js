@@ -47,7 +47,6 @@ module.exports = function(app, wrapper) {
       }
     };
 
-
     Modules.getAuthenticator().getUserFromRequest(http).then((user) => {
       VFS.request(user, 'read', args).then((result) => {
         return VFS.respond(http, 'read', args, result);
