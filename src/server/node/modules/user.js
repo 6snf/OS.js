@@ -29,8 +29,20 @@
  */
 const settings = require('./../settings.js');
 
+/**
+ * Contains user about a user
+ *
+ * @desc This is normally passed around in modules
+ */
 class User {
 
+  /**
+   * Constructor
+   * @param {String} uid User ID
+   * @param {String} username Username
+   * @param {String} name User name
+   * @param {String[]} [groups] Groups (will default to configuration)
+   */
   constructor(uid, username, name, groups) {
     this.id = uid;
     this.username = username;
@@ -43,6 +55,10 @@ class User {
     this.groups = groups;
   }
 
+  /**
+   * Creates an object that can be used as JSON
+   * @return {Object}
+   */
   toJson() {
     return {
       id: this.id,
@@ -87,6 +103,11 @@ class User {
     });
   }
 
+  /**
+   * Creates a new User object from a generic object
+   * @param {Object} obj Object
+   * @return {User}
+   */
   static createFromObject(obj) {
     return new User(obj.id, obj.username, obj.name, obj.groups);
   }
