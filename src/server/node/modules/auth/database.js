@@ -32,6 +32,24 @@ const Promise = require('bluebird');
 const Bcrypt = require('bcrypt');
 const Database = require('./../database.js');
 const Authenticator = require('./../authenticator.js');
+const User = require('./../user.js');
+
+const getUserFrom = (db, key, value) => new Promise((resolve, reject) => {
+  db.query('SELECT * FROM users WHERE ' + key + ' = ?', [value]).then((row) => {
+    if ( row ) {
+      row.groups = [];
+
+      return db.queryAll('SELECT group_name FROM groups WHERE user_id = ?', [row.id]).then((rows) => {
+        row.groups = (rows || []).map((r) => r.group_name);
+        resolve(row);
+      }).catch((err) => {
+        console.warn(err);
+        resolve(row);
+      });
+    }
+    return resolve(null);
+  }).catch(reject);
+});
 
 class Manager {
 
@@ -57,75 +75,29 @@ class Manager {
     }));
   }
 
-  getUser(username) {
-    return this.db.query('SELECT * FROM `users` WHERE username = ?', [username]);
-  }
-
-  setGroups(user) {
-    return new Promise((resolve, reject) => {
-      this.getUser(user.username).then((row) => {
-        return this._deleteGroups(row.id).then(() => {
-          return this._addGroups(row.id, user.groups).then(resolve).catch(reject);
-        });
-      }).catch(reject);
-    });
-  }
-
-  getGroups(user) {
-    return new Promise((resolve, reject) => {
-      const getUser = (typeof user.id === 'number') ? Promise.resolve(user) : this.getUser(user.username);
-
-      getUser.then((row) => {
-        return this.db.queryAll('SELECT * FROM `groups` WHERE user_id = ?', [row.id]).then((rows) => {
-          return resolve(rows.map((r) => r.group_name));
-        }).catch(reject);
-      });
-    });
-  }
-
   add(user) {
     return new Promise((resolve, reject) => {
+      const groups = user.groups || [];
       this.db.query(
-        'INSERT INTO `users` (`id`, `username`, `name`, `password`) VALUES(NULL, ?, ?, ?);',
+        'INSERT INTO `users` (id, username, name, password) VALUES(NULL, ?, ?, ?);',
         [user.username, user.name, '']
       ).then(() => {
-        return this.setGroups(user).then(resolve).catch(reject);
-      }).catch(reject);
-    });
-  }
-
-  remove(user) {
-    return new Promise((resolve, reject) => {
-      this.getUser(user.username).then((row) => {
-        return Promise.all([
-          this._deleteSettings(row.id),
-          this._deleteGroups(row.id),
-          this._deleteUser(row.id)
-        ]).then(resolve).catch(reject);
-      }).catch(reject);
-    });
-  }
-
-  edit(user) {
-    const q = 'UPDATE `users` SET `username` = ?, `name` = ? WHERE `username` = ?;';
-    const a = [user.username, user.name, user._username];
-    if ( typeof user.groups !== 'undefined' ) {
-
-      return new Promise((resolve, reject) => {
-        this.db.query(q, a).then(() => {
-          return this.setGroups(user).then(resolve).catch(reject);
+        return this.getUserFromUsername(user.username).then((user) => {
+          if ( !groups.length ) {
+            return Promise.resolve(true);
+          }
+          return this.setGroups(user.id, groups).then(resolve).catch(reject);
         }).catch(reject);
-      });
-    }
-    return this.db.query(q, a);
+      }).catch(reject);
+    });
   }
 
   passwd(user) {
     return new Promise((resolve, reject) => {
       Bcrypt.genSalt(10, (err, salt) => {
         Bcrypt.hash(user.password, salt, (err, hash) => {
-          const q = 'UPDATE `users` SET `password` = ? WHERE `username` = ?;';
-          const a = [hash, user.username];
+          const q = 'UPDATE `users` SET `password` = ? WHERE `id` = ?;';
+          const a = [hash, user.id];
 
           this.db.query(q, a).then(resolve).catch(reject);
         });
@@ -133,7 +105,28 @@ class Manager {
     });
   }
 
-  list(user) {
+  edit(user) {
+    return new Promise((resolve, reject) => {
+      const q = 'UPDATE `users` SET `username` = ?, `name` = ? WHERE `id` = ?;';
+      const a = [user.username, user.name, user.id];
+      this.db.query(q, a).then(() => {
+        if ( typeof user.groups !== 'undefined' ) {
+          return this.setGroups(user.id, user.groups).then(resolve).catch(reject);
+        }
+        return resolve(true);
+      }).catch(reject);
+    });
+  }
+
+  remove(user) {
+    return Promise.all([
+      this._deleteSettings(user.id),
+      this._deleteGroups(user.id),
+      this._deleteUser(user.id)
+    ]);
+  }
+
+  list() {
     const q = 'SELECT users.*, groups.group_name FROM `users` LEFT JOIN `groups` ON (groups.user_id = users.id);';
 
     return new Promise((resolve, reject) => {
@@ -157,14 +150,28 @@ class Manager {
       }).catch(reject);
     });
   }
+
+  // Private
+
+  setGroups(uid, groups) {
+    return new Promise((resolve, reject) => {
+      return this._deleteGroups(uid).then(() => {
+        return this._addGroups(uid, groups).then(resolve).catch(reject);
+      }).catch(reject);
+    });
+  }
+
+  getUserFromUsername(username) {
+    return getUserFrom(this.db, 'username', username);
+  }
 }
 
 class DatabaseAuthenticator extends Authenticator {
 
-  login(http, data) {
+  login(data) {
     return new Promise((resolve, reject) => {
       Database.instance('authstorage').then((db) => {
-        (new Manager(db)).getUser(data.username).then((row) => {
+        (new Manager(db)).getUserFromUsername(data.username).then((row) => {
           if ( !row ) {
             return reject('Invalid credentials');
           }
@@ -175,7 +182,8 @@ class DatabaseAuthenticator extends Authenticator {
               return resolve({
                 id: parseInt(row.id, 10),
                 username: row.username,
-                name: row.name
+                name: row.name,
+                groups: row.groups
               });
             }
 
@@ -189,26 +197,33 @@ class DatabaseAuthenticator extends Authenticator {
     });
   }
 
-  getGroups(http, username) {
+  manage(command, args) {
     return new Promise((resolve, reject) => {
-      Database.instance('authstorage').then((db) => {
-        (new Manager(db)).getGroups({username}).then(resolve).catch(reject);
+      this.manager().then((manager) => {
+        if ( ['add', 'passwd', 'edit', 'remove', 'list'].indexOf(command) === -1 ) {
+          return reject('Not allowed: ' + command);
+        }
+
+        return manager[command](args)
+          .then(resolve)
+          .catch(reject);
       }).catch(reject);
     });
   }
 
-  manage(http, command, args) {
+  manager() {
     return new Promise((resolve, reject) => {
       return Database.instance('authstorage').then((db) => {
-        // FIXME: Allow only certain methods
-        try {
-          (new Manager(db))[command](args)
-            .then(resolve)
-            .catch(reject);
-        } catch ( e ) {
-          return reject(e);
-        }
-        return true;
+        return resolve(new Manager(db));
+      }).catch(reject);
+    });
+  }
+
+  getUserFromRequest(http) {
+    return new Promise((resolve, reject) => {
+      const uid = http.session.get('uid');
+      return Database.instance('authstorage').then((db) => {
+        return getUserFrom(db, 'id', uid).then((r) => resolve(User.createFromObject(r))).catch(reject);
       }).catch(reject);
     });
   }

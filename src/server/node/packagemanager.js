@@ -172,14 +172,13 @@ const installFromZip = (username, args) => {
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-module.exports.install = function(http, args) {
+module.exports.install = function(user, args) {
   // FIXME: Make totally async
   if ( args.zip && args.dest && args.paths ) {
     return new Promise((resolve, reject) => {
       try {
         const overwrite =  args.overwrite !== false;
-        const username = http.session.get('username');
-        const realDst = vfs.parseVirtualPath(args.dest, {username}).real;
+        const realDst = vfs.parseVirtualPath(args.dest, user).real;
 
         const onError = (err) => {
           if ( realDst ) {
@@ -200,7 +199,7 @@ module.exports.install = function(http, args) {
             fs.mkdirSync(realDst);
           }
 
-          installFromZip(username, args).then(resolve).catch(onError);
+          installFromZip(user.username, args).then(resolve).catch(onError);
         }
       } catch ( e ) {
         reject(e);
@@ -211,17 +210,15 @@ module.exports.install = function(http, args) {
   return Promise.reject('Not enough arguments');
 };
 
-module.exports.uninstall = function(http, args) {
+module.exports.uninstall = function(user, args) {
   if ( !args.path ) {
     return Promise.reject('Missing path');
   }
 
-  const username = http.session.get('username');
-
   let result = Promise.reject('Uninstallation failed');
 
   try {
-    const parsed = vfs.parseVirtualPath(args.path, {username: username});
+    const parsed = vfs.parseVirtualPath(args.path, user);
     result = fs.remove(parsed.real);
   } catch ( e ) {
     result = Promise.reject(e);
@@ -234,25 +231,22 @@ module.exports.update = function() {
   return Promise.reject('Not yet implemented');
 };
 
-module.exports.cache = function(http, args) {
-  const username = http.session.get('username');
-
+module.exports.cache = function(user, args) {
   if ( args.action === 'generate' ) {
     if ( args.scope === 'user' ) {
-      return generateUserMetadata(username, args.paths);
+      return generateUserMetadata(user.username, args.paths);
     }
   }
 
   return Promise.reject('Not available');
 };
 
-module.exports.list = function(http, args) {
+module.exports.list = function(user, args) {
   return new Promise((resolve, reject) => {
-    const username = http.session.get('username');
     const paths = args.paths;
 
     getSystemMetadata().then((systemMeta) => {
-      return getUserMetadata(username, paths).then((userMeta) => {
+      return getUserMetadata(user.username, paths).then((userMeta) => {
         return resolve(Object.assign({}, userMeta, systemMeta));
       }).catch(reject);
     }).catch(reject);

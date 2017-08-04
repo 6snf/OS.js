@@ -37,8 +37,8 @@ const request = (method, http, app, wrapper) => {
     src: data.src || data.root,
     dest: data.dest || data.path,
     method: method
-  }).then(() => {
-    vfs.request(http, method, data).then((result) => {
+  }).then((user) => {
+    vfs.request(user, method, data).then((result) => {
       return vfs.respond(http, method, data, result);
     }).catch((error) => {
       if ( method === 'read' && data.options.raw !== false ) {

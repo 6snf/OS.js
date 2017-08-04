@@ -37,7 +37,7 @@ const Authenticator = require('./../authenticator.js');
 
 class ShadowAuthenticator extends Authenticator {
 
-  login(http, data) {
+  login(data) {
     return new Promise((resolve, reject) => {
       _passwd.checkPass(data.username, data.password, (err, res) => {
         if ( !err && res !== 'passwordCorrect' ) {
@@ -50,26 +50,19 @@ class ShadowAuthenticator extends Authenticator {
           resolve({
             id: _userid.uid(data.username),
             username: data.username,
-            name: data.username
+            name: data.username,
+            groups: [] // TODO
           });
         }
       });
     });
   }
 
-  getGroups(http, username) {
-    const config = _settings.get();
-    const path = config.modules.auth.shadow.groups;
-    return new Promise((resolve) => {
-      _utils.readUserMap(username, path, resolve);
-    });
-  }
-
-  getBlacklist(http, username) {
+  getBlacklist(user) {
     const config = _settings.get();
     const path = config.modules.auth.shadow.blacklist;
     return new Promise((resolve) => {
-      _utils.readUserMap(username, path, resolve);
+      _utils.readUserMap(user.username, path, resolve);
     });
   }
 }

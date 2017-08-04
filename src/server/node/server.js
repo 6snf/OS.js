@@ -104,6 +104,8 @@ if ( require.main === module ) {
 
   process.on('exit', () => shutdown());
 
-  start();
+  start().catch((err) => {
+    console.error(err);
+  });
 }
 

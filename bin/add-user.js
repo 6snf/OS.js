@@ -100,7 +100,7 @@ instance.register(config.modules.auth[auther]).then(() => {
   let promise;
   switch ( command ) {
     case 'add':
-      promise = instance.manage({}, 'add', {
+      promise = instance.manage('add', {
         username: username,
         name: username,
         groups: groups
@@ -109,19 +109,26 @@ instance.register(config.modules.auth[auther]).then(() => {
 
     case 'pwd':
       promise = new Promise((yes, no) => {
-        createPassword().then((input) => {
-          instance.manage({}, 'passwd', {
-            username: username,
-            password: input
-          }).then(yes).catch(no);
-        });
+        instance.manager().then((manager) => {
+          manager.getUserFromUsername(username).then((user) => {
+            createPassword().then((input) => {
+              instance.manage('passwd', {
+                id: user.id,
+                password: input
+              }).then(yes).catch(no);
+            });
+          }).catch(no);
+        }).catch(no);
       });
       break;
 
     case 'grp':
-      promise = instance.manage({}, 'setGroups', {
-        username: username,
-        groups: groups
+      promise = new Promise((yes, no) => {
+        instance.manager().then((manager) => {
+          manager.getUserFromUsername(username).then((user) => {
+            return manager.setGroups(user.id, groups).then(yes).catch(no);
+          }).catch(no);
+        }).catch(no);
       });
       break;
 

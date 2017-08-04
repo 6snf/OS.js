@@ -267,16 +267,16 @@ function readDir(query, real, filter) {
 
 const VFS = {
 
-  exists: function(http, args, resolve, reject) {
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+  exists: function(user, args, resolve, reject) {
+    const resolved = _vfs.parseVirtualPath(args.path, user);
     _fs.exists(resolved.real, (exists) => {
       resolve(exists);
     });
   },
 
-  read: function(http, args, resolve, reject) {
+  read: function(user, args, resolve, reject) {
     /*eslint new-cap: "off"*/
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+    const resolved = _vfs.parseVirtualPath(args.path, user);
     const options = args.options || {};
     const mime = _vfs.getMime(args.path);
 
@@ -308,7 +308,7 @@ const VFS = {
     });
   },
 
-  upload: function(http, args, resolve, reject) {
+  upload: function(user, args, resolve, reject) {
     function _proceed(source, dest) {
       const streamIn = _fs.createReadStream(source);
       const streamOut = _fs.createWriteStream(dest, {flags: 'w'});
@@ -340,7 +340,7 @@ const VFS = {
 
     const vfsFilename = httpUpload.name || httpData.filename;
     const vfsDestination = httpData.path;
-    const realDestination = _vfs.parseVirtualPath(vfsDestination, http);
+    const realDestination = _vfs.parseVirtualPath(vfsDestination, user);
     const destination = _path.join(realDestination.real, vfsFilename);
     const source = httpUpload.path;
     const overwrite = String(httpData.overwrite) === 'true';
@@ -376,8 +376,8 @@ const VFS = {
     }).catch(reject);
   },
 
-  write: function(http, args, resolve, reject) {
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+  write: function(user, args, resolve, reject) {
+    const resolved = _vfs.parseVirtualPath(args.path, user);
     const options = args.options || {};
     let data = args.data || '';
 
@@ -400,8 +400,8 @@ const VFS = {
     }
   },
 
-  unlink: function(http, args, resolve, reject) {
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+  unlink: function(user, args, resolve, reject) {
+    const resolved = _vfs.parseVirtualPath(args.path, user);
     if ( ['', '.', '/'].indexOf() !== -1 ) {
       reject('Permission denied');
       return;
@@ -418,9 +418,9 @@ const VFS = {
     }, reject);
   },
 
-  copy: function(http, args, resolve, reject) {
-    const sresolved = _vfs.parseVirtualPath(args.src, http);
-    const dresolved = _vfs.parseVirtualPath(args.dest, http);
+  copy: function(user, args, resolve, reject) {
+    const sresolved = _vfs.parseVirtualPath(args.src, user);
+    const dresolved = _vfs.parseVirtualPath(args.dest, user);
 
     existsWrapper(false, sresolved.real, () => {
       existsWrapper(true, dresolved.real, () => {
@@ -441,9 +441,9 @@ const VFS = {
     }, reject);
   },
 
-  move: function(http, args, resolve, reject) {
-    const sresolved = _vfs.parseVirtualPath(args.src, http);
-    const dresolved = _vfs.parseVirtualPath(args.dest, http);
+  move: function(user, args, resolve, reject) {
+    const sresolved = _vfs.parseVirtualPath(args.src, user);
+    const dresolved = _vfs.parseVirtualPath(args.dest, user);
 
     _fs.access(sresolved.real, _nfs.R_OK, (err) => {
       if ( err ) {
@@ -466,8 +466,8 @@ const VFS = {
     });
   },
 
-  mkdir: function(http, args, resolve, reject) {
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+  mkdir: function(user, args, resolve, reject) {
+    const resolved = _vfs.parseVirtualPath(args.path, user);
 
     existsWrapper(true, resolved.real, () => {
       _fs.mkdirs(resolved.real, (err) => {
@@ -480,10 +480,10 @@ const VFS = {
     }, reject);
   },
 
-  find: function(http, args, resolve, reject) {
+  find: function(user, args, resolve, reject) {
     const qargs = args.args || {};
     const query = (qargs.query || '').toLowerCase();
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+    const resolved = _vfs.parseVirtualPath(args.path, user);
 
     if ( !qargs.recursive ) {
       readDir(resolved.path, resolved.real, (iter) => {
@@ -533,8 +533,8 @@ const VFS = {
     });
   },
 
-  fileinfo: function(http, args, resolve, reject) {
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+  fileinfo: function(user, args, resolve, reject) {
+    const resolved = _vfs.parseVirtualPath(args.path, user);
 
     existsWrapper(false, resolved.real, () => {
       const info = createFileIter(resolved.query, resolved.real, null);
@@ -550,8 +550,8 @@ const VFS = {
     }, reject);
   },
 
-  scandir: function(http, args, resolve, reject) {
-    const resolved = _vfs.parseVirtualPath(args.path, http);
+  scandir: function(user, args, resolve, reject) {
+    const resolved = _vfs.parseVirtualPath(args.path, user);
     const opts = args.options || {};
 
     readDir(resolved.query, resolved.real).then((list) => {
@@ -559,7 +559,7 @@ const VFS = {
       if ( opts.shortcuts !== false ) {
         const filename = typeof opts.shortcuts === 'string' ? opts.shortcuts.replace(/\/+g/, '') : '.shortcuts.json';
         const path = args.path.replace(/\/?$/, '/' + filename);
-        const realMeta = _vfs.parseVirtualPath(path, http);
+        const realMeta = _vfs.parseVirtualPath(path, user);
 
         _fs.readJson(realMeta.real, (err, additions) => {
           if ( !(additions instanceof Array) ) {
@@ -574,8 +574,8 @@ const VFS = {
     }).catch(reject);
   },
 
-  freeSpace: function(http, args, resolve, reject) {
-    const resolved = _vfs.parseVirtualPath(args.root, http);
+  freeSpace: function(user, args, resolve, reject) {
+    const resolved = _vfs.parseVirtualPath(args.root, user);
 
     if ( resolved.protocol === 'osjs' ) {
       reject('Not supported');
@@ -591,10 +591,10 @@ const VFS = {
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-module.exports.request = function(http, method, args) {
+module.exports.request = function(user, method, args) {
   return new Promise((resolve, reject) => {
     if ( typeof VFS[method] === 'function' ) {
-      VFS[method](http, args, resolve, reject);
+      VFS[method](user, args, resolve, reject);
     } else {
       reject('No such VFS method: ' + method);
     }

@@ -54,10 +54,10 @@ function renderUsers(win, scheme) {
   });
 }
 
-function showDialog(win, scheme, data, passwd) {
+function showDialog(win, scheme, data, id) {
   win._toggleDisabled(true);
 
-  if ( passwd ) {
+  if ( id ) {
     Dialog.create('Input', {
       message: _('Set user password'),
       type: 'password'
@@ -67,7 +67,7 @@ function showDialog(win, scheme, data, passwd) {
         return;
       }
 
-      Connection.request('users', {command: 'passwd', user: {password: value, username: passwd}}).then(() => {
+      Connection.request('users', {command: 'passwd', user: {password: value, id: id}}).then(() => {
         win._toggleDisabled(false);
         renderUsers(win, scheme);
       }).catch((err) => {
@@ -186,7 +186,7 @@ export default {
     });
     win._find('UsersPasswd').on('click', function() {
       _action(function(data) {
-        showDialog(win, scheme, null, data.username);
+        showDialog(win, scheme, null, data.id);
       });
     });
   },

@@ -29,48 +29,48 @@
  */
 
 const Authenticator = require('./../authenticator.js');
+const User = require('./../user.js');
+
+const users = {
+  1000: {
+    id: 1000,
+    username: 'normal',
+    name: 'Normal User',
+    groups: ['admin']
+  },
+  1001: {
+    id: 1001,
+    username: 'demo',
+    name: 'Admin User',
+    groups: ['admin']
+  },
+  1002: {
+    id: 1002,
+    username: 'restricted',
+    name: 'Restricted User',
+    groups: ['application']
+  }
+};
 
 class TestAuthenticator extends Authenticator {
-  login(http, data) {
+  login(data) {
     return new Promise((resolve, reject) => {
-      if ( data.username === 'normal' ) {
-        resolve({
-          id: 0,
-          username: 'normal',
-          name: 'Normal User'
-        });
-      } else if ( data.username === 'demo' ) {
-        resolve({
-          id: 1,
-          username: 'demo',
-          name: 'Admin User'
-        });
-      } else if ( data.username === 'restricted' ) {
-        resolve({
-          id: 1,
-          username: 'restricted',
-          name: 'Restricted User'
-        });
-      } else {
-        reject('Invalid credentials');
-      }
+      const found = Object.keys(users)
+        .map((k) => users[k])
+        .find((u) => u.username === data.username);
+
+      return found ? resolve(found) : reject('Invalid credentials');
     });
   }
 
-  getGroups(http, username) {
-    return new Promise((resolve) => {
-      let groups = ({
-        normal: ['admin'],
-        demo: ['admin'],
-        restricted: ['application']
-      })[username] || [];
-      resolve(groups);
-    });
+  getUserFromRequest(http) {
+    const uid = http.session.get('uid');
+    return Promise.resolve(User.createFromObject(users[uid]));
   }
 
-  getBlacklist(http, username) {
+  getBlacklist(user) {
     return new Promise((resolve) => {
-      if ( username === 'restricted' ) {
+      if ( user.id === 1002 ) {
         resolve(['default/CoreWM']);
       } else {
         resolve([]);

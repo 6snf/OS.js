@@ -32,9 +32,7 @@ const modules = require('./../modules.js');
 /**
  * Do a HTTP request
  *
- * @param   {ServerRequest}    http          OS.js Server Request
- * @param   {Object}           args          Request args
- *
+ * @param   {Object}    args                       Request args
  * @param   {String}    args.method                HTTP Call method (GET/POST/HEAD)
  * @param   {String}    args.url                   HTTP Call URL
  * @param   {Object}    args.body                  HTTP POST Payload (alias: query)
@@ -49,7 +47,7 @@ const modules = require('./../modules.js');
  * @memberof modules.api
  * @return {Promise}
  */
-function curl(http, args) {
+function curl(args) {
   let url = args.url;
 
   let curlRequest = (function parseRequestParameters() {
@@ -147,7 +145,7 @@ module.exports = function(app, wrapper) {
    */
   wrapper.post('/API/curl', (http) => {
     authenticator().checkPermission(http, 'curl').then(() => {
-      curl(http, http.data)
+      curl(http.data)
         .then((result) => http.response.json({result}))
         .catch((error) => http.response.json({error}));
 

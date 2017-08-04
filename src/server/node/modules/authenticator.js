@@ -29,6 +29,7 @@
  */
 const settings = require('./../settings.js');
 const vfs = require('./../vfs.js');
+const User = require('./user.js');
 
 /**
  * Base Authenticator Class
@@ -54,32 +55,37 @@ class Authenticator {
 
   /**
    * Login API request
-   * @param {ServerObject} http The HTTP object
    * @param {Object} data Login data
    * @return {Promise<Boolean, Error>}
    */
-  login(http, data) {
+  login(data) {
     return Promise.reject('Not implemented');
   }
 
   /**
    * Logout API request
-   * @param {ServerObject} http The HTTP object
    * @return {Promise<Boolean, Error>}
    */
-  logout(http) {
+  logout() {
     return Promise.resolve(true);
   }
 
   /**
    * Manage API request
-   * @param {ServerObject} http The HTTP object
    * @param {String} command The manage command
    * @param {Object} args Command arguments
    * @return {Promise<Boolean, Error>}
    */
-  manage(http, command, args) {
+  manage(command, args) {
     return Promise.reject('Not implemented');
+  }
+
+  /**
+   * Gets the Manager
+   * @return {Object}
+   */
+  manager() {
+    return null;
   }
 
   /**
@@ -93,58 +99,56 @@ class Authenticator {
     options = options || {};
 
     return new Promise((resolve, reject) => {
-      this.checkSession(http).then(() => {
+      this.checkSession(http).then((user) => {
         // Only check types that are defined in the map
         const maps = settings.get('api.groups');
         if ( typeof maps[type] !== 'undefined' ) {
           type = maps[type];
         } else {
           if ( type !== 'fs' ) {
-            resolve(true);
+            resolve(user);
             return true;
           }
         }
 
-        return this._getGroups(http).then((groups) => {
-          const found = Authenticator.hasGroup(groups, [type]);
+        const found = user.hasGroup([type]);
 
-          if ( found ) {
-            if ( type === 'fs' ) {
-              this.checkFilesystemPermission(http, options.src, options.dest, options.method)
-                .then((result) => {
-                  if ( result ) {
-                    return resolve(true);
-                  } else {
-                    return reject('Permission denied for: ' + type + ', ' + options.method);
-                  }
-                }).catch(reject);
+        if ( found ) {
+          if ( type === 'fs' ) {
+            this.checkFilesystemPermission(user, options.src, options.dest, options.method)
+              .then((result) => {
+                if ( result ) {
+                  return resolve(user);
+                } else {
+                  return reject('Permission denied for: ' + type + ', ' + options.method);
+                }
+              }).catch(reject);
 
-              return true;
-            }
-          } else {
-            return reject('Permission denied for: ' + type);
+            return true;
           }
+        } else {
+          return reject('Permission denied for: ' + type);
+        }
 
-          return resolve(true);
-        }).catch(reject);
+        return resolve(user);
       }).catch(reject);
     });
   }
 
   /**
    * Checks for given filesystem permission
-   * @param {ServerObject} http The HTTP object
+   * @param {User} user The user making the request
    * @param {String} src Source file path
    * @param {String} [dest] Destination file path
    * @param {String} method The VFS method
    * @return {Promise<Boolean, Error>}
    */
-  checkFilesystemPermission(http, src, dest, method) {
+  checkFilesystemPermission(user, src, dest, method) {
     const mountpoints = settings.get('vfs.mounts') || {};
     const groups = settings.get('vfs.groups') || {};
 
-    const _checkMount = (p, d, userGroups) => {
-      const parsed = vfs.parseVirtualPath(p, http);
+    const _checkMount = (p, d) => {
+      const parsed = vfs.parseVirtualPath(p, user);
       const mount = mountpoints[parsed.protocol];
       const map = d ? ['upload', 'write', 'delete', 'copy', 'move', 'mkdir'] : ['upload', 'write', 'delete', 'mkdir'];
 
@@ -155,7 +159,7 @@ class Authenticator {
       }
 
       if ( groups[parsed.protocol] ) {
-        if ( !Authenticator.hasGroup(userGroups, groups[parsed.protocol]) ) {
+        if ( !Authenticator.hasGroup(user.groups, groups[parsed.protocol]) ) {
           return false;
         }
       }
@@ -164,28 +168,24 @@ class Authenticator {
     };
 
     return new Promise((resolve, reject) => {
-      this._getGroups(http).then((userGroups) => {
-        const srcCheck = src ? _checkMount(src, false, userGroups) : true;
-        const dstCheck = dest ? _checkMount(dest, true, userGroups) : true;
+      const srcCheck = src ? _checkMount(src, false) : true;
+      const dstCheck = dest ? _checkMount(dest, true) : true;
 
-        return resolve(srcCheck && dstCheck);
-      }).catch(reject);
+      return resolve(srcCheck && dstCheck);
     });
 
   }
 
   /**
    * Checks if user has permission to package
-   * @param {ServerObject} http The HTTP object
+   * @param {User} user The user making the request
    * @param {String} name Package name
    * @return {Promise<Boolean, Error>}
    */
-  checkPackagePermission(http, name) {
+  checkPackagePermission(user, name) {
     return new Promise((resolve, reject) => {
-      this.checkSession(http).then(() => {
-        this.getBlacklist(http, http.session.get('username')).then((blacklist) => {
-          return blacklist.indexOf(name) === -1 ? resolve(true) : reject('Blacklisted package');
-        }).catch(reject);
+      this.getBlacklist(user).then((blacklist) => {
+        return blacklist.indexOf(name) === -1 ? resolve(true) : reject('Blacklisted package');
       }).catch(reject);
     });
   }
@@ -197,96 +197,46 @@ class Authenticator {
    */
   checkSession(http) {
     return new Promise((resolve, reject) => {
-      if ( http.session.get('username') ) {
-        resolve(true);
-      } else {
+      this.getUserFromRequest(http).then((user) => {
+        if ( user ) {
+          return resolve(user);
+        }
+        return reject('You have no OS.js Session, please log in!');
+      }).catch((err) => {
+        console.warn(err);
         reject('You have no OS.js Session, please log in!');
-      }
+      });
     });
   }
 
   /**
-   * Gets groups of a user
+   * Gets the current user from given Http request
    * @param {ServerObject} http The HTTP object
-   * @param {String} username The username
-   * @return {Promise<Array, Error>}
+   * @return {Promise<User, Error>}
    */
-  getGroups(http, username) {
-    return Promise.resolve([]);
+  getUserFromRequest(http) {
+    const uid = http.session.get('uid');
+    const username = http.session.get('username');
+    return Promise.resolve(new User(uid, username));
   }
 
   /**
    * Gets package blacklists of a user
-   * @param {ServerObject} http The HTTP object
-   * @param {String} username The username
+   * @param {User} user The user making the request
    * @return {Promise<Array, Error>}
    */
-  getBlacklist(http, username) {
+  getBlacklist(user) {
     return Promise.resolve([]);
   }
 
   /**
    * Sets package blacklists of a user
-   * @param {ServerObject} http The HTTP object
-   * @param {String} username The username
+   * @param {User} user The user making the request
    * @param {Array} list The blacklist
    * @return {Promise<Boolean, Error>}
    */
-  setBlacklist(http, username, list) {
+  setBlacklist(user, list) {
     return Promise.resolve(true);
-  }
-
-  /**
-   * Wrapper for getting groups
-   * @param {ServerObject} http The HTTP object
-   * @return {Promise<String[], Error>}
-   */
-  _getGroups(http) {
-    return new Promise((resolve, reject) => {
-      this.getGroups(http, http.session.get('username')).then((groups) => {
-        if ( !(groups instanceof Array) || !groups.length ) {
-          groups = settings.get('api.defaultGroups') || [];
-        }
-        return resolve(groups);
-      }).catch(reject);
-    });
-  }
-
-  /**
-   * Checks if user has given group(s)
-   *
-   * @param   {Array}            userGroups    User groups
-   * @param   {String|Array}     groupList     Group(s)
-   * @param   {Boolean}          [all=true]    Check if all and not some
-   *
-   * @function hasGroup
-   * @return {Promise}
-   */
-  static hasGroup(userGroups, groupList, all) {
-    if ( !(groupList instanceof Array) ) {
-      groupList = [];
-    }
-
-    if ( !groupList.length ) {
-      return true;
-    }
-
-    if ( userGroups.indexOf('admin') !== -1 ) {
-      return true;
-    }
-
-    if ( !(groupList instanceof Array) ) {
-      groupList = [groupList];
-    }
-
-    const m = (typeof all === 'undefined' || all) ? 'every' : 'some';
-    return groupList[m]((name) => {
-      if ( userGroups.indexOf(name) !== -1 ) {
-        return true;
-      }
-
-      return false;
-    });
   }
 
 }

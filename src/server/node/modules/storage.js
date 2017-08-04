@@ -52,22 +52,20 @@ class Storage {
 
   /**
    * Sets settings of a user
-   * @param {ServerObject} http The HTTP object
-   * @param {String} username The username
+   * @param {User} user The user making the request
    * @param {Object} settings Settings tree
    * @return {Promise<Boolean, Error>}
    */
-  setSettings(http, username, settings) {
+  setSettings(user, settings) {
     return Promise.resolve(true);
   }
 
   /**
    * Gets settings of a user
-   * @param {ServerObject} http The HTTP object
-   * @param {String} username The username
+   * @param {User} user The user making the request
    * @return {Promise<Object, Error>}
    */
-  getSettings(http, username) {
+  getSettings(user) {
     return Promise.resolve({});
   }
 

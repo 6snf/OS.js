@@ -36,7 +36,7 @@ const _utils = require('./../../lib/utils.js');
 const Authenticator = require('./../authenticator.js');
 
 class PAMAuthenticator extends Authenticator {
-  login(http, data) {
+  login(data) {
     return new Promise((resolve, reject) => {
       _pam.authenticate(data.username, data.password, (err) => {
         if ( err ) {
@@ -45,26 +45,19 @@ class PAMAuthenticator extends Authenticator {
           resolve({
             id: _userid.uid(data.username),
             username: data.username,
-            name: data.username
+            name: data.username,
+            groups: [] // TODO
           });
         }
       });
     });
   }
 
-  getGroups(http, username) {
-    const config = _settings.get();
-    const path = config.modules.auth.pam.groups;
-    return new Promise((resolve) => {
-      _utils.readUserMap(username, path, resolve);
-    });
-  }
-
-  getBlacklist(http, username) {
+  getBlacklist(user) {
     const config = _settings.get();
     const path = config.modules.auth.pam.blacklist;
     return new Promise((resolve) => {
-      _utils.readUserMap(username, path, resolve);
+      _utils.readUserMap(user.username, path, resolve);
     });
   }
 }

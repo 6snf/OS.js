@@ -244,6 +244,7 @@ class Modules {
       try {
         instance = require(filename);
       } catch ( e ) {
+        console.warn(e);
         reject(e);
         return;
       }
@@ -462,7 +463,7 @@ class Modules {
       if ( f ) {
         this.loadFile('authenticator', f, [config]).then(resolve).catch(reject);
       } else {
-        reject('No such module');
+        reject('Failed to load authenticator: ' + f);
       }
     });
   }
@@ -481,7 +482,7 @@ class Modules {
       if ( f ) {
         this.loadFile('storage', f, [config]).then(resolve).catch(reject);
       } else {
-        reject('No such module');
+        reject('Failed to load storage: ' + f);
       }
     });
   }

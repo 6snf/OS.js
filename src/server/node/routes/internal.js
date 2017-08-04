@@ -41,11 +41,16 @@ module.exports = function(app, wrapper) {
   wrapper.get(/^\/?packages\/(.*\/.*)\/(.*)/, (http) => {
     const name = http.request.params[0];
 
-    authenticator().checkPackagePermission(http, name).then(() => {
-      http.next();
+    authenticator().getUserFromRequest(http).then((user) => {
+      authenticator().checkPackagePermission(user, name).then(() => {
+        http.next();
+      }).catch((error) => {
+        http.response.status(403).send(error);
+      });
     }).catch((error) => {
       http.response.status(403).send(error);
     });
+
   });
 
   /*

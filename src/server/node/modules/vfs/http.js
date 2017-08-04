@@ -23,7 +23,7 @@ function createWriteStream(path) {
 ///////////////////////////////////////////////////////////////////////////////
 
 const VFS = {
-  read: function(http, args, resolve, reject) {
+  read: function(user, args, resolve, reject) {
     const options = args.options || {};
 
     function createRequest(path) {
@@ -78,10 +78,10 @@ const VFS = {
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-module.exports.request = function(http, method, args) {
+module.exports.request = function(user, method, args) {
   return new Promise((resolve, reject) => {
     if ( typeof VFS[method] === 'function' ) {
-      VFS[method](http, args, resolve, reject);
+      VFS[method](user, args, resolve, reject);
     } else {
       reject('No such VFS method');
     }

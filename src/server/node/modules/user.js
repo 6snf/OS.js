@@ -27,46 +27,70 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+const settings = require('./../settings.js');
 
-const _fs = require('fs-extra');
-const _vfs = require('./../../core/vfs.js');
-const _settings = require('./../../core/settings.js');
-const _utils = require('./../../lib/utils.js');
+class User {
 
-const Storage = require('./../storage.js');
+  constructor(uid, username, name, groups) {
+    this.id = uid;
+    this.username = username;
+    this.name = name;
 
-class SystemStorage extends Storage {
+    if ( !(groups instanceof Array) || !groups.length ) {
+      groups = settings.get('api.defaultGroups') || [];
+    }
 
-  setSettings(user, settings) {
-    const config = _settings.get();
-    const path = _vfs.resolvePathArguments(config.modules.storage.system.settings, user);
+    this.groups = groups;
+  }
 
-    return new Promise((resolve, reject) => {
-      _fs.ensureFile(path, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          _fs.writeFile(path, JSON.stringify(settings), (err, res) => {
-            if ( err ) {
-              reject(err);
-            } else {
-              resolve(true);
-            }
-          });
-        }
-      });
+  toJson() {
+    return {
+      id: this.id,
+      username: this.username,
+      name: this.name,
+      groups: this.groups
+    };
+  }
+
+  /**
+   * Checks if user has given group(s)
+   *
+   * @param   {String|Array}     groupList     Group(s)
+   * @param   {Boolean}          [all=true]    Check if all and not some
+   *
+   * @return {Boolean}
+   */
+  hasGroup(groupList, all) {
+    if ( !(groupList instanceof Array) ) {
+      groupList = [];
+    }
+
+    if ( !groupList.length ) {
+      return true;
+    }
+
+    if ( this.groups.indexOf('admin') !== -1 ) {
+      return true;
+    }
+
+    if ( !(groupList instanceof Array) ) {
+      groupList = [groupList];
+    }
+
+    const m = (typeof all === 'undefined' || all) ? 'every' : 'some';
+    return groupList[m]((name) => {
+      if ( this.groups.indexOf(name) !== -1 ) {
+        return true;
+      }
+
+      return false;
     });
   }
 
-  getSettings(user) {
-    const config = _settings.get();
-    const path = _vfs.resolvePathArguments(config.modules.storage.system.settings, user);
-
-    return new Promise((resolve) => {
-      _utils.readUserMap(null, path, resolve);
-    });
+  static createFromObject(obj) {
+    return new User(obj.id, obj.username, obj.name, obj.groups);
   }
 
 }
 
-module.exports = new SystemStorage();
+module.exports = User;

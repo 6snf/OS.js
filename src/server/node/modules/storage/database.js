@@ -34,20 +34,16 @@ const Storage = require('./../storage.js');
 
 class DatabaseStorage extends Storage {
 
-  _getUser(db, username) {
-    return db.query('SELECT users.*, settings.settings FROM `users` LEFT JOIN `settings` ON(settings.user_id = users.id) WHERE username = ?', [username]);
-  }
-
-  setSettings(http, username, settings) {
+  setSettings(user, settings) {
     return new Promise((resolve, reject) => {
       Database.instance('authstorage').then((db) => {
-        this._getUser(db, username).then((data) => {
-          const json = JSON.stringify(settings);
+        return db.query('SELECT `settings` FROM `settings` WHERE user_id = ?', [user.id]).then((row) => {
           let promise;
-          if ( typeof data.settings === 'undefined' || data.settings === null ) {
-            promise = db.query('INSERT INTO `settings` (user_id, settings) VALUES(?, ?)', [data.id, json]);
+          const json = JSON.stringify(settings);
+          if ( typeof row === 'undefined' ) {
+            promise = db.query('INSERT INTO `settings` (user_id, settings) VALUES(?, ?)', [user.id, json]);
           } else {
-            promise = db.query('UPDATE `settings` SET `settings` = ? WHERE `user_id` = ?;', [json, data.id]);
+            promise = db.query('UPDATE `settings` SET `settings` = ? WHERE `user_id` = ?;', [json, user.id]);
           }
 
           return promise.then(() => resolve(true)).catch((err) => {
@@ -59,7 +55,7 @@ class DatabaseStorage extends Storage {
     });
   }
 
-  getSettings(http, username) {
+  getSettings(user) {
     return new Promise((resolve, reject) => {
       function done(row) {
         row = row || {};
@@ -71,10 +67,7 @@ class DatabaseStorage extends Storage {
       }
 
       Database.instance('authstorage').then((db) => {
-        this._getUser(db, username).then(done).catch((err) => {
-          console.warn(err);
-          resolve({});
-        });
+        return db.query('SELECT `settings` FROM `settings` WHERE user_id = ?', [user.id]).then(done).catch(reject);
       }).catch(reject);
     });
   }

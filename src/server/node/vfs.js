@@ -30,6 +30,7 @@
 const path = require('path');
 const settings = require('./settings.js');
 const modules = require('./modules.js');
+const User = require('./modules/user.js');
 
 /**
  * Base VFS Class
@@ -46,6 +47,10 @@ class VFS {
    */
   parseVirtualPath(query, options) {
     let realPath = '';
+    if ( options instanceof User ) {
+      options = options.toJson();
+    }
+    options = Object.assign({}, options);
 
     const mountpoints = settings.get('vfs.mounts') || {};
 
@@ -66,12 +71,6 @@ class VFS {
       if ( !realPath ) {
         throw new Error('Failed to find real path');
       }
-    }
-
-    if ( typeof options.request !== 'undefined' ) { // via `http` object
-      options = {
-        username: options.session.get('username')
-      };
     }
 
     options.protocol = protocol;
@@ -132,10 +131,10 @@ class VFS {
 
     const rmap = {
       '%UID%': function() {
-        return options.username;
+        return options.id;
       },
       '%USERNAME%': function() {
-        return options.uid || options.username;
+        return options.username;
       },
       '%DROOT%': function() {
         return settings.option('ROOTDIR');
@@ -295,12 +294,13 @@ class VFS {
 
   /**
    * Perform a VFS request
-   * @param {ServerObject} http The HTTP object
+   * @param {User} user The user making the request
    * @param {String} method VFS method
    * @param {Object} args VFS arguments
+   * @param {Boolean} [root=false] Allow use of root features
    * @return {Promise<*, Error>}
    */
-  request(http, method, args) {
+  request(user, method, args, root) {
     args.options = args.options || {};
 
     const transportName = this.getTransportName(args);
@@ -310,26 +310,7 @@ class VFS {
       return Promise.reject('Could not find any supported VFS module');
     }
 
-    return transport.request(http, method, args);
-  }
-
-  /**
-   * Performs a raw VFS request
-   * @param {String} method VFS method
-   * @param {Object} args VFS arguments
-   * @param {Object} options Options
-   * @return {Promise<*, Error>}
-   */
-  rawRequest(method, args, options) {
-    return this.request({
-      _virtual: true,
-      request: {},
-      session: {
-        get: function(k) {
-          return options[k];
-        }
-      }
-    },  method, args);
+    return transport.request(user, method, args);
   }
 
   /**

@@ -30,6 +30,7 @@
 const packagemanager = require('./../packagemanager.js');
 const modules = require('./../modules.js');
 const settings = require('./../settings.js');
+const User = require('./../modules/user.js');
 
 module.exports = function(app, wrapper) {
   const authenticator = () => modules.getAuthenticator();
@@ -42,24 +43,21 @@ module.exports = function(app, wrapper) {
 
     const errored = (error) => http.response.json({error});
 
-    authenticator().login(http, http.data)
-      .then((user) => {
+    authenticator().login(http.data)
+      .then((userData) => {
+        const user = User.createFromObject(userData);
 
-        authenticator().getBlacklist(http, http.data.username).then((blacklist) => {
-          return storage().getSettings(http, http.data.username).then((settings) => {
-            return authenticator().getGroups(http, http.data.username).then((groups) => {
-              http.session.set('username', http.data.username);
-              http.setActiveUser(http.request, true);
+        authenticator().getBlacklist(user).then((blacklist) => {
+          return storage().getSettings(user).then((settings) => {
+            http.session.set('uid', user.id);
+            http.session.set('username', user.username);
+            http.setActiveUser(http.request, true);
 
-              user.groups = groups;
-
-              return http.response.json({result: {
-                userData: user,
-                userSettings: settings,
-                blacklistedPackages: blacklist
-              }});
-            }).catch(errored);
-
+            return http.response.json({result: {
+              userData: user.toJson(),
+              userSettings: settings,
+              blacklistedPackages: blacklist
+            }});
           }).catch(errored);
         }).catch(errored);
       }).catch(errored);
@@ -69,8 +67,9 @@ module.exports = function(app, wrapper) {
    * Logout attempts
    */
   wrapper.post('/API/logout', (http) => {
-    authenticator().logout(http)
+    authenticator().logout()
       .then((result) => {
+        http.session.set('uid', null);
         http.session.set('username', null);
         http.setActiveUser(http.request, false);
 
@@ -86,9 +85,9 @@ module.exports = function(app, wrapper) {
     const command = http.data.command;
     const args = http.data.args || {};
 
-    authenticator().checkPermission(http, 'packages').then(() => {
+    authenticator().checkPermission(http, 'packages').then((user) => {
       if ( packagemanager[command] ) {
-        packagemanager[command](http, args)
+        packagemanager[command](user, args)
           .then((result) => http.response.json({result}))
           .catch((error) => http.response.json({error}));
       } else {
@@ -105,7 +104,7 @@ module.exports = function(app, wrapper) {
     const ameth = http.data.method || null;
     const aargs = http.data.args || {};
 
-    authenticator().checkPermission(http, 'application').then(() => {
+    authenticator().checkPermission(http, 'application').then((user) => {
       let module;
       try {
         module = require(modules.getPackageEntry(apath));
@@ -133,10 +132,9 @@ module.exports = function(app, wrapper) {
    * Settings operations
    */
   wrapper.post('/API/settings', (http) => {
-    const username = http.session.get('username');
     const settings = http.data.settings;
-    authenticator().checkSession(http).then(() => {
-      storage().setSettings(http, username, settings)
+    authenticator().checkSession(http).then((user) => {
+      storage().setSettings(user, settings)
         .then((result) => http.response.json({result}))
         .catch((error) => http.response.json({error}));
     }).catch((error) => http.response.status(403).json({error}));
@@ -149,8 +147,8 @@ module.exports = function(app, wrapper) {
     const command = http.data.command;
     const args = http.data.user || {};
 
-    authenticator().checkPermission(http, 'users').then(() => {
-      authenticator().manage(http, command, args)
+    authenticator().checkPermission(http, 'users').then((user) => {
+      authenticator().manage(command, args)
         .then((result) => http.response.json({result}))
         .catch((error) => http.response.json({error}));
     }).catch((error) => http.response.status(403).json({error}));
