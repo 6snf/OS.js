@@ -309,8 +309,8 @@ class PackageManager {
     const hidden = SettingsManager.instance('PackageManager').get('Hidden', []);
     const p = cloneObject(this.packages);
 
-    const allowed = (i, iter) => {
-      if ( this.blacklist.indexOf(i) >= 0 ) {
+    const allowed = (iter) => {
+      if ( this.blacklist.indexOf(iter.path) >= 0 ) {
         return false;
       }
 
@@ -327,7 +327,7 @@ class PackageManager {
       const result = {};
       Object.keys(p).forEach((name) => {
         const iter = p[name];
-        if ( !allowed(name, iter) ) {
+        if ( !allowed(iter) ) {
           return;
         }
         if ( iter && hidden.indexOf(name) < 0 ) {
