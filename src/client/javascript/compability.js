@@ -130,7 +130,7 @@ module.exports = function() {
   layer.API.getLocale = Locales.getLocale;
   layer.API.getConfig = Config.getConfig;
   layer.API.getDefaultPath = Config.getDefaultPath;
-  layer.API.isStandalone = Config.isStandalone;
+  layer.API.isStandalone = () => false;
   layer.API.getBrowserPath = Config.getBrowserPath;
   layer.API.createDialog = Dialog.default.create;
   layer.API.createMenu = Menu.create;

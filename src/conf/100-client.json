@@ -1,7 +1,7 @@
 {
   "client" : {
     "Connection": {
-      "Type": "%connection%",
+      "Connection": "%connection%",
       "Authenticator": "%authenticator%",
       "Storage": "%storage%",
       "WSPort": "%server.http.ws.port%",

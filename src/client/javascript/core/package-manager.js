@@ -35,7 +35,7 @@ import Authenticator from 'core/authenticator';
 import SettingsManager from 'core/settings-manager';
 import {cloneObject} from 'utils/misc';
 import {_, getLocale} from 'core/locales';
-import {getConfig, isStandalone} from 'core/config';
+import {getConfig} from 'core/config';
 import * as VFS from 'vfs/fs';
 import * as FS from 'utils/fs';
 
@@ -137,10 +137,6 @@ class PackageManager {
    * @return {Promise<Boolean, Error>}
    */
   _loadMetadata() {
-    if ( isStandalone() ) {
-      return Promise.resolve(true);
-    }
-
     const paths = SettingsManager.instance('PackageManager').get('PackagePaths', []);
     return new Promise((resolve, reject) => {
       Connection.request('packages', {command: 'list', args: {paths: paths}}).then((res) => {

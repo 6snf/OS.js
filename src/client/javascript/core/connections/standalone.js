@@ -29,45 +29,19 @@
  */
 
 import Promise from 'bluebird';
-import Authenticator from 'core/authenticator';
+import HttpConnection from './http';
 
 /**
- * Demo Authentication Handler
- * @extends Authenticator
+ * Standalone Connection Handler
+ * @extends HttpConnection
  */
-export default class DemoAuthenticator extends Authenticator {
+export default class StandaloneConnection extends HttpConnection {
 
-  _getSettings() {
-    let settings = {};
-    let key;
-    for ( let i = 0; i < localStorage.length; i++ ) {
-      key = localStorage.key(i);
-      if ( key.match(/^OSjs\//) ) {
-        try {
-          settings[key.replace(/^OSjs\//, '')] = JSON.parse(localStorage.getItem(key));
-        } catch ( e ) {
-          console.warn('DemoAuthenticator::login()', e, e.stack);
-        }
-      }
+  createRequest(method, args, options) {
+    if ( method === 'packages' ) {
+      return Promise.resolve({result: OSjs.getManifest()});
     }
-
-    return settings;
-  }
-
-  login(login) {
-    return new Promise((resolve, reject) => {
-      super.login(login).then((result) => {
-        result.userSettings = this._getSettings();
-        return resolve(result);
-      }).catch(reject);
-    });
-  }
-
-  onCreateUI() {
-    return this.onLoginRequest({
-      username: 'demo',
-      password: 'demo'
-    });
+    return Promise.reject(new Error('You are currently running locally and cannot perform this operation!'));
   }
 
 }

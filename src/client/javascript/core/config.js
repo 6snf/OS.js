@@ -61,15 +61,6 @@ export function getDefaultPath(fallback) {
 }
 
 /**
- * Checks if running OS.js instance is in standalone mode
- *
- * @return {Boolean}
- */
-export function isStandalone() {
-  return getConfig('Connection.Type') === 'standalone' || window.location.protocol === 'file:';
-}
-
-/**
  * Gets the browser window path
  *
  * @param {String}    [app]     Append this path

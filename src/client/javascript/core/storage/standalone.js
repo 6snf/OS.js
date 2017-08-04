@@ -28,47 +28,8 @@
  * @licence Simplified BSD License
  */
 
-import Promise from 'bluebird';
-import Authenticator from 'core/authenticator';
+import DemoStorage from './demo';
 
-/**
- * Demo Authentication Handler
- * @extends Authenticator
- */
-export default class DemoAuthenticator extends Authenticator {
-
-  _getSettings() {
-    let settings = {};
-    let key;
-    for ( let i = 0; i < localStorage.length; i++ ) {
-      key = localStorage.key(i);
-      if ( key.match(/^OSjs\//) ) {
-        try {
-          settings[key.replace(/^OSjs\//, '')] = JSON.parse(localStorage.getItem(key));
-        } catch ( e ) {
-          console.warn('DemoAuthenticator::login()', e, e.stack);
-        }
-      }
-    }
-
-    return settings;
-  }
-
-  login(login) {
-    return new Promise((resolve, reject) => {
-      super.login(login).then((result) => {
-        result.userSettings = this._getSettings();
-        return resolve(result);
-      }).catch(reject);
-    });
-  }
-
-  onCreateUI() {
-    return this.onLoginRequest({
-      username: 'demo',
-      password: 'demo'
-    });
-  }
+export default class StandaloneStorage extends DemoStorage {
 
 }
-

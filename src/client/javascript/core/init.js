@@ -144,15 +144,16 @@ const initPreloading = (config) => new Promise((resolve, reject) => {
  */
 const initHandlers = (config) => new Promise((resolve, reject) => {
   const options = config.Connection;
-
-  const connectionType = options.Type === 'standalone'
-    ? 'http'
-    : (options.Type === 'ws' ? 'ws' : 'http');
+  console.log({
+    authenticator: options.Authenticator,
+    connection: options.Connection,
+    storage: options.Storage
+  });
 
   let Authenticator, Connection, Storage;
   try {
     Authenticator = require('core/auth/' + options.Authenticator + '.js').default;
-    Connection = require('core/connections/' + connectionType + '.js').default;
+    Connection = require('core/connections/' + options.Connection + '.js').default;
     Storage = require('core/storage/' + options.Storage + '.js').default;
   } catch ( e ) {
     reject(e);

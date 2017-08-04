@@ -29,44 +29,24 @@
  */
 
 import Promise from 'bluebird';
-import Authenticator from 'core/authenticator';
+import DemoAuthenticator from './demo';
 
 /**
- * Demo Authentication Handler
- * @extends Authenticator
+ * Default Standalone Authenticator
+ * @extends DemoAuthenticator
  */
-export default class DemoAuthenticator extends Authenticator {
-
-  _getSettings() {
-    let settings = {};
-    let key;
-    for ( let i = 0; i < localStorage.length; i++ ) {
-      key = localStorage.key(i);
-      if ( key.match(/^OSjs\//) ) {
-        try {
-          settings[key.replace(/^OSjs\//, '')] = JSON.parse(localStorage.getItem(key));
-        } catch ( e ) {
-          console.warn('DemoAuthenticator::login()', e, e.stack);
-        }
-      }
-    }
-
-    return settings;
-  }
+export default class StandaloneAuthenticator extends DemoAuthenticator {
 
   login(login) {
-    return new Promise((resolve, reject) => {
-      super.login(login).then((result) => {
-        result.userSettings = this._getSettings();
-        return resolve(result);
-      }).catch(reject);
-    });
-  }
-
-  onCreateUI() {
-    return this.onLoginRequest({
-      username: 'demo',
-      password: 'demo'
+    return Promise.resolve({
+      userData: {
+        id: 1,
+        username: 'root',
+        name: 'Administrator User',
+        groups: ['admin']
+      },
+      userSettings: this._getSettings(),
+      blacklistedPackages: []
     });
   }
 

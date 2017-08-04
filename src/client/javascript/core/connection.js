@@ -245,8 +245,6 @@ export default class Connection {
 
     if ( this.offline ) {
       return Promise.reject(new Error('You are currently off-line and cannot perform this operation!'));
-    } else if ( getConfig('Connection.Type') === 'standalone' ) {
-      return Promise.reject(new Error('You are currently running locally and cannot perform this operation!'));
     }
 
     const {raw, requestOptions} = this.createRequestOptions(method, args);

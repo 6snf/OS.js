@@ -186,7 +186,7 @@ class GUIIframe extends GUIElement {
 
   static get _tagName() {
     let tagName = 'iframe';
-    if ( (['nw', 'electron', 'x11']).indexOf(getConfig('Connection.Type')) >= 0 ) {
+    if ( (['nw', 'electron', 'x11']).indexOf(getConfig('Connection.Authenticator')) >= 0 ) { // FIXME: re-implement
       tagName = 'webview';
     }
     return tagName;
