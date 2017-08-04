@@ -45,10 +45,12 @@ Digest:
 * server-node: Now using Express
 * server-node: Changed how modules look
 * server-node: Better module APIs
+* server-node: Better user handling
 * conf: Changed overlay layouts
 * conf: Overlays now support themes
 * conf: Overlays now support configuration includes
 * conf: Changed vfs configuration
+* misc: The `Database` handler now uses separate tables
 * misc: Added `OSjs.require()` for externals
 * misc: Moved src/client/themes to src/themes
 * misc: Bugfixes and general cleanups
