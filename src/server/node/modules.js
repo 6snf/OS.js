@@ -179,7 +179,7 @@ class Modules {
   getPackageEntry(name) {
     const manifest = this.metadata[name];
     if ( manifest && manifest.scope !== 'user' ) {
-      let filename = 'api.js';
+      let filename = 'server/main.js';
       if ( manifest.main ) {
         if ( typeof manifest.main === 'string' ) {
           filename = manifest.main;
@@ -446,7 +446,16 @@ class Modules {
         console.warn(e);
       }
 
-      return result instanceof Promise ? result : Promise.resolve(false);
+      if ( !(result instanceof Promise) ) {
+        result = Promise.resolve(true);
+      }
+
+      return new Promise((resolve, reject) => {
+        result.then(resolve).catch((error) => {
+          console.warn(error);
+          resolve(true);
+        });
+      });
     });
   }
 
