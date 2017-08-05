@@ -116,7 +116,7 @@ module.exports = function(app, wrapper) {
         if ( typeof module.api[ameth] === 'function' ) {
           module.api[ameth](Settings.option(), http, aargs).then((result) => {
             return http.response.json({result});
-          }).catch(() => {
+          }).catch((error) => {
             return http.response.json({error});
           });
         } else {
