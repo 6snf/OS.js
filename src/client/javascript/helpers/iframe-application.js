@@ -30,7 +30,6 @@
 
 import IFrameApplicationWindow from 'helpers/iframe-application-window';
 import Application from 'core/application';
-import * as Utils from 'utils/misc';
 
 /////////////////////////////////////////////////////////////////////////////
 // IFrame Application Helper
@@ -52,12 +51,15 @@ import * as Utils from 'utils/misc';
 export default class IFrameApplication extends Application {
 
   /**
+   * This is an Iframe Window
+   *
+   * See `Window` for more options
+   *
    * @param   {String}    name          Process name
    * @param   {Object}    args          Process arguments
    * @param   {Object}    metadata      Application metadata
    * @param   {Object}    opts          Application options
-   * @param   {String}    opts.icon     Window Icon
-   * @param   {String}    opts.title    Window Title
+   * @param   {Object}    opts.src      Iframe Source
    */
   constructor(name, args, metadata, opts) {
     super(...arguments);
@@ -92,7 +94,7 @@ export default class IFrameApplication extends Application {
         id: message.id,
         method: message.method,
         error: err,
-        result: Utils.cloneObject(res)
+        result: Object.assign({}, res)
       });
     };
 

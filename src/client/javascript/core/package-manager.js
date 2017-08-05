@@ -375,45 +375,24 @@ class PackageManager {
     }
     name = name.replace(/^\.\//, '');
 
-    function getName() {
-      let appname = null;
+    const appname = typeof app === 'string' ? app : app.__pname;
+    const fsuri = getConfig('Connection.FSURI');
+    const pkg = this.getPackage(appname);
 
-      if ( typeof app === 'string' ) {
-        appname = app;
-      } else {
-        appname = app.__pname;
-      }
+    let path = name;
+    if ( pkg ) {
+      path = pkg.scope === 'user'
+        ? '/user-package/' + FS.filename(pkg.path) + '/' + name.replace(/^\//, '')
+        : 'packages/' + pkg.path + '/' + name;
 
-      return appname;
-    }
-
-    function getResultPath(path, userpkg) {
       if ( vfspath ) {
-        if ( userpkg ) {
-          path = path.substr(getConfig('Connection.FSURI').length);
-        } else {
-          path = 'osjs:///' + path;
-        }
+        return pkg.scope === 'user'
+          ? path.substr(fsuri.length)
+          : 'osjs:///' + path;
       }
-
-      return path;
     }
 
-    return (() => {
-      const appname = getName();
-      const pkg = this.getPackage(appname);
-
-      let path = '';
-      if ( pkg ) {
-        if ( pkg.scope === 'user' ) {
-          path = '/user-package/' + FS.filename(pkg.path) + '/' + name.replace(/^\//, '');
-        } else {
-          path = 'packages/' + pkg.path + '/' + name;
-        }
-      }
-
-      return getResultPath(path, pkg.scope === 'user');
-    })();
+    return path;
   }
 
   /**
