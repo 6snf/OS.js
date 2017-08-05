@@ -459,6 +459,9 @@ class PackageManager {
               packages[iter.className] = pkg;
               return yes();
             }).catch(no);
+          } else {
+            console.warn('No such package', key);
+            yes();
           }
         });
       }).catch(reject).then(() => {
