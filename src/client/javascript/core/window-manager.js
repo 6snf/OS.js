@@ -345,11 +345,11 @@ export default class WindowManager extends Process {
       console.warn('WindowManager::removeWindow()', 'Got', w);
       throw new TypeError('given argument was not instance of Core.Window');
     }
-    console.debug('WindowManager::removeWindow()', w._wid);
 
     const foundIndex = this._windows
-      .filter((win) => !!win)
-      .findIndex((win) => win._wid === w._wid);
+      .findIndex((win) => win && win._wid === w._wid);
+
+    console.debug('WindowManager::removeWindow()', w._wid, foundIndex);
 
     if ( foundIndex !== -1 ) {
       this._windows[foundIndex] = null;
@@ -556,9 +556,7 @@ export default class WindowManager extends Process {
         return;
       }
 
-      this._windows.filter((w) => {
-        return !!w;
-      }).forEach((w) => {
+      this.getWindows().forEach((w) => {
         w._onResize();
         w._emit('resize');
       });
