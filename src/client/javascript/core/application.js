@@ -60,7 +60,7 @@ import Window from 'core/window';
  * @param   {Boolean}   [options.closeWithMain=true] Close application when main window closes
  * @param   {Boolean}   [options.closeOnEmpty=false] Close applications when all windows have been removed
  *
- * @link https://os-js.org/manual/package/application/
+ * @link https://manual.os-js.org/packages/
  *
  * @abstract
  */

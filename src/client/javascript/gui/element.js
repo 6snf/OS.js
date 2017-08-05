@@ -124,7 +124,7 @@ function createElementInstance(tagName, el, q, buildArgs) {
  *
  * @desc The Class used for all UI Elements.
  *
- * @link https://os-js.org/manual/gui/elements/
+ * @link https://manual.os-js.org/packages/scheme/
  */
 export default class GUIElement {
 

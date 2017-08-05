@@ -44,7 +44,7 @@ let IFRAME_COUNT = 0;
  * You can use this in combination with 'IFrameApplication'
  * </b></pre>
  *
- * @link https://os-js.org/manual/package/iframe/
+ * @link https://manual.os-js.org/packages/iframe/
  */
 export default class IFrameApplicationWindow extends Window {
 
