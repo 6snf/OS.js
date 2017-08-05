@@ -114,11 +114,11 @@ module.exports = function(app, wrapper) {
 
       if ( module ) {
         if ( typeof module.api[ameth] === 'function' ) {
-          module.api[ameth](Settings.option(), http, (result) => {
-            http.response.json({result});
-          }, (error) => {
-            http.response.json({error});
-          }, aargs);
+          module.api[ameth](Settings.option(), http, aargs).then((result) => {
+            return http.response.json({result});
+          }).catch(() => {
+            return http.response.json({error});
+          });
         } else {
           http.response.json({error: 'No such API method: ' + ameth});
         }
