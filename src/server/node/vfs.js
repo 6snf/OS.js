@@ -62,7 +62,7 @@ class VFS {
     const pathname = path.normalize(String(parts[2]).replace(/^\/+?/, '/').replace(/^\/?/, '/'));
 
     const mount = mountpoints[protocol];
-    if ( !virtual === true && protocol === '$' ) {
+    if ( virtual === true && protocol === '$' ) {
       realPath = '/';
     } else {
       if ( typeof mount === 'object' ) {
@@ -324,63 +324,72 @@ class VFS {
    * @param {*} data Data
    */
   respond(http, method, args, data) {
-    if ( method === 'read' ) {
-      if ( typeof data === 'object' ) {
 
-        if ( args.download && data.filename ) {
-          http.response.setHeader('Content-Disposition', 'attachment; filename=' + path.basename(data.filename));
-        }
-
-        if ( typeof data.resource === 'function' ) {
-          let start, end, total;
-
-          const range = args.download ? false : http.request.headers.range;
-          if  ( range ) {
-            const positions = range.replace(/bytes=/, '').split('-');
-            total = data.size;
-            start = parseInt(positions[0], 10);
-            end = positions[1] ? parseInt(positions[1], 10) : total - 1;
-          }
-
-          data.resource(range ? {
-            start: start,
-            end: end
-          } : {}).then((stream) => {
-            http.response.setHeader('Content-Type', data.mime);
-
-            if ( range ) {
-              http.response.setHeader('Accept-Ranges', 'bytes');
-              http.response.setHeader('Content-Range', 'bytes ' + start + '-' + end + '/' + total);
-              http.response.setHeader('Content-Length', (end - start) + 1);
-
-              if ( start > end || start > total - 1 || end >= total ) {
-                http.response.status(416).end();
-                return;
-              }
-
-              http.response.status(206);
-
-              stream.pipe(http.response);
-            } else {
-              stream.pipe(http.response);
-            }
-          }).catch((err) => {
-            http.response.status(500).send(err);
-          });
-
-          return;
-        } else {
-          if ( data.options.raw === false  ) {
-            const enc = 'data:' + data.mime + ';base64,' + (new Buffer(data.resource).toString('base64'));
-            http.response.send(enc.toString());
-          } else {
-            http.response.setHeader('Content-Type', data.mime);
-            http.response.send(data.resource);
-          }
-
-          return;
-        }
+    const getRanges = () => {
+      let start, end, total;
+      const range = args.download ? false : http.request.headers.range;
+      if  ( range ) {
+        const positions = range.replace(/bytes=/, '').split('-');
+        total = data.size;
+        start = parseInt(positions[0], 10);
+        end = positions[1] ? parseInt(positions[1], 10) : total - 1;
       }
+      return [range, start, end, total];
+    };
+
+    const respondRaw = () => {
+      if ( data.options.raw === false  ) {
+        const enc = 'data:' + data.mime + ';base64,' + (new Buffer(data.resource).toString('base64'));
+        http.response.send(enc.toString());
+      } else {
+        http.response.setHeader('Content-Type', data.mime);
+        http.response.send(data.resource);
+      }
+    };
+
+    const respondRangedStream = (start, end, total) => {
+      http.response.setHeader('Accept-Ranges', 'bytes');
+      http.response.setHeader('Content-Range', 'bytes ' + start + '-' + end + '/' + total);
+      http.response.setHeader('Content-Length', (end - start) + 1);
+
+      if ( start > end || start > total - 1 || end >= total ) {
+        http.response.status(416).end();
+        return;
+      }
+
+      http.response.status(206);
+    };
+
+    const respondStream = () => {
+      const [range, start, end, total] = getRanges();
+
+      data.resource(range ? {
+        start: start,
+        end: end
+      } : {}).then((stream) => {
+        http.response.setHeader('Content-Type', data.mime);
+
+        if ( range ) {
+          respondRangedStream(start, end, total);
+        }
+
+        stream.pipe(http.response);
+      }).catch((err) => {
+        http.response.status(500).send(err);
+      });
+    };
+
+    if ( method === 'read' && typeof data === 'object' ) {
+      if ( args.download && data.filename ) {
+        http.response.setHeader('Content-Disposition', 'attachment; filename=' + path.basename(data.filename));
+      }
+
+      if ( typeof data.resource === 'function' ) {
+        respondStream();
+      } else {
+        respondRaw();
+      }
+      return;
     }
 
     http.response.json({result: data});
