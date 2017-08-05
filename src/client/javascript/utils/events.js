@@ -170,12 +170,16 @@ export const keyCombination = (function() {
       }
     });
 
-    return Object.keys(checkMods).every((f) => {
+    const hasmod = Object.keys(checkMods).every((f) => {
       const fk = !!modifiers[f](ev);
       return checkMods[f] === fk;
-    }) && checkKeys.every((f) => {
+    });
+
+    const haskey = checkKeys.every((f) => {
       return getKeyName(ev.keyCode) === f;
     });
+
+    return hasmod && haskey;
   };
 })();
 

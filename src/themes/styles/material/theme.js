@@ -1,5 +1,4 @@
 (function() {
-  'use strict';
   window.OSjs = window.OSjs || {};
   OSjs.Themes = window.OSjs.Themes || {};
   OSjs.Themes.material = {
@@ -24,8 +23,7 @@
             drop.style.width = maxWidthHeight + 'px';
             drop.style.height = maxWidthHeight + 'px';
             drop = parent.appendChild(drop);
-          }
-          else {
+          } else {
             drop = freeDrops[0];
             drop.className = 'drop';
           }
