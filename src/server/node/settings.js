@@ -78,7 +78,7 @@ class Settings {
 
     // Our JSON storage
     const filename = path.resolve(result.SERVERDIR, 'settings.json');
-    const data = fs.readFileSync(filename, 'utf-8');
+    let data = fs.readFileSync(filename, 'utf-8');
 
     const safeWords = [
       '%VERSION%',

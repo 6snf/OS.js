@@ -63,7 +63,6 @@ export default class Mountpoint {
       transport: null,
       visible: true,
       searchable: false,
-      dynamic: false,
       dynamic: true,
       internal: false,
       special: false,

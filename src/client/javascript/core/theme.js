@@ -293,14 +293,6 @@ class Theme {
   }
 
   /**
-   * Gets current sound theme
-   * @return {String}
-   */
-  getSoundTheme() {
-    return this.settings.get('soundTheme', 'default');
-  }
-
-  /**
    * Default method for getting a sound from theme
    *
    * @param   {String}    name    Resource filename
