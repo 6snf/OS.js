@@ -38,7 +38,7 @@ import Window from 'core/window';
  * The predefined events are as follows:
  *
  * <pre><code>
- *  init        When application was inited              => (settings, metadata, scheme)
+ *  init        When application was inited              => (settings, metadata)
  * </code></pre>
  * @typedef ApplicationEvent
  */
@@ -89,12 +89,6 @@ export default class Application extends Process {
     this.__mainwindow = null;
 
     /**
-     * Scheme reference
-     * @type {GUIScheme}
-     */
-    this.__scheme     = null;
-
-    /**
      * Registered Windows
      * @type {Window[]}
      */
@@ -134,9 +128,8 @@ export default class Application extends Process {
    *
    * @param   {Object}      settings      Settings JSON
    * @param   {Object}      metadata      Metadata JSON
-   * @param   {GUIScheme}   [scheme]      GUI Scheme instance
    */
-  init(settings, metadata, scheme) {
+  init(settings, metadata) {
 
     const wm = WindowManager.instance;
 
@@ -160,17 +153,13 @@ export default class Application extends Process {
     if ( !this.__inited ) {
       console.debug('Application::init()', this.__pname);
 
-      if ( scheme ) {
-        this._setScheme(scheme);
-      }
-
       if ( this.__settings ) {
         this.__settings.set(null, settings);
       }
 
       this.__inited = true;
 
-      this.__evHandler.emit('init', [settings, metadata, scheme]);
+      this.__evHandler.emit('init', [settings, metadata]);
 
       focusLastWindow();
     }
