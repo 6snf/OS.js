@@ -221,7 +221,6 @@ export default class Process {
     if ( sourceId && (typeof sourceId === 'object') ) {
       if ( sourceId instanceof Process ) {
         sourceId = sourceId.__pid;
-      //} else if ( sourceId instanceof Window ) { // FIXME Causes circular upon import
       } else if ( sourceId._app ) {
         sourceId = sourceId._app ? sourceId._app.__pid : -1;
       }

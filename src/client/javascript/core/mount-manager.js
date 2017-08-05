@@ -173,10 +173,14 @@ class MountManager {
    */
   remove(moduleName, options) {
     const module = this.getModule(moduleName);
+    const index = this.getModule(moduleName, true);
     if ( module ) {
       return new Promise((resolve, reject) => {
         module.unmount(options).then((res) => {
-          return resolve(res); // FIXME: Remove from array
+          if ( index !== -1 ) {
+            this.mountpoints.splice(index, 1);
+          }
+          return resolve(res);
         }).catch(reject);
       });
     }
@@ -228,11 +232,13 @@ class MountManager {
 
   /**
    * Gets a mountpoint by name
-   * @param {String}  name   Mountpoint name
-   * @return {Mountpoint}
+   * @param {String}  name         Mountpoint name
+   * @param {Boolean} [idx=false]  Get index and not the actual mountpoint
+   * @return {Mountpoint|Number}
    */
-  getModule(name) {
-    return this.mountpoints.find((i) => i.option('name') === name);
+  getModule(name, idx) {
+    const m = idx ? 'findIndex' : 'find';
+    return this.mountpoints[m]((i) => i.option('name') === name);
   }
 
   /**

@@ -436,7 +436,6 @@ export default class UIDataView extends GUIElement {
 
   /*
    * Scroll given element into view
-   * TODO: Use native method ?
    */
   scrollIntoView(element) {
     const el = this.$element;
