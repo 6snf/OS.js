@@ -66,7 +66,7 @@ class ServiceNotificationIcon {
    * Destroys the notification icon
    */
   destroy() {
-    Notification.destroy('ServiceNotificationIcon');
+    Notification.destroyIcon('ServiceNotificationIcon');
 
     this.size = 0;
     this.entries = {};

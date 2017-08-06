@@ -75,11 +75,15 @@ let runningProcesses = [];
 
 function _kill(pid, force) {
   if ( pid >= 0 && runningProcesses[pid] ) {
-    const res = runningProcesses[pid].destroy(force);
-    console.warn('Killing application', pid, res);
-    if ( res !== false ) {
-      runningProcesses[pid] = null;
-      return true;
+    try {
+      const res = runningProcesses[pid].destroy(force);
+      console.warn('Killing application', pid, res);
+      if ( res !== false ) {
+        runningProcesses[pid] = null;
+        return true;
+      }
+    } catch ( e ) {
+      console.warn(e);
     }
   }
   return false;
