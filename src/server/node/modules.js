@@ -180,7 +180,7 @@ class Modules {
     const manifest = this.metadata[name];
     if ( manifest && manifest.scope !== 'user' ) {
       let filename = 'server/main.js';
-      if ( manifest.main ) {
+      if ( manifest.main && manifest.main.node ) {
         filename = manifest.main.node;
       }
 
