@@ -80,9 +80,8 @@ function setDocumentData(el, text) {
 
   text = text || '';
 
-  const theme = document.body.getAttribute('data-theme') || 'default';
-  const themeSrc = Theme.getThemeCSS(theme);
-
+  const themeName = Theme.getStyleTheme();
+  const themeSrc = '/themes.css';
   let editable = el.getAttribute('data-editable');
   editable = editable === null || editable === 'true';
 
@@ -114,7 +113,7 @@ function setDocumentData(el, text) {
 
   const script = onMouseDown.toString() + ';window.addEventListener("keydown", onMouseDown)';
 
-  let template = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" href="' + themeSrc + '" /><script>' + script + '</script></head><body contentEditable="true"></body></html>';
+  let template = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" href="' + themeSrc + '" /><script>' + script + '</script></head><body contentEditable="true" data-style-theme="' + themeName + '"></body></html>';
   if ( !editable ) {
     template = template.replace(' contentEditable="true"', '');
   }

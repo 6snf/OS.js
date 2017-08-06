@@ -151,7 +151,7 @@ class Theme {
     }
 
     root = getConfig('Connection.ThemeURI');
-    return root + '/' + name + '.min.css';
+    return root + '/' + name + '.css';
   }
 
   /**
