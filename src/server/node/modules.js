@@ -181,11 +181,7 @@ class Modules {
     if ( manifest && manifest.scope !== 'user' ) {
       let filename = 'server/main.js';
       if ( manifest.main ) {
-        if ( typeof manifest.main === 'string' ) {
-          filename = manifest.main;
-        } else {
-          filename = manifest.main.node;
-        }
+        filename = manifest.main.node;
       }
 
       const root = Settings.option('ROOTDIR');

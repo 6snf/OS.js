@@ -4,6 +4,7 @@
   "mime": null,
   "icon": "categories/applications-system.png",
   "main": {
+    "webpack": ["main.js", "main.css"],
     "node": "server/main.js",
     "php": "server/main.php"
   },
