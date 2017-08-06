@@ -4,14 +4,12 @@ Rewritten to ES6 (Babel), Webpack and Express.
 
 Many of these are **breaking** changes, but you can easily migrate to the new style.
 
-A backward-compability (client) module is provided, but is not guaranteed to work (100%).
-
 For a full writeup of changes etc, see links below.
 
 Relevant:
 
 * http://community.os.js.org/t/update-version-bump-2-1-0/142
-* http://community.os.js.org/t/roat-to-es6-es2015/131/8
+* http://community.os.js.org/t/road-to-es6-es2015/131/8
 * https://github.com/os-js/OS.js/issues/617
 
 Digest:
@@ -50,6 +48,7 @@ Digest:
 * conf: Overlays now support themes
 * conf: Overlays now support configuration includes
 * conf: Changed vfs configuration
+* misc: Removed the `Zip` helper. This will be replaced with something newer.
 * misc: The `Database` handler now uses separate tables
 * misc: Added `OSjs.require()` for externals
 * misc: Moved src/client/themes to src/themes
