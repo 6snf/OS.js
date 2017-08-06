@@ -19,7 +19,7 @@
     },
 
     "BugReporting": {
-      "enabled": true,
+      "enabled": false,
       "url": "//github.com/os-js/OS.js/issues/new?title=%TITLE%&body=%BODY%",
       "options": {
         "issue": true,
