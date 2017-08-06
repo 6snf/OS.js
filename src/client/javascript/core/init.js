@@ -46,7 +46,6 @@ import SplashScreen from 'gui/splash';
 import * as Utils from 'utils/misc';
 import * as Menu from 'gui/menu';
 import Preloader from 'utils/preloader';
-import ServiceNotificationIcon from 'helpers/service-notification-icon';
 
 import AlertDialog from 'dialogs/alert';
 import ApplicationChooserDialog from 'dialogs/applicationchooser';
@@ -319,8 +318,6 @@ const initGUI = (config) => new Promise((resolve, reject) => {
 
   Theme.init();
 
-  ServiceNotificationIcon.init();
-
   resolve();
 });
 
@@ -553,7 +550,6 @@ export function stop(restart = false) {
   Preloader.clear();
   Menu.blur();
   Process.killAll();
-  ServiceNotificationIcon.destroy();
   SearchEngine.destroy();
   PackageManager.destroy();
   Authenticator.instance.destroy();

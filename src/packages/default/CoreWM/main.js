@@ -64,6 +64,7 @@ const Init = OSjs.require('core/init');
 const GUI = OSjs.require('utils/gui');
 const VFS = OSjs.require('vfs/fs');
 const FS = OSjs.require('utils/fs');
+const ServiceNotificationIcon = OSjs.require('helpers/service-notification-icon');
 
 /*eslint valid-jsdoc: "off"*/
 
@@ -178,6 +179,8 @@ class CoreWM extends WindowManager {
   setup() {
 
     const initNotifications = () => {
+      ServiceNotificationIcon.init();
+
       const user = Authenticator.instance.getUser();
 
       const displayMenu = (ev) => {
@@ -291,6 +294,8 @@ class CoreWM extends WindowManager {
     if ( !force && !window.confirm(translate('Killing this process will stop things from working!')) ) {
       return false;
     }
+
+    ServiceNotificationIcon.destroy();
 
     try {
       Events.$unbind(document.body, 'dragenter, dragleave, dragover, drop');
