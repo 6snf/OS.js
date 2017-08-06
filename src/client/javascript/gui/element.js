@@ -90,7 +90,7 @@ function parseDynamic(node, win, args) {
       ? el.getAttribute('src')
       : el.getAttribute('data-src') || '';
 
-    if ( win._app && !src.match(/^(https?:)?\//) ) {
+    if ( win && win._app && !src.match(/^(https?:)?\//) ) {
       const source = PackageManager.getPackageResource(win._app, src);
       el.setAttribute(isNative ? 'src' : 'data-src', source);
     }
