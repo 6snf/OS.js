@@ -44,7 +44,6 @@ module.exports = function() {
   const GoogleAPI = require('helpers/google-api.js');
   const WindowsLiveAPI = require('helpers/windows-live-api.js');
   const SettingsFragment = require('helpers/settings-fragment.js');
-  const ZipArchiver = require('helpers/zip-archiver.js');
   const ServiceNotificationIcon = require('helpers/service-notification-icon.js');
 
   const VFS = require('vfs/fs.js');
@@ -117,7 +116,6 @@ module.exports = function() {
   layer.Helpers.SettingsFragment = SettingsFragment.default;
   layer.Helpers.GoogleAPI = layer.Helpers.GoogleAPI || {};
   layer.Helpers.WindowsLiveAPI = layer.Helpers.WindowsLiveAPI || {};
-  layer.Helpers.ZipArchiver = layer.Helpers.ZipArchiver || {};
 
   layer.API.killAll = Process.default.killAll;
   layer.API.kill = Process.default.kill;
@@ -359,14 +357,6 @@ module.exports = function() {
 
   layer.Helpers.WindowsLiveAPI.createInstance = function(args, callback) {
     return WindowsLiveAPI.create(args, callback);
-  };
-
-  layer.Helpers.ZipArchiver.getInstance = function() {
-    return ZipArchiver.instance();
-  };
-
-  layer.Helpers.ZipArchiver.createInstance = function(args, callback) {
-    ZipArchiver.create(args, callback);
   };
 
   return layer;
