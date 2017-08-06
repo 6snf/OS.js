@@ -802,6 +802,7 @@ export default class Window {
     this._$element.appendChild(this._$root);
     this._$element.appendChild(this._$resize);
     this._$element.appendChild(this._$disabled);
+    this._$element.appendChild(this._$loading);
     document.body.appendChild(this._$element);
 
     // Final stuff
