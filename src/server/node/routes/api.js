@@ -53,11 +53,13 @@ module.exports = function(app, wrapper) {
             http.session.set('username', user.username);
             http.setActiveUser(http.request, true);
 
-            return http.response.json({result: {
-              userData: user.toJson(),
-              userSettings: settings,
-              blacklistedPackages: blacklist
-            }});
+            return http.request.session.save(() => {
+              http.response.json({result: {
+                userData: user.toJson(),
+                userSettings: settings,
+                blacklistedPackages: blacklist
+              }});
+            });
           }).catch(errored);
         }).catch(errored);
       }).catch(errored);
@@ -73,7 +75,9 @@ module.exports = function(app, wrapper) {
         http.session.set('username', null);
         http.setActiveUser(http.request, false);
 
-        return http.response.json({result});
+        return http.request.session.save(() => {
+          http.response.json({result});
+        });
       })
       .catch((error) => http.response.json({error}));
   });

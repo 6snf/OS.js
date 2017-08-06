@@ -133,6 +133,10 @@ class User {
    * @return {User}
    */
   static createFromObject(obj) {
+    if ( !obj ) {
+      console.debug('We got no user from HTTP request...');
+      return new User(0, 'null', 'null', []);
+    }
     return new User(obj.id, obj.username, obj.name, obj.groups);
   }
 
