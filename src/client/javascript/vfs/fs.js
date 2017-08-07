@@ -471,11 +471,10 @@ export function scandir(item, options) {
             const isShortcut = iter.shortcut === true;
             const niter = new FileMetadata(iter);
             if ( !isShortcut ) {
-
               const str = iter.path.replace(/\/?$/, '');
               const opt = alias.option('options') || {};
               const tmp = opt.alias.replace(/\/?$/, '');
-              niter.path = FS.pathJoin(alias.root, str.replace(tmp, ''));
+              niter.path = FS.pathJoin(alias.option('root'), str.replace(tmp, ''));
             }
 
             return niter;

@@ -229,7 +229,7 @@ export default class DesktopIconView {
     this.refreshTimeout = setTimeout(() => {
       VFS.scandir(desktopPath, {backlink: false}).then((result) => {
         if ( this.$iconview ) {
-          this.$iconview.clear().add(result.map((iter) => {
+          const entries = result.map((iter) => {
             if ( iter.type === 'application' || iter.shortcut === true ) {
               const niter = new FileMetadata(iter);
               niter.shortcut = true;
@@ -257,7 +257,9 @@ export default class DesktopIconView {
 
           }).filter(function(iter) {
             return iter.value.path !== shortcutPath;
-          }));
+          });
+
+          this.$iconview.clear().add(entries);
         }
       });
     }, 150);
@@ -375,7 +377,8 @@ export default class DesktopIconView {
         });
       }
 
-      if ( MountManager.getModuleFromPath(file.path).option('root') !== desktopPath  ) {
+      const m = MountManager.getModuleFromPath(file.path);
+      if ( !m || m.option('root') !== desktopPath  ) {
         menu.push({
           title: _('Remove shortcut'),
           onClick: () => this.removeShortcut(file)
