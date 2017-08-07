@@ -43,7 +43,6 @@ import ModuleUser from './module-user';
 import ModuleUsers from './module-users';
 import ModuleVFS from './module-vfs';
 
-const GUIScheme = OSjs.require('gui/scheme');
 const Locales = OSjs.require('core/locales');
 const Dialog = OSjs.require('core/dialog');
 const Window = OSjs.require('core/window');
@@ -134,7 +133,7 @@ class SettingsItemDialog extends Dialog {
 
 class ApplicationSettingsWindow extends Window {
 
-  constructor(app, metadata, scheme, initialCategory) {
+  constructor(app, metadata, initialCategory) {
     super('ApplicationSettingsWindow', {
       icon: metadata.icon,
       title: metadata.name,
@@ -144,7 +143,6 @@ class ApplicationSettingsWindow extends Window {
       translator: _
     }, app);
 
-    this.scheme = scheme;
     this.initialCategory = initialCategory;
   }
 
@@ -153,7 +151,7 @@ class ApplicationSettingsWindow extends Window {
     const wm = WindowManager.instance;
 
     // Load and render `scheme.html` file
-    this.scheme.render(this, 'SettingsWindow');
+    this.scheme = this._render('SettingsWindow', require('osjs-scheme-loader!scheme.html'));
 
     this._find('ButtonOK').son('click', this, this.onButtonOK);
     this._find('ButtonCancel').son('click', this, this.onButtonCancel);
@@ -437,9 +435,8 @@ class ApplicationSettings extends Application {
   init(settings, metadata) {
     super.init(...arguments);
 
-    const scheme = GUIScheme.fromString(require('osjs-scheme-loader!scheme.html'));
     const category = this._getArgument('category') || settings.category;
-    const win = this._addWindow(new ApplicationSettingsWindow(this, metadata, scheme, category));
+    const win = this._addWindow(new ApplicationSettingsWindow(this, metadata, category));
 
     this._on('attention', function(args) {
       if ( win && args.category ) {

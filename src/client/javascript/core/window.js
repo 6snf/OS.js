@@ -498,7 +498,6 @@ export default class Window {
       onbottom: false
     };
 
-    this._translator = null;
     this._animationCallback = null;
 
     //
@@ -1022,14 +1021,15 @@ export default class Window {
    * @param {String|GUIScheme} scheme       Scheme or HTML
    * @param {Node}             [root]       Root element (defaults to internal Node)
    * @param {Object}           [args]       Arguments to pass to parser
+   * @return {GUIScheme}
    */
   _render(id, scheme, root, args) {
     if ( scheme ) {
       root = root || this._getRoot();
       args = args || {};
 
-      if ( this._translator ) {
-        args._ = this._translator;
+      if ( typeof this._opts.translator === 'function' ) {
+        args._ = this._opts.translator;
       }
 
       this._scheme = typeof scheme === 'string' ? GUIScheme.fromString(scheme) : scheme;
@@ -1040,6 +1040,8 @@ export default class Window {
     } else {
       console.warn('Got an invalid scheme in window render()', this._scheme);
     }
+
+    return this._scheme;
   }
 
   /**
