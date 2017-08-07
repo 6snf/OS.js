@@ -28,108 +28,150 @@
  * @licence Simplified BSD License
  */
 
-module.exports = function() {
+//
+// For browsers without "console" for some reason
+//
+(function() {
+  window.console    = window.console    || {};
+  console.log       = console.log       || function() {};
+  console.debug     = console.debug     || console.log;
+  console.error     = console.error     || console.log;
+  console.warn      = console.warn      || console.log;
+  console.group     = console.group     || console.log;
+  console.groupEnd  = console.groupEnd  || console.log;
+})();
 
-  //
-  // For browsers without "console" for some reason
-  //
-  (function() {
-    window.console    = window.console    || {};
-    console.log       = console.log       || function() {};
-    console.debug     = console.debug     || console.log;
-    console.error     = console.error     || console.log;
-    console.warn      = console.warn      || console.log;
-    console.group     = console.group     || console.log;
-    console.groupEnd  = console.groupEnd  || console.log;
-  })();
-
-  //
-  // Add certain methods to global objects
-  //
-  (['forEach', 'every', 'map']).forEach(function(n) {
-    (['HTMLCollection', 'NodeList', 'FileList']).forEach(function(p) {
-      if ( window[p] ) {
-        window[p].prototype[n] = Array.prototype[n];
-      }
-    });
+//
+// Add certain methods to global objects
+//
+(['forEach', 'every', 'map']).forEach(function(n) {
+  (['HTMLCollection', 'NodeList', 'FileList']).forEach(function(p) {
+    if ( window[p] ) {
+      window[p].prototype[n] = Array.prototype[n];
+    }
   });
+});
 
-  //
-  // CustomEvent for IE
-  //
-  (function() {
-    function CustomEvent(event, params) {
-      params = params || {bubbles: false, cancelable: false, detail: window.undefined};
+//
+// CustomEvent for IE
+//
+(function() {
+  function CustomEvent(event, params) {
+    params = params || {bubbles: false, cancelable: false, detail: window.undefined};
 
-      var evt = document.createEvent( 'CustomEvent' );
-      evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-      return evt;
-    }
+    var evt = document.createEvent( 'CustomEvent' );
+    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+    return evt;
+  }
 
-    if ( window.navigator.userAgent.match(/MSIE|Edge|Trident/) ) {
-      CustomEvent.prototype = window.Event.prototype;
-      window.CustomEvent = CustomEvent;
-    }
-  })();
+  if ( window.navigator.userAgent.match(/MSIE|Edge|Trident/) ) {
+    CustomEvent.prototype = window.Event.prototype;
+    window.CustomEvent = CustomEvent;
+  }
+})();
 
-  //
-  // MouseEvent
-  //
-  (function() {
-    /*eslint no-new: 0*/
-    try {
-      new window.MouseEvent('test');
-      return;
-    } catch (e) {
-    }
+//
+// MouseEvent
+//
+(function() {
+  /*eslint no-new: 0*/
+  try {
+    new window.MouseEvent('test');
+    return;
+  } catch (e) {
+  }
 
-    function MouseEvent(eventType, params) {
-      params = params || {bubbles: false, cancelable: false};
+  function MouseEvent(eventType, params) {
+    params = params || {bubbles: false, cancelable: false};
 
-      var mouseEvent = document.createEvent('MouseEvent');
-      mouseEvent.initMouseEvent(eventType, params.bubbles, params.cancelable, window, 0, 0, 0, 0, 0, false, false, false, false, 0, params.relatedTarget);
-      return mouseEvent;
-    }
+    var mouseEvent = document.createEvent('MouseEvent');
+    mouseEvent.initMouseEvent(eventType, params.bubbles, params.cancelable, window, 0, 0, 0, 0, 0, false, false, false, false, 0, params.relatedTarget);
+    return mouseEvent;
+  }
 
-    MouseEvent.prototype = Event.prototype;
-    window.MouseEvent = MouseEvent;
-  })();
+  MouseEvent.prototype = Event.prototype;
+  window.MouseEvent = MouseEvent;
+})();
 
-  //
-  // Object(s)
-  //
-  (function() {
-    if ( typeof Object.assign !== 'function' ) {
-      Object.assign = function(target, varArgs) { // .length of function is 2
-        if ( target === null ) { // TypeError if undefined or null
-          throw new TypeError('Cannot convert undefined or null to object');
-        }
+//
+// Object(s)
+//
+(function() {
+  if ( typeof Object.assign !== 'function' ) {
+    Object.assign = function(target, varArgs) { // .length of function is 2
+      if ( target === null ) { // TypeError if undefined or null
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
 
-        var to = Object(target);
-        for (var index = 1; index < arguments.length; index++) {
-          var nextSource = arguments[index];
-          if ( nextSource !== null ) { // Skip over if undefined or null
-            for (var nextKey in nextSource) {
-              // Avoid bugs when hasOwnProperty is shadowed
-              if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                to[nextKey] = nextSource[nextKey];
-              }
+      var to = Object(target);
+      for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+        if ( nextSource !== null ) { // Skip over if undefined or null
+          for (var nextKey in nextSource) {
+            // Avoid bugs when hasOwnProperty is shadowed
+            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+              to[nextKey] = nextSource[nextKey];
             }
           }
         }
-        return to;
-      };
-    }
+      }
+      return to;
+    };
+  }
 
-  })();
+})();
 
-  //
-  // Arrays
-  //
-  (function() {
-    // https://tc39.github.io/ecma262/#sec-array.prototype.findIndex
-    if ( !Array.prototype.findIndex ) {
-      Object.defineProperty(Array.prototype, 'findIndex', {
+//
+// Arrays
+//
+(function() {
+  // https://tc39.github.io/ecma262/#sec-array.prototype.findIndex
+  if ( !Array.prototype.findIndex ) {
+    Object.defineProperty(Array.prototype, 'findIndex', {
+      value: function(predicate) {
+        // 1. Let O be ? ToObject(this value).
+        if ( !this ) {
+          throw new TypeError('"this" is null or not defined');
+        }
+
+        var o = Object(this);
+
+        // 2. Let len be ? ToLength(? Get(O, "length")).
+        var len = o.length >>> 0;
+
+        // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+        if (typeof predicate !== 'function') {
+          throw new TypeError('predicate must be a function');
+        }
+
+        // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+        var thisArg = arguments[1];
+
+        // 5. Let k be 0.
+        var k = 0;
+
+        // 6. Repeat, while k < len
+        while (k < len) {
+          // a. Let Pk be ! ToString(k).
+          // b. Let kValue be ? Get(O, Pk).
+          // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+          // d. If testResult is true, return k.
+          var kValue = o[k];
+          if (predicate.call(thisArg, kValue, k, o)) {
+            return k;
+          }
+          // e. Increase k by 1.
+          k++;
+        }
+
+        // 7. Return -1.
+        return -1;
+      }
+    });
+
+    // https://tc39.github.io/ecma262/#sec-array.prototype.find
+    if ( !Array.prototype.find ) {
+      Object.defineProperty(Array.prototype, 'find', {
         value: function(predicate) {
           // 1. Let O be ? ToObject(this value).
           if ( !this ) {
@@ -157,20 +199,19 @@ module.exports = function() {
             // a. Let Pk be ! ToString(k).
             // b. Let kValue be ? Get(O, Pk).
             // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
-            // d. If testResult is true, return k.
+            // d. If testResult is true, return kValue.
             var kValue = o[k];
             if (predicate.call(thisArg, kValue, k, o)) {
-              return k;
+              return kValue;
             }
             // e. Increase k by 1.
             k++;
           }
 
-          // 7. Return -1.
-          return -1;
+          // 7. Return undefined.
+          return undefined;
         }
       });
     }
-  })();
-
-};
+  }
+})();

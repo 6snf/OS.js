@@ -62,16 +62,10 @@ window.OSjs.require = (n) => {
 //
 // Then proceed to start up
 //
-import polyfill from 'polyfill';
 import {start} from 'core/init';
 
-const run = () => {
-  polyfill();
-  start();
-};
-
 if ( document.readyState !== 'loading' ) {
-  run();
+  start();
 } else {
-  document.addEventListener('DOMContentLoaded', () => run());
+  document.addEventListener('DOMContentLoaded', () => start());
 }
