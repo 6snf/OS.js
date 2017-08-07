@@ -264,7 +264,11 @@ const compability = (function() {
   };
 
   Object.keys(checkWindow).forEach((key) => {
-    compability[key] = (checkWindow[key] in window) && window[checkWindow[key]] !== null;
+    try {
+      compability[key] = (checkWindow[key] in window) && window[checkWindow[key]] !== null;
+    } catch ( e ) {
+      console.warn(e);
+    }
   });
 
   return () => {

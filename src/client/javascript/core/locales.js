@@ -159,7 +159,7 @@ export function createLocalizer(locales) {
 export function init(locale, options, languages) {
   options = options || {};
 
-  const names = Object.keys(languages);
+  const names = languages ? Object.keys(languages) : {};
   if ( names.indexOf(locale) !== -1 ) {
     CurrentLocale = locale;
   }
