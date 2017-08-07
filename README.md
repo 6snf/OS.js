@@ -7,7 +7,7 @@
 [![bitHound Score](https://www.bithound.io/github/os-js/OS.js/badges/score.svg)](https://www.bithound.io/github/os-js/OS.js)
 [![Travis CI Build Status](https://travis-ci.org/os-js/OS.js.svg?branch=master)](https://travis-ci.org/os-js/OS.js)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/bcb06aa267d5433db95a581237c23453)](https://www.codacy.com/app/andersevenrud/OS-js?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=os-js/OS.js&amp;utm_campaign=Badge_Grade)
-[![Community](https://img.shields.io/badge/join-community-green.svg)](http://community.os.js.org/)
+[![Community](https://img.shields.io/badge/join-community-green.svg)](https://community.os-js.org/)
 [![JS.ORG](https://img.shields.io/badge/js.org-os-ffb400.svg)](http://js.org)
 [![Tips](https://img.shields.io/gratipay/os-js.svg)](https://gratipay.com/os-js/)
 [![Donate](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=andersevenrud%40gmail%2ecom&lc=NO&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
@@ -32,7 +32,7 @@ You can find the quick setup guide in the [INSTALL.md file](https://github.com/o
 ## Links
 
 * [Official Chat](https://gitter.im/os-js/OS.js)
-* [Community Forums and Announcements](http://community.os.js.org/)
+* [Community Forums and Announcements](https://community.os-js.org/)
 * [Homepage](https://os-js.org/)
 * [Twitter](https://twitter.com/osjsorg) ([author](https://twitter.com/andersevenrud))
 * [Google+](https://plus.google.com/b/113399210633478618934/113399210633478618934)
