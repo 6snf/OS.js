@@ -44,13 +44,9 @@ class Theme {
   constructor() {
     this.settings = null;
     this.$themeScript = null;
-    this.$animationLink = null;
   }
 
   init() {
-    const link = getConfig('Connection.RootURI', '/') + 'blank.css';
-    this.setAnimationLink(link);
-
     this.settings = SettingsManager.instance('__theme__', {
       enableSounds: true,
       styleTheme: 'default',
@@ -69,7 +65,6 @@ class Theme {
 
   destroy() {
     this.$themeScript = DOM.$remove(this.$themeScript);
-    this.$animationLink = DOM.$remove(this.$animationLink);
   }
 
   /**
@@ -163,33 +158,14 @@ class Theme {
 
     this.setThemeScript(this.getThemeResource('theme.js'));
 
-    if ( this.$animationLink ) {
-      if ( settings.animations ) {
-        const src = PackageManager.getPackageResource('CoreWM', 'animations.css');
-        this.setAnimationLink(src);
-      } else {
-        this.setAnimationLink(this.getThemeCSS(null));
-      }
-    }
-
     document.body.setAttribute('data-style-theme', settings.styleTheme);
     document.body.setAttribute('data-icon-theme', settings.iconTheme);
     document.body.setAttribute('data-sound-theme', settings.soundTheme);
+    document.body.setAttribute('data-animations', String(settings.animations));
 
     this._setBackground(settings);
 
     this.settings.set(null, settings);
-  }
-
-  /**
-   * Set animation stylesheet
-   * @param {String} src Source file
-   */
-  setAnimationLink(src) {
-    if ( this.$animationLink ) {
-      this.$animationLink = DOM.$remove(this.$animationLink);
-    }
-    this.$animationLink = DOM.$createCSS(src);
   }
 
   /**
