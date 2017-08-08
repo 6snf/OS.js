@@ -193,7 +193,7 @@ export default class Connection {
    * @param   {Mountpoint} mount     VFS Module Name
    * @param   {String}     method    VFS Method Name
    * @param   {Object}     args      VFS Method Arguments
-   * @param   {Mixed}      response  VFS Response Result
+   * @param   {*}          response  VFS Response Result
    * @param   {Process}    [appRef]  Application reference
    * @return  {Promise<Boolean, Error>}
    */

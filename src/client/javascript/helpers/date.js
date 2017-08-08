@@ -192,7 +192,7 @@ export default class ExtendedDate {
    *
    * @param   {String}    [fmt]     Date format
    *
-   * @return  {Mixed}     If no format is given it will return ExtendedDate
+   * @return  {String|ExtendedDate}     If no format is given it will return ExtendedDate
    */
   getFirstDayInMonth(fmt) {
     return ExtendedDate.getFirstDayInMonth(fmt, null, null, this);
@@ -205,7 +205,7 @@ export default class ExtendedDate {
    *
    * @param   {String}    [fmt]     Date format
    *
-   * @return  {Mixed}     If no format is given it will return ExtendedDate
+   * @return  {String|ExtendedDate}     If no format is given it will return ExtendedDate
    */
   getLastDayInMonth(fmt) {
     return ExtendedDate.getLastDayInMonth(fmt, null, null, this);

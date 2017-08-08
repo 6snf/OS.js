@@ -780,8 +780,8 @@ export default class WindowManager extends Process {
   /**
    * Sets a setting
    *
-   * @param   {String}      k       Key
-   * @param   {Mixed}       v       Value
+   * @param   {String}  k       Key
+   * @param   {*}       v       Value
    *
    * @return  {Boolean}             On success
    */
@@ -820,7 +820,7 @@ export default class WindowManager extends Process {
    *
    * @param   {String}    k     Key
    *
-   * @return  {Mixed}           Setting value or 'null'
+   * @return  {*}           Setting value or 'null'
    */
   getSetting(k) {
     return this._settings.get(k);

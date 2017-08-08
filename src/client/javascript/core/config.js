@@ -33,9 +33,9 @@ import * as SimpleJSON from 'simplejsonconf';
  * Method for getting a config parameter by path (Ex: "VFS.Mountpoints.shared.enabled")
  *
  * @param   {String}    [path]                        Path
- * @param   {Mixed}     [defaultValue=undefined]      Use default value
+ * @param   {*}         [defaultValue=undefined]      Use default value
  *
- * @return  {Mixed}             Parameter value or entire tree on no path
+ * @return  {*}             Parameter value or entire tree on no path
  */
 export function getConfig(path, defaultValue) {
   const config = OSjs.getConfig();

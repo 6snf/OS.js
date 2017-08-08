@@ -176,8 +176,8 @@ export default class DefaultApplicationWindow extends Window {
    *
    * YOU SHOULD EXTEND THIS METHOD IN YOUR WINDOW TO ACTUALLY DISPLAY CONTENT
    *
-   * @param   {FileMetadata}       file        File
-   * @param   {Mixed}              content     File contents
+   * @param   {FileMetadata}   file        File
+   * @param   {String|Object}  content     File contents
    */
   showFile(file, content) {
     this.updateFile(file);
@@ -208,7 +208,7 @@ export default class DefaultApplicationWindow extends Window {
    *
    * YOU SHOULD IMPLEMENT THIS METHOD IN YOUR WINDOW TO RETURN FILE CONTENTS
    *
-   * @return  {Mixed} File contents
+   * @return  {*} File contents
    */
   getFileData() {
     return null;

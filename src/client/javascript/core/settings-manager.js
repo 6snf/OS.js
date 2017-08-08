@@ -64,7 +64,7 @@ class SettingsManager {
    * @param  {String}     pool      Name of settings pool
    * @param  {String}     [key]     Key entry of tree
    *
-   * @return  {Mixed}
+   * @return  {*}
    */
   get(pool, key) {
     try {
@@ -83,10 +83,10 @@ class SettingsManager {
   /**
    * Sets either full tree or a tree entry by key
    *
-   * @param  {String}     pool                  Name of settings pool
-   * @param  {String}     [key]                 Key entry of tree
-   * @param  {Mixed}      value                 The value (or entire tree if no key given)
-   * @param  {Mixed}      [save]                boolean or callback function for saving
+   * @param  {String}             pool                  Name of settings pool
+   * @param  {String}             [key]                 Key entry of tree
+   * @param  {*}                  value                 The value (or entire tree if no key given)
+   * @param  {Boolean|Function}   [save]                boolean or callback function for saving
    * @param  {Boolean}    [triggerWatch=true]   trigger change event for watchers
    *
    * @return  {Boolean}
@@ -193,7 +193,7 @@ class SettingsManager {
    * @param  {String}     pool      Name of settings pool
    * @param  {Function}   callback  Callback
    *
-   * @return {Mixed}                false on error, index for unwatch() otherwise
+   * @return {Boolean|Number}                false on error, index for unwatch() otherwise
    */
   watch(pool, callback) {
     if ( !this.storage[pool] ) {
@@ -228,8 +228,8 @@ class SettingsManager {
   /**
    * Clears a pool
    *
-   * @param  {String}     pool        Name of settings pool
-   * @param  {Mixed}      [save=true] Boolean or callback function for saving
+   * @param  {String}                pool        Name of settings pool
+   * @param  {Boolean|Function}      [save=true] Boolean or callback function for saving
    *
    * @return {SettingsManager}      this
    */

@@ -256,7 +256,7 @@ export default class Process {
    * @param   {ProcessEvent}    k       Event name
    * @param   {Array}           args    Send these arguments (fn.apply)
    *
-   * @return {Mixed} Result (last) from bound function(s)
+   * @return {*} Result (last) from bound function(s)
    */
   _emit(k, args) {
     return this.__evHandler ? this.__evHandler.emit(k, args) : null;
@@ -342,7 +342,7 @@ export default class Process {
    *
    * @param   {String}  [k]     Argument
    *
-   * @return  {Mixed}     Argument value or null
+   * @return  {*}     Argument value or null
    */
   _getArgument(k) {
     return typeof this.__args[k] === 'undefined' ? null : this.__args[k];

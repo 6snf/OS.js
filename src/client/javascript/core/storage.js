@@ -72,7 +72,7 @@ export default class Storage {
    * Default method to save given settings pool
    *
    * @param  {String}           [pool]        Pool Name
-   * @param  {Mixed}            storage       Storage data
+   * @param  {*}                storage       Storage data
    * @return {Promise<Boolean, Error>}
    */
   saveSettings(pool, storage) {

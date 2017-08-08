@@ -67,10 +67,10 @@ export default class SettingsFragment {
   /**
    * Gets setting(s) by key
    *
-   * @param   {String}        [key]              Name of key
-   * @param   {Mixed}         [defaultValue]     Default value if result is undefined
+   * @param   {String}    [key]              Name of key
+   * @param   {*}         [defaultValue]     Default value if result is undefined
    *
-   * @return  {Mixed}                   Either an entry or entire tree
+   * @return  {*}                   Either an entry or entire tree
    */
   get(key, defaultValue) {
     const ret = key ? this._settings[key] : this._settings;
@@ -82,10 +82,10 @@ export default class SettingsFragment {
    *
    * If you set `key` to `null` you will write to the tree root.
    *
-   * @param   {Mixed}      key                   The key
-   * @param   {Mixed}      value                 The value
-   * @param   {Mixed}      save                  Saves the pool (either boolean or callback function)
-   * @param   {Boolean}    [triggerWatch=true]   Trigger change event for watchers
+   * @param   {String|Number}     [key]                 The key
+   * @param   {Object|*}          value                 The value
+   * @param   {Boolean|Function}  save                  Saves the pool (either boolean or callback function)
+   * @param   {Boolean}           [triggerWatch=true]   Trigger change event for watchers
    *
    * @return  {SettingsFragment}  Itself `this`
    */

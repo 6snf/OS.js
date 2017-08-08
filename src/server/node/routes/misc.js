@@ -29,7 +29,7 @@
  */
 const Modules = require('./../modules.js');
 
-/**
+/*
  * Do a HTTP request
  *
  * @param   {Object}    args                       Request args

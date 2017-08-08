@@ -310,7 +310,7 @@ export default class Application extends Process {
    * If you specify 'null' it will try to return the 'main' window.
    *
    * @param   {String}    value      The value
-   * @param   {Mixed}     key        The key to check for
+   * @param   {String}    key        The key to check for
    *
    * @return  {Window} Or null on error or nothing
    */

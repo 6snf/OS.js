@@ -142,7 +142,7 @@ export default class Authenticator {
   /**
    * Checks the given permission (groups) against logged in user
    *
-   * @param   {Mixed}     group         Either a string or array of groups
+   * @param   {String|String[]}     group         Either a string or array of groups
    *
    * @return {Boolean}
    */

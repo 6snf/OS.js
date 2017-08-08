@@ -52,7 +52,7 @@ import {_} from 'core/locales';
  * @callback CallbackDialog
  * @param {Event}   ev      Browser event that occured from action
  * @param {String}  button  Which button that was clicked
- * @param {Mixed}   result  Result from dialog input
+ * @param {*}       result  Result from dialog input
  */
 
 let _dialogScheme;
@@ -235,12 +235,12 @@ export default class DialogWindow extends Window {
    *
    * You can also pass a function as `className` to return an instance of your own class
    *
-   * @param   {String}             className             Dialog Namespace Class Name
-   * @param   {Object}             args                  Arguments you want to send to dialog
-   * @param   {CallbackDialog}     callback              Callback on dialog action (close/ok etc) => fn(ev, button, result)
-   * @param   {Mixed}              [options]             A window or app (to make it a child window) or a set of options:
-   * @param   {Window|Application} [options.parent]      Same as above argument (without options context)
-   * @param   {Boolean}            [options.modal=false] If you provide a parent you can toggle "modal" mode.
+   * @param   {String}                     className             Dialog Namespace Class Name
+   * @param   {Object}                     args                  Arguments you want to send to dialog
+   * @param   {CallbackDialog}             callback              Callback on dialog action (close/ok etc) => fn(ev, button, result)
+   * @param   {Object|Window|Application}  [options]             A window or app (to make it a child window) or a set of options:
+   * @param   {Window|Application}         [options.parent]      Same as above argument (without options context)
+   * @param   {Boolean}                    [options.modal=false] If you provide a parent you can toggle "modal" mode.
    *
    * @return  {Window}
    */

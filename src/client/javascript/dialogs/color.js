@@ -65,7 +65,7 @@ export default class ColorDialog extends DialogWindow {
   /**
    * @param  {Object}          args              An object with arguments
    * @param  {String}          args.title        Dialog title
-   * @param  {Mixed}           args.color        Either hex string or rbg object
+   * @param  {String|Object}   args.color        Either hex string or rbg object
    * @param  {CallbackDialog}  callback          Callback when done
    */
   constructor(args, callback) {

@@ -83,8 +83,8 @@ export default class IFrameApplication extends Application {
    *
    * @alias IFrameApplicationWindow#onPostMessage
    *
-   * @param   {Mixed}       message     The message
-   * @param   {Event}       ev          DOM Event
+   * @param   {*}       message     The message
+   * @param   {Event}   ev          DOM Event
    */
   onPostMessage(message, ev) {
     console.debug('IFrameApplication::onPostMessage()', message);
@@ -108,7 +108,7 @@ export default class IFrameApplication extends Application {
   }
 
   /**
-   * @param   {Mixed}       message     The message
+   * @param   {*}       message     The message
    * @alias IFrameApplicationWindow#postMessage
    */
   postMessage(message) {

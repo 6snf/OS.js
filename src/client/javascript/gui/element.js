@@ -302,9 +302,9 @@ export default class GUIElement {
    * Sets a parameter/property by name
    *
    * @param   {String}    param     Parameter name
-   * @param   {Mixed}     value     Parameter value
-   * @param   {Mixed}     [arg]     Extra argument ...
-   * @param   {Mixed}     [arg2]    Extra argument ...
+   * @param   {*}         value     Parameter value
+   * @param   {*}         [arg]     Extra argument ...
+   * @param   {*}         [arg2]    Extra argument ...
    *
    * @return {GUIElement} The current instance (this)
    */
@@ -553,7 +553,7 @@ export default class GUIElement {
    * @param   {String}    [type=snipplet]   Node type
    * @param   {Object}    [args]            List of arguments to send to the parser
    * @param   {Function}  [onparse]         Method to signal when parsing has started
-   * @param   {Mixed}     [id]              The id of the source (for debugging)
+   * @param   {*}         [id]              The id of the source (for debugging)
    */
   static parseNode(win, node, type, args, onparse, id) {
     onparse = onparse || function() {};

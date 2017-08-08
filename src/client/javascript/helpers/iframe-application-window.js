@@ -148,7 +148,7 @@ export default class IFrameApplicationWindow extends Window {
   /**
    * Post a message to IFrame Application
    *
-   * @param   {Mixed}       message     The message
+   * @param   {*}       message     The message
    */
   postMessage(message) {
     if ( this._iwin && this._app ) {
@@ -164,8 +164,8 @@ export default class IFrameApplicationWindow extends Window {
   /**
    * When Window receives a message from IFrame Application
    *
-   * @param   {Mixed}       message     The message
-   * @param   {Event}       ev          DOM Event
+   * @param   {*}       message     The message
+   * @param   {Event}   ev          DOM Event
    */
   onPostMessage(message, ev) {
     console.debug('IFrameApplicationWindow::onPostMessage()', message);

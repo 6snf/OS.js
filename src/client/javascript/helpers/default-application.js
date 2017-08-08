@@ -156,7 +156,7 @@ export default class DefaultApplication extends Application {
    * Save given File
    *
    * @param   {FileMetadata}  file        File
-   * @param   {Mixed}         value       File contents
+   * @param   {String|Object} value       File contents
    * @param   {Window}        win         Window reference
    */
   saveFile(file, value, win) {

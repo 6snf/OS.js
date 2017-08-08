@@ -50,7 +50,7 @@ export default class FileMetadata {
    * @param   {String}          arg.type      File type (file/dir)
    * @param   {Number}          arg.size      File size (in bytes)
    * @param   {String}          arg.mime      File MIME (ex: application/json)
-   * @param   {Mixed}           arg.id        Unique identifier (not required)
+   * @param   {*}               arg.id        Unique identifier (not required)
    * @param   {String}          [mime]        MIME type of File Type (ex: 'application/json' or 'dir')
    */
   constructor(arg, mime) {

@@ -157,7 +157,7 @@ export default class Mountpoint {
   /**
    * Gets an option by name
    * @param {String} name Option name
-   * @return {Mixed}
+   * @return {*}
    */
   option(name) {
     return this.options[name];

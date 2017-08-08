@@ -164,7 +164,7 @@ DatabaseInstance.prototype.queryAll = function(q, a) {
  *
  * @param   {String}      name      Connection Name
  * @param   {String}      [type]    Connection Type
- * @param   {Mixed}       [opts]    Connection Options
+ * @param   {Object}      [opts]    Connection Options
  *
  * @function instance
  * @memberof lib.database
