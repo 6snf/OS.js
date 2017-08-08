@@ -72,7 +72,11 @@ export default class FileProgressDialog extends DialogWindow {
   }
 
   setProgress(p, close = true) {
-    this._find('Progress').set('progress', p);
+    const pb = this._find('Progress');
+    if ( pb ) {
+      pb.set('progress', p);
+    }
+
     if ( close && p >= 100 ) {
       this._close(true);
     }
