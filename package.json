@@ -58,6 +58,7 @@
   },
   "devDependencies": {
     "axios": "^0.16.2",
+    "babel-polyfill": "^6.23.0",
     "chai": "^4.0.2",
     "chai-as-promised": "^7.1.1",
     "mocha": "^3.5.0",
