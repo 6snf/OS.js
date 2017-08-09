@@ -72,8 +72,9 @@ module.exports = function(app, wrapper) {
     authenticator().logout()
       .then((result) => {
         http.setActiveUser(http.request, false);
-        http.request.session.destroy();
-        http.response.json({result});
+        http.request.session.destroy(() => {
+          http.response.json({result});
+        });
         /*
         http.session.set('uid', null);
         http.session.set('username', null);
