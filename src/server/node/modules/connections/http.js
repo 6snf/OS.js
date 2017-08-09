@@ -58,7 +58,7 @@ class HttpConnection extends Connection {
         const isHttp2 = Settings.get('connection') === 'http2';
         const httpServer = require(isHttp2 ? 'spdy' : 'http');
         const httpPort = Settings.option('PORT') || Settings.get('http.port');
-        const hostname = Settings.option('HOSTNAME') || Settings.get('http.hostname');
+        const hostname = Settings.option('HOSTNAME') || Settings.get('http.hostname') || '0.0.0.0';
 
         console.log(colors.bold('Creating'),  colors.green(isHttp2 ? 'spdy' : 'http'), 'server on', hostname + '@' + httpPort, 'with');
         if ( isHttp2 ) {
