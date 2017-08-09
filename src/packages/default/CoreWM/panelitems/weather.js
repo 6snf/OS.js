@@ -157,8 +157,8 @@ export default class PanelItemWeather extends PanelItem {
       }
       busy = true;
 
-      var lat = self.position.coords.latitude;
-      var lon = self.position.coords.longitude;
+      var lat = this.position.coords.latitude;
+      var lon = this.position.coords.longitude;
       var unt = 'metric';
       var key = '4ea33327bcfa4ea0293b2d02b6fda385';
       var url = Utils.format('http://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&units={2}&APPID={3}', lat, lon, unt, key);
