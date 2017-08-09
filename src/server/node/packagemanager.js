@@ -122,10 +122,16 @@ const getUserMetadata = (username, paths) => {
       try {
         const parsed = VFS.parseVirtualPath(filename, {username: username});
         return new Promise((yes, no) => {
-          readManifestFile(parsed.real, 'user').then((json) => {
-            result = Object.assign(result, json);
-            return yes(json);
-          }).catch(no);
+          fs.stat(parsed.real, (err, stat) => {
+            if ( err || stat.isDirectory() ) {
+              return yes({});
+            }
+
+            return readManifestFile(parsed.real, 'user').then((json) => {
+              result = Object.assign(result, json);
+              return yes(json);
+            }).catch(no);
+          });
         });
       } catch ( e ) {
         return Promise.reject('Failed to parse user manifest');
