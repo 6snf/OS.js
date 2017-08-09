@@ -159,7 +159,7 @@ class Authenticator {
       }
 
       if ( groups[parsed.protocol] ) {
-        if ( !Authenticator.hasGroup(user.groups, groups[parsed.protocol]) ) {
+        if ( !user.hasGroup(groups[parsed.protocol]) ) {
           return false;
         }
       }
