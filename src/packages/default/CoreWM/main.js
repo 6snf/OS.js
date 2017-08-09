@@ -318,7 +318,7 @@ class CoreWM extends WindowManager {
         settings.background = 'color';
       } catch ( e ) {}
 
-      this.applySettings(defaultSettings(settings), true);
+      //this.applySettings(defaultSettings(settings), true);
     } catch ( e ) {
       console.warn(e);
       return false;
