@@ -2,9 +2,9 @@
   window.OSjs = window.OSjs || {};
   OSjs.Themes = window.OSjs.Themes || {};
   OSjs.Themes.material = {
-    init: () => {},
-    destroy: () => {},
-    event: (e) => {
+    init: function() {},
+    destroy: function() {},
+    event: function(e) {
       if ( e.target && e.target.nodeName.toLowerCase() === 'button' ) {
         var parent = e.target;
         if ( parseFloat(window.getComputedStyle(parent).getPropertyValue('opacity')) > 0 ) {
