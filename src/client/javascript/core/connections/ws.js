@@ -178,7 +178,7 @@ export default class WSConnection extends Connection {
       return Promise.reject(new Error('No websocket connection'));
     }
 
-    if ( ['FS:upload', 'FS:get'].indexOf(method) !== -1 ) {
+    if ( ['FS:upload', 'FS:get', 'logout'].indexOf(method) !== -1 ) {
       return super.createRequest(...arguments);
     }
 

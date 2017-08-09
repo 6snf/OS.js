@@ -71,13 +71,16 @@ module.exports = function(app, wrapper) {
   wrapper.post('/API/logout', (http) => {
     authenticator().logout()
       .then((result) => {
+        http.setActiveUser(http.request, false);
+        http.request.session.destroy();
+        http.response.json({result});
+        /*
         http.session.set('uid', null);
         http.session.set('username', null);
-        http.setActiveUser(http.request, false);
-
         return http.request.session.save(() => {
           http.response.json({result});
         });
+        */
       })
       .catch((error) => http.response.json({error}));
   });
