@@ -199,13 +199,16 @@ export default class PanelItemSearch extends PanelItem {
 
     const wm = WindowManager.instance;
     const space = wm.getWindowSpace(true);
+    const input = this.$box.querySelector('input');
 
     DOM.$empty(this.$box.querySelector('ul'));
     this.$box.style.marginTop = String(space.top) + 'px';
-    this.$box.querySelector('input').value = '';
     this.$box.setAttribute('data-visible', String(true));
 
-    this.$box.querySelector('input').focus();
+    if ( input ) {
+      input.value = '';
+      input.focus();
+    }
     this.visible = true;
 
     this.$message.style.display = 'none';
