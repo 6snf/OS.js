@@ -27,10 +27,10 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-import Promise from 'bluebird';
+//import Promise from 'bluebird';
 import axios from 'axios';
 
-import * as FS from 'utils/fs';
+//import * as FS from 'utils/fs';
 import * as DOM from 'utils/dom';
 import * as Utils from 'utils/misc';
 import GUIElement from 'gui/element';
@@ -112,14 +112,15 @@ function cleanScheme(html) {
   return Utils.cleanHTML(removeSelfClosingTags(html));
 }
 
-/*
+/* FIXME: This is no longer used because of Webpack, but I might
+ * need this for the IDE ?!
+ *
  * Makes sure "external include" fragments are rendered correctly.
  *
  * Currently this only supports one level deep.
  *
  * This occurs on the load() function instead on runtime due to
  * performance concerns.
- */
 function resolveExternalFragments(root, html, cb) {
   let doc = document.createElement('div');
   doc.innerHTML = html;
@@ -162,6 +163,7 @@ function resolveExternalFragments(root, html, cb) {
     return true;
   });
 }
+ */
 
 /////////////////////////////////////////////////////////////////////////////
 // SCHEME
@@ -291,23 +293,25 @@ export default class GUIScheme {
       src = getBrowserPath(src);
     }
 
-    const root = FS.dirname(src);
+    //const root = FS.dirname(src);
 
     axios({
       url: src,
       method: 'GET'
     }).then((response) => {
       const html = cleanScheme(response.data);
+      /*
       resolveExternalFragments(root, html, (result) => {
-        // This is normally used for the preloader for caching
-        cbxhr(false, result);
-
-        // Then we run some manipulations
-        this._load(result, src);
-
-        // And finally, finish
-        cb(false, this.scheme);
       });
+      */
+      // This is normally used for the preloader for caching
+      cbxhr(false, html);
+
+      // Then we run some manipulations
+      this._load(html, src);
+
+      // And finally, finish
+      cb(false, this.scheme);
     }).catch((err) => {
       cb('Failed to fetch scheme: ' + err.message);
       cbxhr(true);
