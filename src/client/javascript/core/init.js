@@ -327,7 +327,7 @@ const initGUI = (config) => new Promise((resolve, reject) => {
  * @return {Promise}
  */
 const initWindowManager = (config) => new Promise((resolve, reject) => {
-  const wmConfig = config.WM;
+  const wmConfig = config.WindowManager;
 
   if ( !wmConfig || !wmConfig.exec ) {
     reject(new Error(Locales._('ERR_CORE_INIT_NO_WM')));
