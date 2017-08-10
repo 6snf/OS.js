@@ -448,7 +448,7 @@ class ApplicationSettings extends Application {
   saveSettings(settings, cb) {
     const wm = WindowManager.instance;
     wm.applySettings(settings, false, 1);
-    SettingsManager.save(null, cb);
+    SettingsManager.save().then((res) => cb(false, res)).catch(cb);
   }
 
   setModule(m) {

@@ -89,9 +89,11 @@ class SettingsManager {
    * @param  {Boolean|Function}   [save]                boolean or callback function for saving
    * @param  {Boolean}    [triggerWatch=true]   trigger change event for watchers
    *
-   * @return  {Boolean}
+   * @return  {Promise<Boolean, Error>}
    */
   set(pool, key, value, save, triggerWatch) {
+    let promise = Promise.resolve(true);
+
     try {
       if ( key ) {
         if ( typeof this.storage[pool] === 'undefined' ) {
@@ -110,27 +112,28 @@ class SettingsManager {
     }
 
     if ( save ) {
-      this.save(pool, save);
+      promise = this.save(pool);
+      if ( typeof save === 'function' ) {
+        console.warn('Using a callback is deprecated, you should use the returned promise');
+        promise.then((res) => save(false, res)).catch((err) => save(err, false));
+      }
     }
 
     if ( typeof triggerWatch === 'undefined' || triggerWatch === true ) {
       this.changed(pool);
     }
 
-    return true;
+    return promise;
   }
 
   /**
    * Saves the storage to a location
    *
    * @param  {String}     pool      Name of settings pool
-   * @param  {Function}   callback  Callback
+   * @return {Promise<Boolean, Error>}
    */
-  save(pool, callback) {
+  save(pool) {
     console.debug('SettingsManager::save()', pool, this.storage);
-    if ( typeof callback !== 'function' ) {
-      callback = function() {};
-    }
 
     const saveableStorage = {};
     Object.keys(this.storage).filter((n) => {
@@ -139,9 +142,7 @@ class SettingsManager {
       saveableStorage[n] = this.storage[n];
     });
 
-    Storage.instance.saveSettings(pool, saveableStorage).then((res) => {
-      return callback(false, res);
-    }).catch(callback);
+    return Storage.instance.saveSettings(pool, saveableStorage);
   }
 
   /**

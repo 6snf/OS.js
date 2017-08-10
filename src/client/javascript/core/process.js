@@ -764,15 +764,11 @@ export default class Process {
           if ( btn === 'ok' ) {
             this.create(result.name, args);
 
-            SettingsManager.set('DefaultApplication', file.mime, result.useDefault ? result.name : null);
-
-            SettingsManager.save('DefaultApplication', (err, res) => {
-              if ( err ) {
+            SettingsManager.set('DefaultApplication', file.mime, result.useDefault ? result.name : null, true)
+              .then(resolve)
+              .catch((err) => {
                 reject(typeof err === 'string' ? new Error(err) : err);
-              } else {
-                resolve(res);
-              }
-            });
+              });
           }
         });
       }

@@ -119,7 +119,7 @@ export default class SettingsFragment {
    *
    * @param   {Function}      [callback]        Callback function
    *
-   * @return  Boolean
+   * @return  {Promise<Boolean, Error>}
    */
   save(callback) {
     return this._sm.save(this._pool, callback);
