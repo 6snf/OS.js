@@ -48,6 +48,7 @@ Digest:
 * conf: Overlays now support themes
 * conf: Overlays now support configuration includes
 * conf: Changed vfs configuration
+* misc: Added some new `bin/` scripts
 * misc: Removed the `Zip` helper. This will be replaced with something newer.
 * misc: The `Database` handler now uses separate tables
 * misc: Added `OSjs.require()` for externals
