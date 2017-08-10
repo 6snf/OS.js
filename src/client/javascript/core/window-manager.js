@@ -562,7 +562,7 @@ export default class WindowManager extends Process {
       });
     }, 100);
 
-    document.body.setAttribute('data-responsive', String(self._isResponsive));
+    document.body.setAttribute('data-responsive', String(this._isResponsive));
   }
 
   _onOrientationChange(ev) {
