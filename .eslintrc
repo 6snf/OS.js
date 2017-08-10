@@ -6,6 +6,7 @@
   },
   "globals": {
     "OSjs": true,
+    "OSJS_DEBUG": true,
     "zip": true,
     "alert": true,
     "confirm": true,

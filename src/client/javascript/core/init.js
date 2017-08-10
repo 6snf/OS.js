@@ -110,7 +110,7 @@ function onError(title, message, error, exception, bugreport) {
     console.error(title, message, error, exception);
   }
 
-  const testMode = getConfig('Debug') && window.location.hash.match(/mocha=true/);
+  const testMode = OSJS_DEBUG && window.location.hash.match(/mocha=true/);
   if ( !testMode ) {
     if ( !_dialog() ) {
       window.alert(title + '\n\n' + message + '\n\n' + error);
@@ -465,7 +465,7 @@ export function start() {
   console.info('Starting OS.js');
 
   const config = OSjs.getConfig();
-  const testMode = config.Debug && window.location.hash.match(/mocha=true/);
+  const testMode = OSJS_DEBUG && window.location.hash.match(/mocha=true/);
   const total = 9;
 
   Locales.init(config.Locale, config.LocaleOptions, config.Languages);

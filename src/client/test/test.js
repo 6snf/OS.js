@@ -52,10 +52,11 @@ function describeTests() {
   const FS = OSjs.require('utils/fs');
   const VFS = OSjs.require('vfs/fs');
   const Locales = OSjs.require('core/locales');
-  const Assets = OSjs.require('core/assets');
   const Config = OSjs.require('core/config');
   const Clipboard = OSjs.require('utils/clipboard');
   const FileMetadata = OSjs.require('vfs/file');
+  const PackageManager = OSjs.require('core/package-manager');
+  const Theme = OSjs.require('core/theme');
   const Process = OSjs.require('core/process');
 
   describe('format()', function() {
@@ -397,28 +398,28 @@ function describeTests() {
 
   describe('getPackageResource()', function() {
     it('should return correct string', function() {
-      expect(Assets.getPackageResource('App', 'foo.bar')).to.be.equal('');
+      expect(PackageManager.getPackageResource('App', 'foo.bar')).to.be.equal('foo.bar');
     });
     it('should return correct string', function() {
-      expect(Assets.getPackageResource('ApplicationAbout', 'foo.bar')).to.contain('packages/default/About/foo.bar');
+      expect(PackageManager.getPackageResource('ApplicationAbout', 'foo.bar')).to.contain('packages/default/About/foo.bar');
     });
   });
 
   describe('getThemeCSS()', function() {
     it('should return correct string', function() {
-      expect(Assets.getThemeCSS('foo')).to.contain('styles/foo.min.css');
+      expect(Theme.getThemeCSS('foo')).to.contain('/themes/styles/foo.css');
     });
   });
 
   describe('getIcon()', function() {
     it('should return correct string', function() {
-      expect(Assets.getIcon('foo/bar.baz')).to.contain('default/16x16/foo/bar.baz');
+      expect(Theme.getIcon('foo/bar.baz')).to.contain('default/16x16/foo/bar.baz');
     });
   });
 
   describe('getFileIcon()', function() {
     it('should return correct string', function() {
-      expect(Assets.getFileIcon({
+      expect(Theme.getFileIcon({
         filename: 'foo.bar',
         path: 'somewhere'
       })).to.contain('default/16x16');
@@ -427,13 +428,13 @@ function describeTests() {
 
   describe('getThemeResource()', function() {
     it('should return correct string', function() {
-      expect(Assets.getThemeResource('foo.bar')).to.contain('styles/default/foo.bar');
+      expect(Theme.getThemeResource('foo.bar')).to.contain('styles/default/foo.bar');
     });
   });
 
   describe('getSound()', function() {
     it('should return correct string', function() {
-      expect(Assets.getSound('foo.bar')).to.contain('default/foo.bar');
+      expect(Theme.getSound('foo.bar')).to.contain('default/foo.bar');
     });
   });
 
